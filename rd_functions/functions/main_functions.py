@@ -1,43 +1,48 @@
 #%%
-
+# from util_mod import root_utility
 import util_mod as um
 import prob_weighting as pw
 import helpers as he
 
 
-def expected_utility(pays, probs):
+def expected_utility(pays, probs, util_function=um.root_utility):
     """
     Takes in two vectors (payoffs and their probability) of numbers of equal length and returns the sum of their product, which is the expected utility.
     """
     # TODO improve documentation of the function (how to give more information on the parameters)
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
-    ind_vals = [pays_ch[i] * probs_ch[i] for i in range(len(pays_ch))]
+    pays_ch_ut = [util_function(i) for i in pays_ch]
+    ind_vals = [pays_ch_ut[i] * probs_ch[i] for i in range(len(pays_ch))]
     return sum(ind_vals)
 
 
-def rank_dependent_utility(pays, probs, d=0.65):
-    # TODO move type checks to its own function for repeated use?
+def rank_dependent_utility(pays, probs, d=0.65, util_function=um.root_utility):
     # Sort values by size of payoffs (descending)
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     vals = list(zip(pays_ch, probs_ch))
     vals.sort(key=lambda elem: elem[0], reverse=True)
     pays_sorted, probs_sorted = zip(*vals)
+    pays_sorted_ut = [util_function(i) for i in pays_sorted]
     # Calculate marginal decision weights
     decision_weights = []
     for i, _ in enumerate(probs_sorted):
         if i == 0:
-            dec_weight = weigh_tversky_kahneman(sum(probs_sorted[: i + 1]), d)
+            dec_weight = pw.weigh_tversky_kahneman(sum(probs_sorted[: i + 1]), d)
             decision_weights.append(dec_weight)
         else:
-            dec_weight = weigh_tversky_kahneman(
+            dec_weight = pw.weigh_tversky_kahneman(
                 sum(probs_sorted[: i + 1]), d
-            ) - weigh_tversky_kahneman(sum(probs_sorted[:i]), d)
+            ) - pw.weigh_tversky_kahneman(sum(probs_sorted[:i]), d)
             decision_weights.append(dec_weight)
-    ind_vals = [pays_sorted[i] * decision_weights[i] for i in range(len(pays_sorted))]
+    ind_vals = [
+        pays_sorted_ut[i] * decision_weights[i] for i in range(len(pays_sorted_ut))
+    ]
     return sum(ind_vals)
 
 
-def cumulative_prospect_theory(pays, probs, d=0.65, a=0.88, l=2.25):
+def cumulative_prospect_theory(
+    pays, probs, d=0.65, a=0.88, l=2.25, util_function=um.utility_tversky_kahneman
+):
     # TODO check against website
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     vals = list(zip(pays_ch, probs_ch))
@@ -80,18 +85,19 @@ def cumulative_prospect_theory(pays, probs, d=0.65, a=0.88, l=2.25):
                 sum(probs_sorted_neg[: i + 1]), d
             ) - pw.weigh_tversky_kahneman(sum(probs_sorted_neg[:i]), d)
             decision_weights_neg.append(dec_weight_neg)
-    # modify utility function
-    util_sorted_pos = [um.utility_tversky_kahneman(i) for i in pays_sorted_pos]
-    util_sorted_neg = [um.utility_tversky_kahneman(i) for i in pays_sorted_neg]
     # collect all outcomes
     probs_final = decision_weights_pos + decision_weights_neg
-    pays_final = util_sorted_pos + util_sorted_neg
+    # modify utilites
+    pays_final = [util_function(i) for i in pays_sorted_pos] + [
+        util_function(i) for i in pays_sorted_neg
+    ]
     ind_vals = [pays_final[i] * probs_final[i] for i in range(len(pays_final))]
     return sum(ind_vals)
 
 
-# expected_utility([3, -2], [0.2, 0.7])
-# cumulative_prospect_theory([-3, 2], [1,0])
+# um.utility_tversky_kahneman(-3, r=0, a=0.88, l=2.25)
+# um.root_utility(3)
+# expected_utility([3, 2], [0.3, 0.7], util_function=um.lin_utility)
+# rank_dependent_utility([1, 2], [0.4, 0.6], util_function=um.lin_utility)
+# cumulative_prospect_theory([-3, 2], [0.4, 0.6])
 
-
-# %%
