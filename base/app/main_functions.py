@@ -1,5 +1,3 @@
-#%%
-# from util_mod import root_utility
 import util_mod as um
 import prob_weighting as pw
 import helpers as he
