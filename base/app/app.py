@@ -130,7 +130,9 @@ def add_row(n_clicks, rows, columns):
 def update_output_new(rows, columns):
     pays = [i["payoffs_tbl"] for i in rows]
     probs = [i["probabilities_tbl"] for i in rows]
+    # TODO CHeck what values python reads in from table (sum of inputs was strange before)
     print(pays, probs)
+    print(sum(probs))
     exp_util = mf.expected_utility(pays, probs)
     cum_pros_theor = mf.cumulative_prospect_theory(pays, probs)
 

@@ -1,7 +1,8 @@
 import sys
+from typing import List
 
 
-def list_cleaning(pays, probs):
+def list_cleaning(pays: List[float], probs: List[float]):
     """
     makes sure that the two arguments are: list of numbers and have equal length; probs have to add to 1
     """
@@ -22,6 +23,7 @@ def list_cleaning(pays, probs):
         # TODO research how to properly round things like [0.33,0.33,0.33] to 1
         if sum(probs_fl) != 1:
             print("Your list of probabilities has to add up to 1")
+            print("The sum is currently {}.".format(sum(probs_fl)))
             sys.exit(1)
         else:
             return pays_fl, probs_fl

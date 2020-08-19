@@ -1,20 +1,24 @@
 import util_mod as um
 import prob_weighting as pw
 import helpers as he
+from typing import List
 
 
-def expected_utility(pays, probs, util_function=um.root_utility):
+def expected_utility(
+    pays: List[float], probs: List[float], util_function=um.root_utility
+): -> float
     """
     Takes in two vectors (payoffs and their probability) of numbers of equal length and returns the sum of their product, which is the expected utility.
     """
-    # TODO improve documentation of the function (how to give more information on the parameters)
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     pays_ch_ut = [util_function(i) for i in pays_ch]
     ind_vals = [pays_ch_ut[i] * probs_ch[i] for i in range(len(pays_ch))]
     return sum(ind_vals)
 
 
-def rank_dependent_utility(pays, probs, d=0.65, util_function=um.root_utility):
+def rank_dependent_utility(
+    pays: List[float], probs: List[float], d: float =0.65, util_function=um.root_utility
+): -> float
     # Sort values by size of payoffs (descending)
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     vals = list(zip(pays_ch, probs_ch))
@@ -39,9 +43,15 @@ def rank_dependent_utility(pays, probs, d=0.65, util_function=um.root_utility):
 
 
 def cumulative_prospect_theory(
-    pays, probs, d=0.65, a=0.88, l=2.25, util_function=um.utility_tversky_kahneman
-):
+    pays: List[float],
+    probs: List[float],
+    d: float =0.65,
+    a: float =0.88,
+    l: float =2.25,
+    util_function=um.utility_tversky_kahneman,
+): -> float
     # TODO check against website
+    # TODO FIgure out how to include reference points in this
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     vals = list(zip(pays_ch, probs_ch))
     # split into pos and neg values

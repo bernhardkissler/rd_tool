@@ -1,7 +1,7 @@
 import sys
 
 
-def utility_tversky_kahneman(x, r=0, a=0.88, l=2.25):
+def utility_tversky_kahneman(x: float, r: float = 0, a: float = 0.88, l: float = 2.25): -> float
     """
     This is the classic tversky kahneman proposal for a utility function with common estimates of a = 0.88 and l = 2.25
     """
@@ -12,7 +12,7 @@ def utility_tversky_kahneman(x, r=0, a=0.88, l=2.25):
     return outcome
 
 
-def root_utility(x, exp=2):
+def root_utility(x: float, exp: float = 2.0): -> float
     """
     A simple root utility function with u(x) = x**1/exp; by default the quadratic root is used
     """
@@ -23,7 +23,7 @@ def root_utility(x, exp=2):
         return x ** (1 / exp)
 
 
-def lin_utility(x):
+def lin_utility(x: float): ->float
     """
     A linear utility function where the utility of a value x equals x
     """
