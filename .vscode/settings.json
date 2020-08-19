@@ -1,5 +1,5 @@
 {
-    "python.pythonPath": "C:\\Users\\bernh\\Anaconda3\\python.exe",
+    "python.pythonPath": "C:\\Users\\bernh\\Anaconda3\\envs\\risky_decs\\python.exe",
     "python.testing.pytestArgs": [
         "rd_functions"
     ],
