@@ -6,7 +6,14 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import dash_table
 
+import plotly.express as px
+import plotly.graph_objs as go
+
+import numpy as np
+
 import main_functions as mf
+import util_mod as um
+import prob_weighting as pw
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
@@ -47,6 +54,35 @@ app.layout = html.Div(
                                     debounce=True,
                                 ),
                                 html.Hr(className=""),
+                                html.H3(
+                                    children="Probability weighting function",
+                                    className="py-2",
+                                ),
+                                dcc.Dropdown(
+                                    id="pw_dropdown",
+                                    options=[
+                                        {
+                                            "label": "Tversky Kahneman weighting function",
+                                            "value": "TKW",
+                                        },
+                                        {
+                                            "label": "Goldstein Einhorn weigting function",
+                                            "value": "GEW",
+                                        },
+                                        {
+                                            "label": "Prelec weighting function",
+                                            "value": "PW",
+                                        },
+                                    ],
+                                ),
+                                dcc.Graph(id="pw_graph"),
+                                html.Hr(className=""),
+                                dbc.Button(
+                                    "Add Row",
+                                    id="editing-rows-button",
+                                    n_clicks=0,
+                                    className="my-2",
+                                ),
                                 dash_table.DataTable(
                                     id="input_tbl",
                                     columns=(
@@ -69,12 +105,6 @@ app.layout = html.Div(
                                     editable=True,
                                     row_deletable=True,
                                 ),
-                                dbc.Button(
-                                    "Add Row",
-                                    id="editing-rows-button",
-                                    n_clicks=0,
-                                    className="my-2",
-                                ),
                             ],
                             className="px-1 mx-2",
                         ),
@@ -95,6 +125,19 @@ app.layout = html.Div(
         ),
     ]
 )
+
+# MARK Graphin callbacks
+@app.callback(Output("pw_graph", "figure"), [Input("pw_dropdown", "value")])
+def update_pw_graph(selected_pw):
+    x_1_data = np.linspace(0, 1, 1000)
+    func_dict = {
+        "TKW": pw.weigh_tversky_kahneman,
+        "GEW": pw.weigh_goldstein_einhorn,
+        "PW": pw.weigh_prelec,
+    }
+    y_1_data = [func_dict[selected_pw](float(i)) for i in x_1_data]
+
+    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
 
 
 @app.callback(

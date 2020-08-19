@@ -1,3 +1,6 @@
+import numpy as np
+
+
 def weigh_tversky_kahneman(p: float, d: float = 0.65) -> float:
     """
     This returns the decision weight of a single input. The formula is based on Tversky and Kahneman and the classic value for d is 0.65
@@ -11,3 +14,18 @@ def weigh_tversky_kahneman(p: float, d: float = 0.65) -> float:
         print("d must be a number")
     else:
         return (p ** d) / ((p ** d + (1 - p) ** d) ** (1 / d))
+
+
+def weigh_goldstein_einhorn(p: float, b: float = 0.5, a: float = 0.6) -> float:
+    if p < 0 or p > 1:
+        print("p has to be between 0 and 1")
+    else:
+        return ((b * p) ** a) / ((b * p) ** a + (1 - p) ** a)
+
+
+def weigh_prelec(p: float, b: float = 0.5, a: float = 0.6) -> float:
+    if p < 0 or p > 1:
+        print("p has to be between 0 and 1")
+    else:
+        return np.exp(-b * (-np.log(p)) ** a)
+
