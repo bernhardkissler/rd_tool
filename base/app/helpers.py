@@ -1,8 +1,10 @@
 import sys
-from typing import List
+from typing import List, Tuple, get_type_hints
 
 
-def list_cleaning(pays: List[float], probs: List[float]):
+def list_cleaning(
+    pays: List[float], probs: List[float]
+) -> Tuple[List[float], List[float]]:
     """
     makes sure that the two arguments are: list of numbers and have equal length; probs have to add to 1
     """

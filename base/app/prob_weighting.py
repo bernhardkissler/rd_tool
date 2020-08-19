@@ -1,4 +1,4 @@
-def weigh_tversky_kahneman(p: float, d: float = 0.65):
+def weigh_tversky_kahneman(p: float, d: float = 0.65) -> float:
     """
     This returns the decision weight of a single input. The formula is based on Tversky and Kahneman and the classic value for d is 0.65
     """
