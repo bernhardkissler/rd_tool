@@ -1,4 +1,3 @@
-#%%
 import util_mod as um
 import prob_weighting as pw
 import helpers as he
@@ -103,9 +102,10 @@ def cumulative_prospect_theory(
     return sum(ind_vals)
 
 
-cumulative_prospect_theory(
-    [4, 2, 3, 4], [0.25, 0.25, 0.25, 0.25], pw_kwargs={"d": 1},
-)
+# cumulative_prospect_theory([1, 2, 3], [0.1,0.3,0.6])
+# cumulative_prospect_theory(
+#     [4, 2, 3, 4], [0.25, 0.25, 0.25, 0.25], pw_kwargs={"d": 1},
+# )
 
 # rank_dependent_utility([1, 2, 3], [0.1, 0.4, 0.5])
 # um.root_utility()
@@ -116,4 +116,3 @@ cumulative_prospect_theory(
 # cumulative_prospect_theory([-3, 2], [0.4, 0.6])
 # um.utility_tversky_kahneman()
 
-# %%

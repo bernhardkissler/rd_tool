@@ -1,5 +1,5 @@
 import sys
-from typing import List, Tuple, get_type_hints
+from typing import List, Tuple
 
 
 def list_cleaning(
