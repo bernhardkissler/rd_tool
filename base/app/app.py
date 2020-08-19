@@ -54,28 +54,66 @@ app.layout = html.Div(
                                     debounce=True,
                                 ),
                                 html.Hr(className=""),
-                                html.H3(
-                                    children="Probability weighting function",
-                                    className="py-2",
+                                dbc.Row(
+                                    [
+                                        dbc.Col(
+                                            [
+                                                dbc.Collapse([], id="pw_collapse"),
+                                                dcc.Dropdown(
+                                                    id="pw_dropdown",
+                                                    options=[
+                                                        {
+                                                            "label": "Tversky Kahneman weighting function",
+                                                            "value": "TKW",
+                                                        },
+                                                        {
+                                                            "label": "Goldstein Einhorn weigting function",
+                                                            "value": "GEW",
+                                                        },
+                                                        {
+                                                            "label": "Prelec weighting function",
+                                                            "value": "PW",
+                                                        },
+                                                    ],
+                                                ),
+                                                html.H3(
+                                                    children="Probability weighting function",
+                                                    className="py-2",
+                                                ),
+                                                dcc.Graph(id="pw_graph"),
+                                            ],
+                                            width=6,
+                                        ),
+                                        dbc.Col(
+                                            [
+                                                dbc.Collapse([], id="um_collapse"),
+                                                dcc.Dropdown(
+                                                    id="um_dropdown",
+                                                    options=[
+                                                        {
+                                                            "label": "Tversky Kahneman utility function",
+                                                            "value": "TKU",
+                                                        },
+                                                        {
+                                                            "label": "Root utility function",
+                                                            "value": "RU",
+                                                        },
+                                                        {
+                                                            "label": "Linear Utility function",
+                                                            "value": "LU",
+                                                        },
+                                                    ],
+                                                ),
+                                                html.H3(
+                                                    children="Utility function",
+                                                    className="py-2",
+                                                ),
+                                                dcc.Graph(id="um_graph"),
+                                            ],
+                                            width=6,
+                                        ),
+                                    ]
                                 ),
-                                dcc.Dropdown(
-                                    id="pw_dropdown",
-                                    options=[
-                                        {
-                                            "label": "Tversky Kahneman weighting function",
-                                            "value": "TKW",
-                                        },
-                                        {
-                                            "label": "Goldstein Einhorn weigting function",
-                                            "value": "GEW",
-                                        },
-                                        {
-                                            "label": "Prelec weighting function",
-                                            "value": "PW",
-                                        },
-                                    ],
-                                ),
-                                dcc.Graph(id="pw_graph"),
                                 html.Hr(className=""),
                                 dbc.Button(
                                     "Add Row",
@@ -126,18 +164,35 @@ app.layout = html.Div(
     ]
 )
 
+
 # MARK Graphin callbacks
 @app.callback(Output("pw_graph", "figure"), [Input("pw_dropdown", "value")])
 def update_pw_graph(selected_pw):
-    x_1_data = np.linspace(0, 1, 1000)
     func_dict = {
         "TKW": pw.weigh_tversky_kahneman,
         "GEW": pw.weigh_goldstein_einhorn,
         "PW": pw.weigh_prelec,
     }
+    x_1_data = np.linspace(0, 1, 1000)
     y_1_data = [func_dict[selected_pw](float(i)) for i in x_1_data]
 
     return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+
+
+@app.callback(Output("um_graph", "figure"), [Input("um_dropdown", "value")])
+def update_pw_graph(selected_pw):
+    func_dict = {
+        "TKU": um.utility_tversky_kahneman,
+        "RU": um.root_utility,
+        "LU": um.lin_utility,
+    }
+    x_1_data = np.linspace(0, 100, 1000)
+    y_1_data = [func_dict[selected_pw](float(i)) for i in x_1_data]
+
+    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+
+
+# MARK prelim Output functions
 
 
 @app.callback(
