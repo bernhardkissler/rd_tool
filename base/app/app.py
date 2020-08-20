@@ -20,137 +20,360 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 input_segment = dbc.Container(
     [
         # TODO sync the two ways of entering data and maybe split them into different tabs
-        html.H3("Inputs", className="py-2"),
-        dbc.Label("Payoffs"),
-        dbc.Input(
-            id="pays", type="text", placeholder="list of payoffs", debounce=True,
-        ),
-        dbc.Label("Probabilities"),
-        dbc.Input(
-            id="probs", type="text", placeholder="list of probabilities", debounce=True,
-        ),
-        dbc.Button("Add Row", id="editing-rows-button", n_clicks=0, className="my-2",),
-        html.Div(
-            dash_table.DataTable(
-                id="input_tbl",
-                columns=(
-                    [{"id": "payoffs_tbl", "name": "Payoffs", "type": "numeric",}]
-                    + [
-                        {
-                            "id": "probabilities_tbl",
-                            "name": "Probabilities",
-                            "type": "numeric",
-                        }
-                    ]
+        html.H3("Enter a gamble", className="py-2"),
+        dcc.Tabs(
+            [
+                dcc.Tab(
+                    [
+                        html.Div(
+                            [
+                                html.Div(
+                                    [
+                                        dbc.Button(
+                                            "Add Row",
+                                            id="editing-rows-button",
+                                            n_clicks=0,
+                                        ),
+                                    ],
+                                    className="col-1",
+                                ),
+                                html.Div(
+                                    [
+                                        dash_table.DataTable(
+                                            id="input_tbl",
+                                            columns=(
+                                                [
+                                                    {
+                                                        "id": "payoffs_tbl",
+                                                        "name": "Payoffs",
+                                                        "type": "numeric",
+                                                    }
+                                                ]
+                                                + [
+                                                    {
+                                                        "id": "probabilities_tbl",
+                                                        "name": "Probabilities",
+                                                        "type": "numeric",
+                                                    }
+                                                ]
+                                            ),
+                                            data=[
+                                                dict(
+                                                    payoffs_tbl=1, probabilities_tbl=0.1
+                                                ),
+                                                dict(
+                                                    payoffs_tbl=2, probabilities_tbl=0.4
+                                                ),
+                                                dict(
+                                                    payoffs_tbl=3, probabilities_tbl=0.5
+                                                ),
+                                            ],
+                                            editable=True,
+                                            row_deletable=True,
+                                        ),
+                                    ],
+                                    className="col",
+                                ),
+                            ],
+                            className="row my-2",
+                        )
+                    ],
+                    value="STD",
+                    label="Standard data entry",
                 ),
-                data=[dict(payoffs_tbl=1, probabilities_tbl=1)],
-                editable=True,
-                row_deletable=True,
-            ),
-            className="px-2",
+                dcc.Tab(
+                    [
+                        dbc.Label("Payoffs"),
+                        dbc.Input(
+                            id="pays_input",
+                            type="text",
+                            placeholder="list of payoffs",
+                            debounce=True,
+                        ),
+                        dbc.Label("Probabilities"),
+                        dbc.Input(
+                            id="probs_input",
+                            type="text",
+                            placeholder="list of probabilities",
+                            debounce=True,
+                        ),
+                    ],
+                    value="BLK",
+                    label="Bulk data entry",
+                ),
+            ],
+            id="data_entry_tab",
+            value="STD",
         ),
+        html.Hr(),
     ],
     className="px-2",
 )
 
 
-pw_segment = dbc.Container(
+@app.callback(
+    Output("input_tbl", "data"),
+    [Input("editing-rows-button", "n_clicks")],
+    [State("input_tbl", "data"), State("input_tbl", "columns")],
+)
+def add_row(n_clicks, rows, columns):
+    if n_clicks > 0:
+        rows.append({c["id"]: "" for c in columns})
+    return rows
+
+
+@app.callback(
+    [Output("pays_input", "value"), Output("probs_input", "value")],
+    [Input("input_tbl", "data"), Input("input_tbl", "columns")],
+)
+def sync_inputs_tbl(rows, columns):
+    pays = [i["payoffs_tbl"] for i in rows]
+    probs = [i["probabilities_tbl"] for i in rows]
+    return pays, probs
+
+
+# TODO Check wether DASH has introduced two way syncing at https://community.plotly.com/t/synchronize-components-bidirectionally/14158
+# @app.callback(
+#     Output("input_tbl", "data"),
+#     [Input("pays_input", "value"), Input("probs_input", "value")],
+# )
+# def sync_inputs_plain(pays, probs):
+#     pays_ls = [float(i) for i in pays.split(",")]
+#     probs_ls = [float(i) for i in probs.split(",")]
+
+
+theor_segment = dbc.Container(
     [
-        html.H3("Probability weighting function", className="py-2",),
+        html.H3("Choose a decision theory", className="py-2",),
         dcc.Dropdown(
-            id="pw_dropdown",
+            id="theor_dropdown",
             options=[
-                {"label": "Tversky Kahneman weighting function", "value": "TKW",},
-                {"label": "Goldstein Einhorn weigting function", "value": "GEW",},
-                {"label": "Prelec weighting function", "value": "PW",},
+                {"label": "Cumulative prospect theory", "value": "CPT",},
+                {"label": "Rank dependent utility", "value": "RDU",},
+                {"label": "Expected utility", "value": "EU",},
             ],
-            value="TKW",
+            value="CPT",
         ),
-        html.Div(
+        html.Hr(),
+    ],
+    className="px-2",
+)
+
+# MARK disable choice of pw for certain theories here
+@app.callback(
+    [Output("pw_tab", "disabled"), Output("pw_um_tabs", "value")],
+    [Input("theor_dropdown", "value")],
+    [State("pw_um_tabs", "value")],
+)
+def block_pw(drop_val, tab_state):
+    if drop_val == "EU":
+        return True, "um_tab"
+    else:
+        return False, tab_state
+
+
+pw_um_segment = dbc.Container(
+    [
+        dcc.Tabs(
             [
-                html.Div([dcc.Graph(id="pw_graph"),], className="col-9",),
-                html.Div(
+                dcc.Tab(
                     [
-                        dbc.Collapse(
+                        html.H3("Utility function", className="py-2",),
+                        dcc.Dropdown(
+                            id="um_dropdown",
+                            options=[
+                                {
+                                    "label": "Tversky Kahneman utility function",
+                                    "value": "TKU",
+                                },
+                                {"label": "Root utility function", "value": "RU",},
+                                {"label": "Linear Utility function", "value": "LU",},
+                            ],
+                            value="TKU",
+                        ),
+                        html.Div(
                             [
-                                dbc.Label("d:"),
-                                dbc.Input(
-                                    id="pw_TKW_d", type="number", value=0.65, step=0.1
+                                html.Div(
+                                    [dcc.Graph(id="um_graph"),], className="col-9",
+                                ),
+                                html.Div(
+                                    [
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("a:"),
+                                                dbc.Input(
+                                                    id="um_TKU_a",
+                                                    type="number",
+                                                    value=0.88,
+                                                    step=0.1,
+                                                ),
+                                                dbc.Label("l:"),
+                                                dbc.Input(
+                                                    id="um_TKU_l",
+                                                    type="number",
+                                                    value=2.25,
+                                                    step=0.1,
+                                                ),
+                                                dbc.Label("r:"),
+                                                dbc.Input(
+                                                    id="um_TKU_r",
+                                                    type="number",
+                                                    value=0.0,
+                                                    step=1,
+                                                ),
+                                            ],
+                                            id="um_collapse_TKU",
+                                        ),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("exp:"),
+                                                dbc.Input(
+                                                    id="um_RU_exp",
+                                                    type="number",
+                                                    value=2.0,
+                                                    step=1,
+                                                ),
+                                            ],
+                                            id="um_collapse_RU",
+                                        ),
+                                        dbc.Collapse([], id="um_collapse_LU"),
+                                        html.Hr(),
+                                        dbc.Label("Minimum display value"),
+                                        dbc.Input(
+                                            id="um_min_value", type="number", value=0
+                                        ),
+                                        dbc.Label("Maximum display value"),
+                                        dbc.Input(
+                                            id="um_max_value", type="number", value=100
+                                        ),
+                                    ],
+                                    className="col",
                                 ),
                             ],
-                            id="pw_collapse_TKW",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("b:"),
-                                dbc.Input(
-                                    id="pw_GEW_b",
-                                    type="number",
-                                    value=0.5,
-                                    min=0,
-                                    max=1,
-                                    step=0.01,
-                                ),
-                                dbc.Label("a:"),
-                                dbc.Input(
-                                    id="pw_GEW_a",
-                                    type="number",
-                                    value=0.6,
-                                    min=0,
-                                    max=1,
-                                    step=0.01,
-                                ),
-                            ],
-                            id="pw_collapse_GEW",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("b:"),
-                                dbc.Input(
-                                    id="pw_PW_b",
-                                    type="number",
-                                    value=0.5,
-                                    min=0,
-                                    max=1,
-                                    step=0.01,
-                                ),
-                                dbc.Label("a:"),
-                                dbc.Input(
-                                    id="pw_PW_a",
-                                    type="number",
-                                    value=0.6,
-                                    min=0,
-                                    max=1,
-                                    step=0.01,
-                                ),
-                            ],
-                            id="pw_collapse_PW",
-                        ),
-                        html.Hr(),
-                        dbc.Label("Minimum display value"),
-                        dbc.Input(
-                            id="pw_min_value",
-                            type="number",
-                            value=0,
-                            min=0,
-                            max=1,
-                            step=0.01,
-                        ),
-                        dbc.Label("Maximum display value"),
-                        dbc.Input(
-                            id="pw_max_value",
-                            type="number",
-                            value=1,
-                            min=0,
-                            max=1,
-                            step=0.01,
+                            className="row mt-2",
                         ),
                     ],
-                    className="col",
+                    label="Choose a utility function",
+                    value="um_tab",
+                    id="um_tab",
+                ),
+                dcc.Tab(
+                    [
+                        html.H3("Probability weighting function", className="py-2",),
+                        dcc.Dropdown(
+                            id="pw_dropdown",
+                            options=[
+                                {
+                                    "label": "Tversky Kahneman weighting function",
+                                    "value": "TKW",
+                                },
+                                {
+                                    "label": "Goldstein Einhorn weigting function",
+                                    "value": "GEW",
+                                },
+                                {"label": "Prelec weighting function", "value": "PW",},
+                            ],
+                            value="TKW",
+                        ),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [dcc.Graph(id="pw_graph"),], className="col-9",
+                                ),
+                                html.Div(
+                                    [
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("d:"),
+                                                dbc.Input(
+                                                    id="pw_TKW_d",
+                                                    type="number",
+                                                    value=0.65,
+                                                    step=0.1,
+                                                ),
+                                            ],
+                                            id="pw_collapse_TKW",
+                                        ),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("b:"),
+                                                dbc.Input(
+                                                    id="pw_GEW_b",
+                                                    type="number",
+                                                    value=0.5,
+                                                    min=0,
+                                                    max=1,
+                                                    step=0.01,
+                                                ),
+                                                dbc.Label("a:"),
+                                                dbc.Input(
+                                                    id="pw_GEW_a",
+                                                    type="number",
+                                                    value=0.6,
+                                                    min=0,
+                                                    max=1,
+                                                    step=0.01,
+                                                ),
+                                            ],
+                                            id="pw_collapse_GEW",
+                                        ),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("b:"),
+                                                dbc.Input(
+                                                    id="pw_PW_b",
+                                                    type="number",
+                                                    value=0.5,
+                                                    min=0,
+                                                    max=1,
+                                                    step=0.01,
+                                                ),
+                                                dbc.Label("a:"),
+                                                dbc.Input(
+                                                    id="pw_PW_a",
+                                                    type="number",
+                                                    value=0.6,
+                                                    min=0,
+                                                    max=1,
+                                                    step=0.01,
+                                                ),
+                                            ],
+                                            id="pw_collapse_PW",
+                                        ),
+                                        html.Hr(),
+                                        dbc.Label("Minimum display value"),
+                                        dbc.Input(
+                                            id="pw_min_value",
+                                            type="number",
+                                            value=0,
+                                            min=0,
+                                            max=1,
+                                            step=0.01,
+                                        ),
+                                        dbc.Label("Maximum display value"),
+                                        dbc.Input(
+                                            id="pw_max_value",
+                                            type="number",
+                                            value=1,
+                                            min=0,
+                                            max=1,
+                                            step=0.01,
+                                        ),
+                                    ],
+                                    className="col",
+                                ),
+                            ],
+                            className="row mt-2",
+                        ),
+                    ],
+                    label="Choose a probability weighting function",
+                    value="pw_tab",
+                    id="pw_tab",
                 ),
             ],
-            className="row mt-2",
-        ),
+            value="um_tab",
+            id="pw_um_tabs",
+        )
     ],
     className="px-2",
 )
@@ -216,66 +439,6 @@ def update_pw_graph(drop_val, min_val, max_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a)
     return fig
 
 
-um_segment = dbc.Container(
-    [
-        html.H3("Utility function", className="py-2",),
-        dcc.Dropdown(
-            id="um_dropdown",
-            options=[
-                {"label": "Tversky Kahneman utility function", "value": "TKU",},
-                {"label": "Root utility function", "value": "RU",},
-                {"label": "Linear Utility function", "value": "LU",},
-            ],
-            value="TKU",
-        ),
-        html.Div(
-            [
-                html.Div([dcc.Graph(id="um_graph"),], className="col-9",),
-                html.Div(
-                    [
-                        dbc.Collapse(
-                            [
-                                dbc.Label("a:"),
-                                dbc.Input(
-                                    id="um_TKU_a", type="number", value=0.88, step=0.1
-                                ),
-                                dbc.Label("l:"),
-                                dbc.Input(
-                                    id="um_TKU_l", type="number", value=2.25, step=0.1
-                                ),
-                                dbc.Label("r:"),
-                                dbc.Input(
-                                    id="um_TKU_r", type="number", value=0.0, step=1
-                                ),
-                            ],
-                            id="um_collapse_TKU",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("exp:"),
-                                dbc.Input(
-                                    id="um_RU_exp", type="number", value=2.0, step=1
-                                ),
-                            ],
-                            id="um_collapse_RU",
-                        ),
-                        dbc.Collapse([], id="um_collapse_LU"),
-                        html.Hr(),
-                        dbc.Label("Minimum display value"),
-                        dbc.Input(id="um_min_value", type="number", value=0),
-                        dbc.Label("Maximum display value"),
-                        dbc.Input(id="um_max_value", type="number", value=100),
-                    ],
-                    className="col",
-                ),
-            ],
-            className="row mt-2",
-        ),
-    ],
-    className="px-2",
-)
-
-
 @app.callback(
     [
         Output("um_collapse_TKU", "is_open"),
@@ -338,14 +501,10 @@ def update_um_graph(
 
 
 output_segment = dbc.Container(
-    [
-        html.H3("Output", className="py-2"),
-        html.Div(id="output"),
-        html.Hr(),
-        html.Div(id="output_new"),
-    ],
+    [html.Hr(), html.H3("Output", className="py-2"), html.Div(id="output"),],
     className="px-2",
 )
+
 
 app.layout = html.Div(
     [
@@ -366,23 +525,7 @@ app.layout = html.Div(
         ),
         html.Div(
             html.Div(
-                [
-                    input_segment,
-                    html.Hr(),
-                    # TODO fidn out how to make tabs the same width as everything else
-                    dbc.Tabs(
-                        [
-                            dbc.Tab(
-                                pw_segment,
-                                label="Choose a probability weighting function",
-                            ),
-                            dbc.Tab(um_segment, label="Choose a utility function",),
-                        ],
-                        className="nav-justified",
-                    ),
-                    html.Hr(),
-                    output_segment,
-                ],
+                [input_segment, theor_segment, pw_um_segment, output_segment,],
                 className="col-10",
             ),
             className="row justify-content-md-center mt-2",
@@ -394,37 +537,31 @@ app.layout = html.Div(
 # MARK prelim Output functions
 
 
-@app.callback(
-    Output("output", "children"), [Input("pays", "value"), Input("probs", "value")],
-)
-def update_output(input1, input2):
-    input1_pr = [float(i) for i in input1.split(",")]
-    input2_pr = [float(i) for i in input2.split(",")]
+# @app.callback(
+#     Output("output", "children"),
+#     [Input("pays_input", "value"), Input("probs_input", "value")],
+# )
+# def update_output(pays, probs):
+#     pays_ls = [float(i) for i in pays.split(",")]
+#     probs_ls = [float(i) for i in probs.split(",")]
 
-    exp_util = mf.expected_utility(input1_pr, input2_pr)
-    cum_pros_theor = mf.cumulative_prospect_theory(input1_pr, input2_pr)
+#     exp_util = mf.expected_utility(pays_ls, probs_ls)
+#     cum_pros_theor = mf.cumulative_prospect_theory(pays_ls, probs_ls)
 
-    return "Payoffs {} and Probabilities {} for an expected utility of {} and a CPT value of {}".format(
-        input1_pr, input2_pr, exp_util, cum_pros_theor
-    )
-
-
-@app.callback(
-    Output("input_tbl", "data"),
-    [Input("editing-rows-button", "n_clicks")],
-    [State("input_tbl", "data"), State("input_tbl", "columns")],
-)
-def add_row(n_clicks, rows, columns):
-    if n_clicks > 0:
-        rows.append({c["id"]: "" for c in columns})
-    return rows
+#     return "Payoffs {} and Probabilities {} for an expected utility of {} and a CPT value of {}".format(
+#         pays_ls, probs_ls, exp_util, cum_pros_theor
+#     )
 
 
 @app.callback(
-    Output("output_new", "children"),
-    [Input("input_tbl", "data"), Input("input_tbl", "columns")],
+    Output("output", "children"),
+    [
+        Input("input_tbl", "data"),
+        Input("input_tbl", "columns"),
+        Input("data_entry_tab", "value"),
+    ],
 )
-def update_output_new(rows, columns):
+def update_output(rows, columns, tab_val_entry):
     pays = [i["payoffs_tbl"] for i in rows]
     probs = [i["probabilities_tbl"] for i in rows]
     # TODO CHeck what values python reads in from table (sum of inputs was strange before)
@@ -432,6 +569,7 @@ def update_output_new(rows, columns):
     print(sum(probs))
     exp_util = mf.expected_utility(pays, probs)
     cum_pros_theor = mf.cumulative_prospect_theory(pays, probs)
+    print(tab_val_entry)
 
     return "Payoffs {} and Probabilities {} for an expected utility of {} and a CPT value of {}".format(
         pays, probs, exp_util, cum_pros_theor
