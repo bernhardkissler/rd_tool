@@ -17,155 +17,124 @@ import prob_weighting as pw
 
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
-app.layout = html.Div(
-    children=[
-        dbc.Navbar(
-            dbc.Row(
-                [
-                    dbc.NavbarBrand(
-                        "Risky decisions - Tool", className="ml-5 text-white"
-                    ),
-                    # dbc.NavItem(dbc.NavLink("Top", href="#")),
+input_segment = dbc.Container(
+    [
+        html.H3("Inputs", className="py-2"),
+        dbc.Label("Payoffs"),
+        dbc.Input(
+            id="pays", type="text", placeholder="list of payoffs", debounce=True,
+        ),
+        dbc.Label("Probabilities"),
+        dbc.Input(
+            id="probs", type="text", placeholder="list of probabilities", debounce=True,
+        ),
+        dbc.Button("Add Row", id="editing-rows-button", n_clicks=0, className="my-2",),
+        dash_table.DataTable(
+            id="input_tbl",
+            columns=(
+                [{"id": "payoffs_tbl", "name": "Payoffs", "type": "numeric",}]
+                + [
+                    {
+                        "id": "probabilities_tbl",
+                        "name": "Probabilities",
+                        "type": "numeric",
+                    }
                 ]
             ),
-            # brand="Risky Decisions - Tool",
-            # brand_href="#",
-            color="dark",
+            data=[dict(payoffs_tbl=1, probabilities_tbl=1)],
+            editable=True,
+            row_deletable=True,
+        ),
+    ],
+    className="px-2",
+)
+
+pw_segment = dbc.Container(
+    [
+        html.H3("Probability weighting function", className="py-2",),
+        dcc.Dropdown(
+            id="pw_dropdown",
+            options=[
+                {"label": "Tversky Kahneman weighting function", "value": "TKW",},
+                {"label": "Goldstein Einhorn weigting function", "value": "GEW",},
+                {"label": "Prelec weighting function", "value": "PW",},
+            ],
+        ),
+        dbc.Collapse([], id="pw_collapse"),
+        dcc.Graph(id="pw_graph"),
+    ],
+    className="px-2",
+)
+
+
+um_segment = dbc.Container(
+    [
+        html.H3("Utility function", className="py-2",),
+        dcc.Dropdown(
+            id="um_dropdown",
+            options=[
+                {"label": "Tversky Kahneman utility function", "value": "TKU",},
+                {"label": "Root utility function", "value": "RU",},
+                {"label": "Linear Utility function", "value": "LU",},
+            ],
+        ),
+        dbc.Collapse([], id="um_collapse"),
+        dcc.Graph(id="um_graph"),
+    ],
+    className="px-2",
+)
+
+output_segment = dbc.Container(
+    [
+        html.H3("Output", className="py-2"),
+        html.Div(id="output"),
+        html.Hr(),
+        html.Div(id="output_new"),
+    ],
+    className="px-2",
+)
+
+app.layout = html.Div(
+    [
+        dbc.Row(
+            dbc.Col(
+                dbc.Navbar(
+                    [
+                        dbc.NavbarBrand(
+                            "Risky decisions - Tool", className="ml-5 text-white"
+                        ),
+                        # dbc.NavItem(dbc.NavLink("Top", href="#")),
+                    ],
+                    color="dark",
+                ),
+            ),
+            className="px-0",
         ),
         dbc.Row(
-            children=[
-                dbc.Col(
-                    [
-                        dbc.Container(
-                            [
-                                html.H3(children="Inputs", className="py-2"),
-                                dbc.Label("Payoffs"),
-                                dbc.Input(
-                                    id="pays",
-                                    type="text",
-                                    placeholder="list of payoffs",
-                                    debounce=True,
-                                ),
-                                dbc.Label("Probabilities"),
-                                dbc.Input(
-                                    id="probs",
-                                    type="text",
-                                    placeholder="list of probabilities",
-                                    debounce=True,
-                                ),
-                                html.Hr(className=""),
-                                dbc.Row(
-                                    [
-                                        dbc.Col(
-                                            [
-                                                dbc.Collapse([], id="pw_collapse"),
-                                                dcc.Dropdown(
-                                                    id="pw_dropdown",
-                                                    options=[
-                                                        {
-                                                            "label": "Tversky Kahneman weighting function",
-                                                            "value": "TKW",
-                                                        },
-                                                        {
-                                                            "label": "Goldstein Einhorn weigting function",
-                                                            "value": "GEW",
-                                                        },
-                                                        {
-                                                            "label": "Prelec weighting function",
-                                                            "value": "PW",
-                                                        },
-                                                    ],
-                                                ),
-                                                html.H3(
-                                                    children="Probability weighting function",
-                                                    className="py-2",
-                                                ),
-                                                dcc.Graph(id="pw_graph"),
-                                            ],
-                                            width=6,
-                                        ),
-                                        dbc.Col(
-                                            [
-                                                dbc.Collapse([], id="um_collapse"),
-                                                dcc.Dropdown(
-                                                    id="um_dropdown",
-                                                    options=[
-                                                        {
-                                                            "label": "Tversky Kahneman utility function",
-                                                            "value": "TKU",
-                                                        },
-                                                        {
-                                                            "label": "Root utility function",
-                                                            "value": "RU",
-                                                        },
-                                                        {
-                                                            "label": "Linear Utility function",
-                                                            "value": "LU",
-                                                        },
-                                                    ],
-                                                ),
-                                                html.H3(
-                                                    children="Utility function",
-                                                    className="py-2",
-                                                ),
-                                                dcc.Graph(id="um_graph"),
-                                            ],
-                                            width=6,
-                                        ),
-                                    ]
-                                ),
-                                html.Hr(className=""),
-                                dbc.Button(
-                                    "Add Row",
-                                    id="editing-rows-button",
-                                    n_clicks=0,
-                                    className="my-2",
-                                ),
-                                dash_table.DataTable(
-                                    id="input_tbl",
-                                    columns=(
-                                        [
-                                            {
-                                                "id": "payoffs_tbl",
-                                                "name": "Payoffs",
-                                                "type": "numeric",
-                                            }
-                                        ]
-                                        + [
-                                            {
-                                                "id": "probabilities_tbl",
-                                                "name": "Probabilities",
-                                                "type": "numeric",
-                                            }
-                                        ]
-                                    ),
-                                    data=[dict(payoffs_tbl=1, probabilities_tbl=1)],
-                                    editable=True,
-                                    row_deletable=True,
-                                ),
-                            ],
-                            className="px-1 mx-2",
-                        ),
-                        dbc.Container(
-                            [
-                                html.H3(children="Output", className="py-2"),
-                                html.Div(id="output"),
-                                html.Hr(className=""),
-                                html.Div(id="output_new"),
-                            ],
-                            className="px-1 mx-2",
-                        ),
-                    ],
-                    width=10,
-                ),
-            ],
+            dbc.Col(
+                [
+                    input_segment,
+                    html.Hr(),
+                    dbc.Row(
+                        [
+                            # TODO find out how to make these two the same combined width as everything else
+                            dbc.Col(pw_segment, width=6, className="px-0",),
+                            dbc.Col(um_segment, width=6, className="px-0",),
+                        ]
+                    ),
+                    html.Hr(),
+                    output_segment,
+                ],
+                width=10,
+            ),
             justify="center",
+            className="px-0",
         ),
     ]
 )
 
 
-# MARK Graphin callbacks
+# MARK Graphing callbacks
 @app.callback(Output("pw_graph", "figure"), [Input("pw_dropdown", "value")])
 def update_pw_graph(selected_pw):
     func_dict = {
