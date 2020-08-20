@@ -295,6 +295,11 @@ pw_um_segment = dbc.Container(
                                         dbc.Input(
                                             id="um_max_value", type="number", value=100
                                         ),
+                                        dbc.Button(
+                                            "Reset all values",
+                                            id="um_reset_btn",
+                                            className="my-3",
+                                        ),
                                     ],
                                     className="col",
                                 ),
@@ -408,6 +413,11 @@ pw_um_segment = dbc.Container(
                                             max=1,
                                             step=0.01,
                                         ),
+                                        dbc.Button(
+                                            "Reset all values",
+                                            id="pw_reset_btn",
+                                            className="my-3",
+                                        ),
                                     ],
                                     className="col",
                                 ),
@@ -426,6 +436,37 @@ pw_um_segment = dbc.Container(
     ],
     className="px-2",
 )
+
+
+@app.callback(
+    [
+        Output("pw_TKW_d", "value"),
+        Output("pw_GEW_b", "value"),
+        Output("pw_GEW_a", "value"),
+        Output("pw_PW_b", "value"),
+        Output("pw_PW_a", "value"),
+        Output("pw_min_value", "value"),
+        Output("pw_max_value", "value"),
+    ],
+    [Input("pw_reset_btn", "n_clicks")],
+)
+def um_reset(n_clicks):
+    return 0.65, 0.5, 0.6, 0.5, 0.6, 0, 1
+
+
+@app.callback(
+    [
+        Output("um_TKU_a", "value"),
+        Output("um_TKU_l", "value"),
+        Output("um_TKU_r", "value"),
+        Output("um_RU_exp", "value"),
+        Output("um_min_value", "value"),
+        Output("um_max_value", "value"),
+    ],
+    [Input("um_reset_btn", "n_clicks")],
+)
+def um_reset(n_clicks):
+    return 0.88, 2.25, 0, 2, 0, 1
 
 
 @app.callback(
