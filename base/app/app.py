@@ -19,6 +19,7 @@ app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 input_segment = dbc.Container(
     [
+        # TODO sync the two ways of entering data and maybe split them into different tabs
         html.H3("Inputs", className="py-2"),
         dbc.Label("Payoffs"),
         dbc.Input(
@@ -49,6 +50,7 @@ input_segment = dbc.Container(
     className="px-2",
 )
 
+
 pw_segment = dbc.Container(
     [
         html.H3("Probability weighting function", className="py-2",),
@@ -60,11 +62,97 @@ pw_segment = dbc.Container(
                 {"label": "Prelec weighting function", "value": "PW",},
             ],
         ),
-        dbc.Collapse([], id="pw_collapse"),
+        dbc.Collapse(
+            [
+                dbc.Label("d:"),
+                dbc.Input(id="pw_TKW_d", type="number", value=0.65, step=0.1),
+            ],
+            id="pw_collapse_TKW",
+        ),
+        dbc.Collapse(
+            [
+                dbc.Label("b:"),
+                dbc.Input(
+                    id="pw_GEW_b", type="number", value=0.5, min=0, max=1, step=0.01
+                ),
+                dbc.Label("a:"),
+                dbc.Input(
+                    id="pw_GEW_a", type="number", value=0.6, min=0, max=1, step=0.01
+                ),
+            ],
+            id="pw_collapse_GEW",
+        ),
+        dbc.Collapse(
+            [
+                dbc.Label("b:"),
+                dbc.Input(
+                    id="pw_PW_b", type="number", value=0.5, min=0, max=1, step=0.01
+                ),
+                dbc.Label("a:"),
+                dbc.Input(
+                    id="pw_PW_a", type="number", value=0.6, min=0, max=1, step=0.01
+                ),
+            ],
+            id="pw_collapse_PW",
+        ),
         dcc.Graph(id="pw_graph"),
     ],
     className="px-2",
 )
+
+
+@app.callback(
+    [
+        Output("pw_collapse_TKW", "is_open"),
+        Output("pw_collapse_GEW", "is_open"),
+        Output("pw_collapse_PW", "is_open"),
+    ],
+    [Input("pw_dropdown", "value")],
+    [
+        State("pw_collapse_TKW", "is_open"),
+        State("pw_collapse_GEW", "is_open"),
+        State("pw_collapse_PW", "is_open"),
+    ],
+)
+def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open):
+    TKW_open, GEW_open, PW_open = False, False, False
+    if drop_val == "TKW":
+        TKW_open = True
+    elif drop_val == "GEW":
+        GEW_open = True
+    elif drop_val == "PW":
+        PW_open = True
+    return TKW_open, GEW_open, PW_open
+
+
+@app.callback(
+    Output("pw_graph", "figure"),
+    [
+        Input("pw_dropdown", "value"),
+        Input("pw_TKW_d", "value"),
+        Input("pw_GEW_b", "value"),
+        Input("pw_GEW_a", "value"),
+        Input("pw_PW_b", "value"),
+        Input("pw_PW_a", "value"),
+    ],
+)
+def update_pw_graph(drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
+    if drop_val == "TKW":
+        kwargs = {"d": TKW_d}
+    elif drop_val == "GEW":
+        kwargs = {"b": GEW_b, "a": GEW_a}
+    elif drop_val == "PW":
+        kwargs = {"b": PW_b, "a": PW_a}
+
+    func_dict = {
+        "TKW": pw.weigh_tversky_kahneman,
+        "GEW": pw.weigh_goldstein_einhorn,
+        "PW": pw.weigh_prelec,
+    }
+    x_1_data = np.linspace(0, 1, 1000)
+    y_1_data = [func_dict[drop_val](float(i), **kwargs) for i in x_1_data]
+
+    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
 
 
 um_segment = dbc.Container(
@@ -135,17 +223,6 @@ app.layout = html.Div(
 
 
 # MARK Graphing callbacks
-@app.callback(Output("pw_graph", "figure"), [Input("pw_dropdown", "value")])
-def update_pw_graph(selected_pw):
-    func_dict = {
-        "TKW": pw.weigh_tversky_kahneman,
-        "GEW": pw.weigh_goldstein_einhorn,
-        "PW": pw.weigh_prelec,
-    }
-    x_1_data = np.linspace(0, 1, 1000)
-    y_1_data = [func_dict[selected_pw](float(i)) for i in x_1_data]
-
-    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
 
 
 @app.callback(Output("um_graph", "figure"), [Input("um_dropdown", "value")])
