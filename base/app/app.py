@@ -15,6 +15,24 @@ import main_functions as mf
 import util_mod as um
 import prob_weighting as pw
 
+pw_func_dict = {
+    "TKW": pw.weigh_tversky_kahneman,
+    "GEW": pw.weigh_goldstein_einhorn,
+    "PW": pw.weigh_prelec,
+}
+
+um_func_dict = {
+    "TKU": um.utility_tversky_kahneman,
+    "RU": um.root_utility,
+    "LU": um.lin_utility,
+}
+
+mf_func_dict = {
+    "CPT": mf.cumulative_prospect_theory,
+    "RDU": mf.rank_dependent_utility,
+    "EU": mf.expected_utility,
+}
+
 app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
 
 input_segment = dbc.Container(
@@ -83,20 +101,25 @@ input_segment = dbc.Container(
                 ),
                 dcc.Tab(
                     [
-                        dbc.Label("Payoffs"),
-                        dbc.Input(
-                            id="pays_input",
-                            type="text",
-                            placeholder="list of payoffs",
-                            debounce=True,
-                        ),
-                        dbc.Label("Probabilities"),
-                        dbc.Input(
-                            id="probs_input",
-                            type="text",
-                            placeholder="list of probabilities",
-                            debounce=True,
-                        ),
+                        html.Div(
+                            [
+                                dbc.Label("Payoffs"),
+                                dbc.Input(
+                                    id="pays_input",
+                                    type="text",
+                                    placeholder="list of payoffs",
+                                    debounce=True,
+                                ),
+                                dbc.Label("Probabilities"),
+                                dbc.Input(
+                                    id="probs_input",
+                                    type="text",
+                                    placeholder="list of probabilities",
+                                    debounce=True,
+                                ),
+                            ],
+                            className="py-2",
+                        )
                     ],
                     value="BLK",
                     label="Bulk data entry",
@@ -105,10 +128,37 @@ input_segment = dbc.Container(
             id="data_entry_tab",
             value="STD",
         ),
+        dbc.Alert(id="probs_alert", color="warning", is_open=False, dismissable=True,),
         html.Hr(),
     ],
     className="px-2",
 )
+
+
+@app.callback(
+    [Output("probs_alert", "is_open"), Output("probs_alert", "children")],
+    [
+        Input("input_tbl", "data"),
+        Input("probs_input", "value"),
+        Input("data_entry_tab", "value"),
+    ],
+)
+def check_probs(rows, probs_input, tab_val_entry):
+    # TODO check out how best to handle floating point errors
+    if tab_val_entry == "STD":
+        probs = [float(i["probabilities_tbl"]) for i in rows]
+    elif tab_val_entry == "BLK":
+        probs = [float(i) for i in probs_input.split(",")]
+        print(probs)
+    if sum(probs) != 1:
+        return (
+            True,
+            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                sum(probs)
+            ),
+        )
+    else:
+        return False, ""
 
 
 @app.callback(
@@ -132,7 +182,7 @@ def sync_inputs_tbl(rows, columns):
     return pays, probs
 
 
-# TODO Check wether DASH has introduced two way syncing at https://community.plotly.com/t/synchronize-components-bidirectionally/14158
+# TODO Check wether dash has introduced two way syncing at https://community.plotly.com/t/synchronize-components-bidirectionally/14158
 # @app.callback(
 #     Output("input_tbl", "data"),
 #     [Input("pays_input", "value"), Input("probs_input", "value")],
@@ -154,9 +204,8 @@ theor_segment = dbc.Container(
             ],
             value="CPT",
         ),
-        html.Hr(),
     ],
-    className="px-2",
+    className="px-2 pb-2",
 )
 
 # MARK disable choice of pw for certain theories here
@@ -416,21 +465,16 @@ def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open):
         Input("pw_PW_a", "value"),
     ],
 )
-def update_pw_graph(drop_val, min_val, max_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
-    if drop_val == "TKW":
+def update_pw_graph(pw_drop_val, min_val, max_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
+    if pw_drop_val == "TKW":
         kwargs = {"d": TKW_d}
-    elif drop_val == "GEW":
+    elif pw_drop_val == "GEW":
         kwargs = {"b": GEW_b, "a": GEW_a}
-    elif drop_val == "PW":
+    elif pw_drop_val == "PW":
         kwargs = {"b": PW_b, "a": PW_a}
 
-    func_dict = {
-        "TKW": pw.weigh_tversky_kahneman,
-        "GEW": pw.weigh_goldstein_einhorn,
-        "PW": pw.weigh_prelec,
-    }
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [func_dict[drop_val](float(i), **kwargs) for i in x_1_data]
+    y_1_data = [pw_func_dict[pw_drop_val](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
@@ -476,22 +520,17 @@ def toggle_um_params(drop_val, TKU_open, RU_open, LU_open):
     ],
 )
 def update_um_graph(
-    drop_val, min_val, max_val, TKU_a, TKU_l, TKU_r, RU_exp,
+    um_drop_val, min_val, max_val, TKU_a, TKU_l, TKU_r, RU_exp,
 ):
-    if drop_val == "TKU":
+    if um_drop_val == "TKU":
         kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
-    elif drop_val == "RU":
+    elif um_drop_val == "RU":
         kwargs = {"exp": RU_exp}
-    elif drop_val == "LU":
+    elif um_drop_val == "LU":
         kwargs = {}
 
-    func_dict = {
-        "TKU": um.utility_tversky_kahneman,
-        "RU": um.root_utility,
-        "LU": um.lin_utility,
-    }
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [func_dict[drop_val](float(i), **kwargs) for i in x_1_data]
+    y_1_data = [um_func_dict[um_drop_val](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
@@ -534,46 +573,90 @@ app.layout = html.Div(
 )
 
 
-# MARK prelim Output functions
-
-
-# @app.callback(
-#     Output("output", "children"),
-#     [Input("pays_input", "value"), Input("probs_input", "value")],
-# )
-# def update_output(pays, probs):
-#     pays_ls = [float(i) for i in pays.split(",")]
-#     probs_ls = [float(i) for i in probs.split(",")]
-
-#     exp_util = mf.expected_utility(pays_ls, probs_ls)
-#     cum_pros_theor = mf.cumulative_prospect_theory(pays_ls, probs_ls)
-
-#     return "Payoffs {} and Probabilities {} for an expected utility of {} and a CPT value of {}".format(
-#         pays_ls, probs_ls, exp_util, cum_pros_theor
-#     )
-
-
 @app.callback(
     Output("output", "children"),
     [
         Input("input_tbl", "data"),
-        Input("input_tbl", "columns"),
+        Input("pays_input", "value"),
+        Input("probs_input", "value"),
         Input("data_entry_tab", "value"),
+        Input("theor_dropdown", "value"),
+        # pw params
+        Input("pw_dropdown", "value"),
+        Input("pw_TKW_d", "value"),
+        Input("pw_GEW_b", "value"),
+        Input("pw_GEW_a", "value"),
+        Input("pw_PW_b", "value"),
+        Input("pw_PW_a", "value"),
+        # um params
+        Input("um_dropdown", "value"),
+        Input("um_TKU_a", "value"),
+        Input("um_TKU_l", "value"),
+        Input("um_TKU_r", "value"),
+        Input("um_RU_exp", "value"),
     ],
 )
-def update_output(rows, columns, tab_val_entry):
-    pays = [i["payoffs_tbl"] for i in rows]
-    probs = [i["probabilities_tbl"] for i in rows]
-    # TODO CHeck what values python reads in from table (sum of inputs was strange before)
-    print(pays, probs)
-    print(sum(probs))
-    exp_util = mf.expected_utility(pays, probs)
-    cum_pros_theor = mf.cumulative_prospect_theory(pays, probs)
-    print(tab_val_entry)
+def update_output(
+    rows,
+    pays_input,
+    probs_input,
+    tab_val_entry,
+    theor_drop_val,
+    # pw params
+    pw_drop_val,
+    TKW_d,
+    GEW_b,
+    GEW_a,
+    PW_b,
+    PW_a,
+    # um params
+    um_drop_val,
+    TKU_a,
+    TKU_l,
+    TKU_r,
+    RU_exp,
+):
+    if tab_val_entry == "STD":
+        probs = [float(i["probabilities_tbl"]) for i in rows]
+        pays = [float(i["payoffs_tbl"]) for i in rows]
+    elif tab_val_entry == "BLK":
+        probs = [float(i) for i in probs_input.split(",")]
+        pays = [float(i) for i in pays_input.split(",")]
 
-    return "Payoffs {} and Probabilities {} for an expected utility of {} and a CPT value of {}".format(
-        pays, probs, exp_util, cum_pros_theor
-    )
+    # pw params
+    if pw_drop_val == "TKW":
+        pw_kwargs = {"d": TKW_d}
+    elif pw_drop_val == "GEW":
+        pw_kwargs = {"b": GEW_b, "a": GEW_a}
+    elif pw_drop_val == "PW":
+        pw_kwargs = {"b": PW_b, "a": PW_a}
+    # um params
+    if um_drop_val == "TKU":
+        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+    elif um_drop_val == "RU":
+        um_kwargs = {"exp": RU_exp}
+    elif um_drop_val == "LU":
+        um_kwargs = {}
+
+    if theor_drop_val == "EU":
+        res = mf_func_dict[theor_drop_val](
+            pays, probs, um_function=um_func_dict[um_drop_val], um_kwargs=um_kwargs,
+        )
+        return "You used {} to evaluate the gamble with {} as your utility function. This yielded the following outcome: {}.".format(
+            theor_drop_val, um_drop_val, res
+        )
+    else:
+        res = mf_func_dict[theor_drop_val](
+            pays,
+            probs,
+            um_function=um_func_dict[um_drop_val],
+            pw_function=pw_func_dict[pw_drop_val],
+            um_kwargs=um_kwargs,
+            pw_kwargs=pw_kwargs,
+        )
+        return "You used {} to evaluate the gamble with {} as your utility function and {} as your probability weighting function. This yielded the following outcome: {}.".format(
+            theor_drop_val, um_drop_val, pw_drop_val, res
+        )
 
 
 if __name__ == "__main__":
