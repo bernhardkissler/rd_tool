@@ -137,6 +137,7 @@ def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open):
     ],
 )
 def update_pw_graph(drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
+    print(drop_val)
     if drop_val == "TKW":
         kwargs = {"d": TKW_d}
     elif drop_val == "GEW":
@@ -166,11 +167,86 @@ um_segment = dbc.Container(
                 {"label": "Linear Utility function", "value": "LU",},
             ],
         ),
-        dbc.Collapse([], id="um_collapse"),
+        dbc.Collapse(
+            [
+                dbc.Label("a:"),
+                dbc.Input(id="um_TKU_a", type="number", value=0.88, step=0.1),
+                dbc.Label("l:"),
+                dbc.Input(id="um_TKU_l", type="number", value=2.25, step=0.1),
+                dbc.Label("r:"),
+                dbc.Input(id="um_TKU_r", type="number", value=0.0, step=1),
+            ],
+            id="um_collapse_TKU",
+        ),
+        dbc.Collapse(
+            [
+                dbc.Label("exp:"),
+                dbc.Input(id="um_RU_exp", type="number", value=2.0, step=1),
+            ],
+            id="um_collapse_RU",
+        ),
+        dbc.Collapse([], id="um_collapse_LU"),
         dcc.Graph(id="um_graph"),
     ],
     className="px-2",
 )
+
+
+@app.callback(
+    [
+        Output("um_collapse_TKU", "is_open"),
+        Output("um_collapse_RU", "is_open"),
+        Output("um_collapse_LU", "is_open"),
+    ],
+    [Input("um_dropdown", "value")],
+    [
+        State("um_collapse_TKU", "is_open"),
+        State("um_collapse_RU", "is_open"),
+        State("um_collapse_LU", "is_open"),
+    ],
+)
+def toggle_um_params(drop_val, TKU_open, RU_open, LU_open):
+    TKU_open, RU_open, LU_open = False, False, False
+    if drop_val == "TKU":
+        TKU_open = True
+    elif drop_val == "RU":
+        RU_open = True
+    elif drop_val == "LU":
+        LU_open = True
+    return TKU_open, RU_open, LU_open
+
+
+@app.callback(
+    Output("um_graph", "figure"),
+    [
+        Input("um_dropdown", "value"),
+        Input("um_TKU_a", "value"),
+        Input("um_TKU_l", "value"),
+        Input("um_TKU_r", "value"),
+        Input("um_RU_exp", "value"),
+    ],
+)
+def update_um_graph(
+    drop_val, TKU_a, TKU_l, TKU_r, RU_exp,
+):
+    print(drop_val)
+    if drop_val == "TKU":
+        kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+    elif drop_val == "RU":
+        kwargs = {"exp": RU_exp}
+    elif drop_val == "LU":
+        kwargs = {}
+
+    func_dict = {
+        "TKU": um.utility_tversky_kahneman,
+        "RU": um.root_utility,
+        "LU": um.lin_utility,
+    }
+    x_1_data = np.linspace(0, 100, 1000)
+    y_1_data = [func_dict[drop_val](float(i), **kwargs) for i in x_1_data]
+
+    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+
 
 output_segment = dbc.Container(
     [
@@ -220,22 +296,6 @@ app.layout = html.Div(
         ),
     ]
 )
-
-
-# MARK Graphing callbacks
-
-
-@app.callback(Output("um_graph", "figure"), [Input("um_dropdown", "value")])
-def update_pw_graph(selected_pw):
-    func_dict = {
-        "TKU": um.utility_tversky_kahneman,
-        "RU": um.root_utility,
-        "LU": um.lin_utility,
-    }
-    x_1_data = np.linspace(0, 100, 1000)
-    y_1_data = [func_dict[selected_pw](float(i)) for i in x_1_data]
-
-    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
 
 
 # MARK prelim Output functions
