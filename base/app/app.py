@@ -47,51 +47,55 @@ input_segment = dbc.Container(
                             [
                                 html.Div(
                                     [
+                                        html.Div(
+                                            [
+                                                dash_table.DataTable(
+                                                    id="input_tbl",
+                                                    columns=(
+                                                        [
+                                                            {
+                                                                "id": "payoffs_tbl",
+                                                                "name": "Payoffs",
+                                                                "type": "numeric",
+                                                            }
+                                                        ]
+                                                        + [
+                                                            {
+                                                                "id": "probabilities_tbl",
+                                                                "name": "Probabilities",
+                                                                "type": "numeric",
+                                                            }
+                                                        ]
+                                                    ),
+                                                    data=[
+                                                        dict(
+                                                            payoffs_tbl=1,
+                                                            probabilities_tbl=0.1,
+                                                        ),
+                                                        dict(
+                                                            payoffs_tbl=2,
+                                                            probabilities_tbl=0.4,
+                                                        ),
+                                                        dict(
+                                                            payoffs_tbl=3,
+                                                            probabilities_tbl=0.5,
+                                                        ),
+                                                    ],
+                                                    editable=True,
+                                                    row_deletable=True,
+                                                ),
+                                            ],
+                                            className="mx-3 py-2",
+                                        ),
                                         dbc.Button(
                                             "Add Row",
                                             id="editing-rows-button",
                                             n_clicks=0,
                                         ),
                                     ],
-                                    className="col-1",
+                                    className="col-6",
                                 ),
-                                html.Div(
-                                    [
-                                        dash_table.DataTable(
-                                            id="input_tbl",
-                                            columns=(
-                                                [
-                                                    {
-                                                        "id": "payoffs_tbl",
-                                                        "name": "Payoffs",
-                                                        "type": "numeric",
-                                                    }
-                                                ]
-                                                + [
-                                                    {
-                                                        "id": "probabilities_tbl",
-                                                        "name": "Probabilities",
-                                                        "type": "numeric",
-                                                    }
-                                                ]
-                                            ),
-                                            data=[
-                                                dict(
-                                                    payoffs_tbl=1, probabilities_tbl=0.1
-                                                ),
-                                                dict(
-                                                    payoffs_tbl=2, probabilities_tbl=0.4
-                                                ),
-                                                dict(
-                                                    payoffs_tbl=3, probabilities_tbl=0.5
-                                                ),
-                                            ],
-                                            editable=True,
-                                            row_deletable=True,
-                                        ),
-                                    ],
-                                    className="col",
-                                ),
+                                html.Div(dcc.Graph(id="gamble_fig"), className="col"),
                             ],
                             className="row my-2",
                         )
@@ -133,6 +137,52 @@ input_segment = dbc.Container(
     ],
     className="px-2",
 )
+
+
+@app.callback(Output("gamble_fig", "figure"), [Input("input_tbl", "data"),])
+def update_gamble_fig(rows):
+    probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
+    pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
+
+    y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
+    x_1 = [0] + [1] * len(y_1)
+    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
+
+    fig = go.Figure(data=[go.Scatter(x=[], y=[],)])
+    for i in range(len(probs)):
+        fig.add_annotation(
+            x=0.5, y=y_2[i], text=probs[i], ax=0, ay=-15, arrowcolor="white",
+        )
+
+    for i in range(len(probs)):
+        fig.add_annotation(
+            x=1, y=y_1[i + 1], text=pays[i], ax=20, ay=0, arrowcolor="white",
+        )
+    for i in range(len(probs)):
+        fig.add_trace(
+            go.Scatter(
+                x=[0, 1],
+                y=[0.5, y_1[i + 1]],
+                mode="markers+lines",
+                line=dict(color="#636EFA"),
+                marker=dict(color="#636EFA"),
+                hoverinfo="none",
+            )
+        )
+
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(l=0, r=0, b=0, t=0, pad=0),
+        font=dict(size=18),
+        showlegend=False,
+    )
+    fig.update_xaxes(range=[-0.4, 1.4], showgrid=False, zeroline=False, visible=False)
+    fig.update_yaxes(range=[-0.1, 1.1], showgrid=False, zeroline=False, visible=False)
+
+    # fig.update_axes(showgrid=False, zeroline=False, visible=False)
+    # for i in range(len(pays)):
+    #     fig.add_annotation(x=x_1[i + 1], y=y_1[i + 1], text=pays[i])
+    return fig
 
 
 @app.callback(
