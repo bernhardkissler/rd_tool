@@ -30,21 +30,24 @@ input_segment = dbc.Container(
             id="probs", type="text", placeholder="list of probabilities", debounce=True,
         ),
         dbc.Button("Add Row", id="editing-rows-button", n_clicks=0, className="my-2",),
-        dash_table.DataTable(
-            id="input_tbl",
-            columns=(
-                [{"id": "payoffs_tbl", "name": "Payoffs", "type": "numeric",}]
-                + [
-                    {
-                        "id": "probabilities_tbl",
-                        "name": "Probabilities",
-                        "type": "numeric",
-                    }
-                ]
+        html.Div(
+            dash_table.DataTable(
+                id="input_tbl",
+                columns=(
+                    [{"id": "payoffs_tbl", "name": "Payoffs", "type": "numeric",}]
+                    + [
+                        {
+                            "id": "probabilities_tbl",
+                            "name": "Probabilities",
+                            "type": "numeric",
+                        }
+                    ]
+                ),
+                data=[dict(payoffs_tbl=1, probabilities_tbl=1)],
+                editable=True,
+                row_deletable=True,
             ),
-            data=[dict(payoffs_tbl=1, probabilities_tbl=1)],
-            editable=True,
-            row_deletable=True,
+            className="px-2",
         ),
     ],
     className="px-2",
@@ -61,41 +64,93 @@ pw_segment = dbc.Container(
                 {"label": "Goldstein Einhorn weigting function", "value": "GEW",},
                 {"label": "Prelec weighting function", "value": "PW",},
             ],
+            value="TKW",
         ),
-        dbc.Collapse(
+        html.Div(
             [
-                dbc.Label("d:"),
-                dbc.Input(id="pw_TKW_d", type="number", value=0.65, step=0.1),
+                html.Div([dcc.Graph(id="pw_graph"),], className="col-9",),
+                html.Div(
+                    [
+                        dbc.Collapse(
+                            [
+                                dbc.Label("d:"),
+                                dbc.Input(
+                                    id="pw_TKW_d", type="number", value=0.65, step=0.1
+                                ),
+                            ],
+                            id="pw_collapse_TKW",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("b:"),
+                                dbc.Input(
+                                    id="pw_GEW_b",
+                                    type="number",
+                                    value=0.5,
+                                    min=0,
+                                    max=1,
+                                    step=0.01,
+                                ),
+                                dbc.Label("a:"),
+                                dbc.Input(
+                                    id="pw_GEW_a",
+                                    type="number",
+                                    value=0.6,
+                                    min=0,
+                                    max=1,
+                                    step=0.01,
+                                ),
+                            ],
+                            id="pw_collapse_GEW",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("b:"),
+                                dbc.Input(
+                                    id="pw_PW_b",
+                                    type="number",
+                                    value=0.5,
+                                    min=0,
+                                    max=1,
+                                    step=0.01,
+                                ),
+                                dbc.Label("a:"),
+                                dbc.Input(
+                                    id="pw_PW_a",
+                                    type="number",
+                                    value=0.6,
+                                    min=0,
+                                    max=1,
+                                    step=0.01,
+                                ),
+                            ],
+                            id="pw_collapse_PW",
+                        ),
+                        html.Hr(),
+                        dbc.Label("Minimum display value"),
+                        dbc.Input(
+                            id="pw_min_value",
+                            type="number",
+                            value=0,
+                            min=0,
+                            max=1,
+                            step=0.01,
+                        ),
+                        dbc.Label("Maximum display value"),
+                        dbc.Input(
+                            id="pw_max_value",
+                            type="number",
+                            value=1,
+                            min=0,
+                            max=1,
+                            step=0.01,
+                        ),
+                    ],
+                    className="col",
+                ),
             ],
-            id="pw_collapse_TKW",
+            className="row mt-2",
         ),
-        dbc.Collapse(
-            [
-                dbc.Label("b:"),
-                dbc.Input(
-                    id="pw_GEW_b", type="number", value=0.5, min=0, max=1, step=0.01
-                ),
-                dbc.Label("a:"),
-                dbc.Input(
-                    id="pw_GEW_a", type="number", value=0.6, min=0, max=1, step=0.01
-                ),
-            ],
-            id="pw_collapse_GEW",
-        ),
-        dbc.Collapse(
-            [
-                dbc.Label("b:"),
-                dbc.Input(
-                    id="pw_PW_b", type="number", value=0.5, min=0, max=1, step=0.01
-                ),
-                dbc.Label("a:"),
-                dbc.Input(
-                    id="pw_PW_a", type="number", value=0.6, min=0, max=1, step=0.01
-                ),
-            ],
-            id="pw_collapse_PW",
-        ),
-        dcc.Graph(id="pw_graph"),
     ],
     className="px-2",
 )
@@ -129,6 +184,8 @@ def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open):
     Output("pw_graph", "figure"),
     [
         Input("pw_dropdown", "value"),
+        Input("pw_min_value", "value"),
+        Input("pw_max_value", "value"),
         Input("pw_TKW_d", "value"),
         Input("pw_GEW_b", "value"),
         Input("pw_GEW_a", "value"),
@@ -136,8 +193,7 @@ def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open):
         Input("pw_PW_a", "value"),
     ],
 )
-def update_pw_graph(drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
-    print(drop_val)
+def update_pw_graph(drop_val, min_val, max_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
     if drop_val == "TKW":
         kwargs = {"d": TKW_d}
     elif drop_val == "GEW":
@@ -150,10 +206,14 @@ def update_pw_graph(drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a):
         "GEW": pw.weigh_goldstein_einhorn,
         "PW": pw.weigh_prelec,
     }
-    x_1_data = np.linspace(0, 1, 1000)
+    x_1_data = np.linspace(min_val, max_val, 1000)
     y_1_data = [func_dict[drop_val](float(i), **kwargs) for i in x_1_data]
 
-    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+    fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+    fig.update_layout(
+        template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0),
+    )
+    return fig
 
 
 um_segment = dbc.Container(
@@ -166,27 +226,51 @@ um_segment = dbc.Container(
                 {"label": "Root utility function", "value": "RU",},
                 {"label": "Linear Utility function", "value": "LU",},
             ],
+            value="TKU",
         ),
-        dbc.Collapse(
+        html.Div(
             [
-                dbc.Label("a:"),
-                dbc.Input(id="um_TKU_a", type="number", value=0.88, step=0.1),
-                dbc.Label("l:"),
-                dbc.Input(id="um_TKU_l", type="number", value=2.25, step=0.1),
-                dbc.Label("r:"),
-                dbc.Input(id="um_TKU_r", type="number", value=0.0, step=1),
+                html.Div([dcc.Graph(id="um_graph"),], className="col-9",),
+                html.Div(
+                    [
+                        dbc.Collapse(
+                            [
+                                dbc.Label("a:"),
+                                dbc.Input(
+                                    id="um_TKU_a", type="number", value=0.88, step=0.1
+                                ),
+                                dbc.Label("l:"),
+                                dbc.Input(
+                                    id="um_TKU_l", type="number", value=2.25, step=0.1
+                                ),
+                                dbc.Label("r:"),
+                                dbc.Input(
+                                    id="um_TKU_r", type="number", value=0.0, step=1
+                                ),
+                            ],
+                            id="um_collapse_TKU",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("exp:"),
+                                dbc.Input(
+                                    id="um_RU_exp", type="number", value=2.0, step=1
+                                ),
+                            ],
+                            id="um_collapse_RU",
+                        ),
+                        dbc.Collapse([], id="um_collapse_LU"),
+                        html.Hr(),
+                        dbc.Label("Minimum display value"),
+                        dbc.Input(id="um_min_value", type="number", value=0),
+                        dbc.Label("Maximum display value"),
+                        dbc.Input(id="um_max_value", type="number", value=100),
+                    ],
+                    className="col",
+                ),
             ],
-            id="um_collapse_TKU",
+            className="row mt-2",
         ),
-        dbc.Collapse(
-            [
-                dbc.Label("exp:"),
-                dbc.Input(id="um_RU_exp", type="number", value=2.0, step=1),
-            ],
-            id="um_collapse_RU",
-        ),
-        dbc.Collapse([], id="um_collapse_LU"),
-        dcc.Graph(id="um_graph"),
     ],
     className="px-2",
 )
@@ -220,6 +304,8 @@ def toggle_um_params(drop_val, TKU_open, RU_open, LU_open):
     Output("um_graph", "figure"),
     [
         Input("um_dropdown", "value"),
+        Input("um_min_value", "value"),
+        Input("um_max_value", "value"),
         Input("um_TKU_a", "value"),
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
@@ -227,9 +313,8 @@ def toggle_um_params(drop_val, TKU_open, RU_open, LU_open):
     ],
 )
 def update_um_graph(
-    drop_val, TKU_a, TKU_l, TKU_r, RU_exp,
+    drop_val, min_val, max_val, TKU_a, TKU_l, TKU_r, RU_exp,
 ):
-    print(drop_val)
     if drop_val == "TKU":
         kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
     elif drop_val == "RU":
@@ -242,10 +327,14 @@ def update_um_graph(
         "RU": um.root_utility,
         "LU": um.lin_utility,
     }
-    x_1_data = np.linspace(0, 100, 1000)
+    x_1_data = np.linspace(min_val, max_val, 1000)
     y_1_data = [func_dict[drop_val](float(i), **kwargs) for i in x_1_data]
 
-    return go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+    fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+    fig.update_layout(
+        template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0)
+    )
+    return fig
 
 
 output_segment = dbc.Container(
@@ -260,8 +349,8 @@ output_segment = dbc.Container(
 
 app.layout = html.Div(
     [
-        dbc.Row(
-            dbc.Col(
+        html.Div(
+            html.Div(
                 dbc.Navbar(
                     [
                         dbc.NavbarBrand(
@@ -271,28 +360,32 @@ app.layout = html.Div(
                     ],
                     color="dark",
                 ),
+                className="col-12",
             ),
-            className="px-0",
+            className="row",
         ),
-        dbc.Row(
-            dbc.Col(
+        html.Div(
+            html.Div(
                 [
                     input_segment,
                     html.Hr(),
-                    dbc.Row(
+                    # TODO fidn out how to make tabs the same width as everything else
+                    dbc.Tabs(
                         [
-                            # TODO find out how to make these two the same combined width as everything else
-                            dbc.Col(pw_segment, width=6, className="px-0",),
-                            dbc.Col(um_segment, width=6, className="px-0",),
-                        ]
+                            dbc.Tab(
+                                pw_segment,
+                                label="Choose a probability weighting function",
+                            ),
+                            dbc.Tab(um_segment, label="Choose a utility function",),
+                        ],
+                        className="nav-justified",
                     ),
                     html.Hr(),
                     output_segment,
                 ],
-                width=10,
+                className="col-10",
             ),
-            justify="center",
-            className="px-0",
+            className="row justify-content-md-center mt-2",
         ),
     ]
 )
