@@ -6,7 +6,6 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import dash_table
 
-import plotly.express as px
 import plotly.graph_objs as go
 
 import numpy as np
@@ -178,10 +177,6 @@ def update_gamble_fig(rows):
     )
     fig.update_xaxes(range=[-0.4, 1.4], showgrid=False, zeroline=False, visible=False)
     fig.update_yaxes(range=[-0.1, 1.1], showgrid=False, zeroline=False, visible=False)
-
-    # fig.update_axes(showgrid=False, zeroline=False, visible=False)
-    # for i in range(len(pays)):
-    #     fig.add_annotation(x=x_1[i + 1], y=y_1[i + 1], text=pays[i])
     return fig
 
 
@@ -343,7 +338,7 @@ pw_um_segment = dbc.Container(
                                         ),
                                         dbc.Label("Maximum display value"),
                                         dbc.Input(
-                                            id="um_max_value", type="number", value=100
+                                            id="um_max_value", type="number", value=10
                                         ),
                                         dbc.Button(
                                             "Reset all values",
@@ -516,7 +511,7 @@ def um_reset(n_clicks):
     [Input("um_reset_btn", "n_clicks")],
 )
 def um_reset(n_clicks):
-    return 0.88, 2.25, 0, 2, 0, 1
+    return 0.88, 2.25, 0, 2, 0, 10
 
 
 @app.callback(
