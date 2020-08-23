@@ -37,7 +37,7 @@ def lin_utility(x: float) -> float:
 def user_utility(x: float, text: str) -> float:
     """ 
     Takes in a string and evaluates it (safely) with the simpleeval
-    conda install -c conda-forge simpleeval model to allow users to define their own utility functions
+    model to allow users to define their own utility functions
     """
     res = simple_eval(
         text,
