@@ -1,4 +1,6 @@
 import sys
+from simpleeval import simple_eval
+import math
 
 
 def utility_tversky_kahneman(
@@ -30,3 +32,29 @@ def lin_utility(x: float) -> float:
     A linear utility function where the utility of a value x equals x
     """
     return x
+
+
+def user_utility(x: float, text: str) -> float:
+    """ 
+    Takes in a string and evaluates it (safely) with the simpleeval
+    conda install -c conda-forge simpleeval model to allow users to define their own utility functions
+    """
+    res = simple_eval(
+        text,
+        functions={
+            # "print": print,
+            "abs": abs,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "e": math.e,
+            "exp": math.exp,
+            "log": math.log,
+            "log10": math.log10,
+            "pi": math.pi,
+            "sqrt": math.sqrt,
+        },
+        names={"x": x},
+    )
+    return res
+

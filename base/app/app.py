@@ -24,6 +24,7 @@ um_func_dict = {
     "TKU": um.utility_tversky_kahneman,
     "RU": um.root_utility,
     "LU": um.lin_utility,
+    "YU": um.user_utility,
 }
 
 mf_func_dict = {
@@ -282,8 +283,28 @@ pw_um_segment = dbc.Container(
                                 },
                                 {"label": "Root utility function", "value": "RU",},
                                 {"label": "Linear Utility function", "value": "LU",},
+                                {"label": "Input your own function", "value": "YU",},
                             ],
                             value="TKU",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Your utility function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="um_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
+                                ),
+                                dbc.Button(
+                                    "Run Function",
+                                    id="um_text_runner",
+                                    className="mt-2",
+                                ),
+                            ],
+                            id="um_collapse_Yu",
+                            className="py-2",
                         ),
                         html.Div(
                             [
@@ -495,7 +516,7 @@ pw_um_segment = dbc.Container(
     ],
     [Input("pw_reset_btn", "n_clicks")],
 )
-def um_reset(n_clicks):
+def pw_reset(n_clicks):
     return 0.65, 0.5, 0.6, 0.5, 0.6, 0, 1
 
 
@@ -574,23 +595,27 @@ def update_pw_graph(pw_drop_val, min_val, max_val, TKW_d, GEW_b, GEW_a, PW_b, PW
         Output("um_collapse_TKU", "is_open"),
         Output("um_collapse_RU", "is_open"),
         Output("um_collapse_LU", "is_open"),
+        Output("um_collapse_Yu", "is_open"),
     ],
     [Input("um_dropdown", "value")],
     [
         State("um_collapse_TKU", "is_open"),
         State("um_collapse_RU", "is_open"),
         State("um_collapse_LU", "is_open"),
+        State("um_collapse_Yu", "is_open"),
     ],
 )
-def toggle_um_params(drop_val, TKU_open, RU_open, LU_open):
-    TKU_open, RU_open, LU_open = False, False, False
+def toggle_um_params(drop_val, TKU_open, RU_open, LU_open, YU_open):
+    TKU_open, RU_open, LU_open, YU_open = False, False, False, False
     if drop_val == "TKU":
         TKU_open = True
     elif drop_val == "RU":
         RU_open = True
     elif drop_val == "LU":
         LU_open = True
-    return TKU_open, RU_open, LU_open
+    elif drop_val == "YU":
+        YU_open = True
+    return TKU_open, RU_open, LU_open, YU_open
 
 
 @app.callback(
@@ -603,10 +628,12 @@ def toggle_um_params(drop_val, TKU_open, RU_open, LU_open):
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_text_runner", "n_clicks"),
+        Input("um_text", "value"),
     ],
 )
 def update_um_graph(
-    um_drop_val, min_val, max_val, TKU_a, TKU_l, TKU_r, RU_exp,
+    um_drop_val, min_val, max_val, TKU_a, TKU_l, TKU_r, RU_exp, n_clicks, user_func
 ):
     if um_drop_val == "TKU":
         kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
@@ -614,6 +641,8 @@ def update_um_graph(
         kwargs = {"exp": RU_exp}
     elif um_drop_val == "LU":
         kwargs = {}
+    elif um_drop_val == "YU":
+        kwargs = {"text": user_func}
 
     x_1_data = np.linspace(min_val, max_val, 1000)
     y_1_data = [um_func_dict[um_drop_val](float(i), **kwargs) for i in x_1_data]
@@ -690,6 +719,8 @@ def update_output_theor(
     elif um_drop_val == "RU":
         um_kwargs = {"exp": RU_exp}
     elif um_drop_val == "LU":
+        um_kwargs = {}
+    elif um_drop_val == "YU":
         um_kwargs = {}
     return "{}, {}".format(um_drop_val, um_kwargs)
 
@@ -802,6 +833,8 @@ app.layout = html.Div(
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_text_runner", "n_clicks"),
+        Input("um_text", "value"),
     ],
 )
 def update_output(
@@ -823,6 +856,8 @@ def update_output(
     TKU_l,
     TKU_r,
     RU_exp,
+    n_clicks,
+    user_func,
 ):
     if tab_val_entry == "STD":
         probs = [float(i["probabilities_tbl"]) for i in rows]
@@ -845,6 +880,8 @@ def update_output(
         um_kwargs = {"exp": RU_exp}
     elif um_drop_val == "LU":
         um_kwargs = {}
+    elif um_drop_val == "YU":
+        um_kwargs = {"text": user_func}
 
     if theor_drop_val == "EU":
         res = mf_func_dict[theor_drop_val](
