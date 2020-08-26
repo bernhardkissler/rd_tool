@@ -14,52 +14,11 @@ import main_functions as mf
 import util_mod as um
 import prob_weighting as pw
 
-# import func_dicts as fd
+import apps.func_dicts as fd
 
 from math import isclose
 
 from app import app
-
-
-pw_func_dict = {
-    "TKW": [
-        pw.weigh_tversky_kahneman,
-        "Tversky Kahnemann probability weighting function",
-        "$W(p)=\\frac{p^{\delta}}{(p^{\delta}+(1-\ p)^{\delta})^{\\frac{1}{\delta}}}$",
-    ],
-    "GEW": [
-        pw.weigh_goldstein_einhorn,
-        "Goldstein Einhorn probability weighting function",
-        "$W(p)=\\frac{(b\cdot{p})^{a}}{(b\cdot{p})^{a} + (1-p)^{a}}$",
-    ],
-    "PW": [
-        pw.weigh_prelec,
-        "Prelec probability weighting function",
-        "$W(p)=e^{-b(-ln(p))^{a}}$",
-    ],
-    "YW": [pw.weig_user, "Custom probability weighting function", ""],
-}
-
-um_func_dict = {
-    "TKU": [
-        um.utility_tversky_kahneman,
-        "Tversky Kahneman utility function",
-        """$$U(x)=\\begin{cases}
-                  (x-r)^{a}             & \\text{if }x \\geq r \\\\
-                  -l \\cdot (-(x-r))^{a} & \\text{if }x < r
-              \\end{cases}$$""",
-    ],
-    "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $"],
-    "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$"],
-    "YU": [um.user_utility, "Custom utilty function", ""],
-}
-
-mf_func_dict = {
-    "CPT": [mf.cumulative_prospect_theory, "Cumulative prospect theory"],
-    "RDU": [mf.rank_dependent_utility, "Rank dependent utility"],
-    "EU": [mf.expected_utility, "Expected utility"],
-}
-
 
 theor_segment = dbc.Container(
     [
@@ -434,7 +393,7 @@ def update_pw_graph(
         kwargs = {"text": user_func}
 
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [pw_func_dict[pw_drop_val][0](float(i), **kwargs) for i in x_1_data]
+    y_1_data = [fd.pw_func_dict[pw_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
@@ -498,7 +457,7 @@ def update_um_graph(
         kwargs = {"text": user_func}
 
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [um_func_dict[um_drop_val][0](float(i), **kwargs) for i in x_1_data]
+    y_1_data = [fd.um_func_dict[um_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
