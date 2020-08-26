@@ -17,17 +17,29 @@ import prob_weighting as pw
 from math import isclose
 
 pw_func_dict = {
-    "TKW": pw.weigh_tversky_kahneman,
-    "GEW": pw.weigh_goldstein_einhorn,
-    "PW": pw.weigh_prelec,
-    "YW": pw.weig_user,
+    "TKW": [
+        pw.weigh_tversky_kahneman,
+        "Tversky Kahnemann probability weighting function",
+        "$w(p)=\\frac{p^{\delta}}{(p^{\delta}+(1-\ p)^{\delta})^{\\frac{1}{\delta}}}$",
+    ],
+    "GEW": [
+        pw.weigh_goldstein_einhorn,
+        "Goldstein Einhorn probability weighting function",
+        "$w(p)=\\frac{(b\cdot{p})^{a}}{(b\cdot{p})^{a} + (1-p)^{a}}$",
+    ],
+    "PW": [
+        pw.weigh_prelec,
+        "Prelec probability weighting function",
+        "$w(p)=e^{-b(-ln(p))^{a}}$",
+    ],
+    "YW": [pw.weig_user, "", ""],
 }
 
 um_func_dict = {
-    "TKU": um.utility_tversky_kahneman,
-    "RU": um.root_utility,
-    "LU": um.lin_utility,
-    "YU": um.user_utility,
+    "TKU": [um.utility_tversky_kahneman, "", ""],
+    "RU": [um.root_utility, "", ""],
+    "LU": [um.lin_utility, "", ""],
+    "YU": [um.user_utility, "", ""],
 }
 
 mf_func_dict = {
@@ -36,7 +48,12 @@ mf_func_dict = {
     "EU": mf.expected_utility,
 }
 
-app = dash.Dash(external_stylesheets=[dbc.themes.LUX])
+app = dash.Dash(
+    external_stylesheets=[dbc.themes.LUX],
+    external_scripts=[
+        "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=TeX-MML-AM_CHTML",
+    ],
+)
 
 input_segment = dbc.Container(
     [
@@ -629,7 +646,7 @@ def update_pw_graph(
         kwargs = {"text": user_func}
 
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [pw_func_dict[pw_drop_val](float(i), **kwargs) for i in x_1_data]
+    y_1_data = [pw_func_dict[pw_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
@@ -693,7 +710,7 @@ def update_um_graph(
         kwargs = {"text": user_func}
 
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [um_func_dict[um_drop_val](float(i), **kwargs) for i in x_1_data]
+    y_1_data = [um_func_dict[um_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
@@ -778,7 +795,7 @@ output_pw_segment = dbc.Card(
         dbc.CardBody(
             [
                 html.H6("Probability weighting function"),
-                dbc.Container(id="output_pw_params"),
+                dcc.Markdown(id="output_pw_params"),
             ]
         )
     ]
@@ -810,7 +827,21 @@ def update_output_theor(pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, theor_drop
     if theor_drop_val == "EU":
         return "EU doesn't allow for pw"
     else:
-        return "{}, {}".format(pw_drop_val, pw_kwargs)
+        return """
+                Theory:
+
+                {}
+                
+                Formula:
+
+                
+                Parameters:
+
+                {}
+                
+                """.format(
+            pw_func_dict[pw_drop_val][1], pw_kwargs
+        )
 
 
 output_results_segment = dbc.Card(
@@ -943,14 +974,14 @@ def update_output(
 
     if theor_drop_val == "EU":
         res = mf_func_dict[theor_drop_val](
-            pays, probs, um_function=um_func_dict[um_drop_val], um_kwargs=um_kwargs,
+            pays, probs, um_function=um_func_dict[um_drop_val][0], um_kwargs=um_kwargs,
         )
     else:
         res = mf_func_dict[theor_drop_val](
             pays,
             probs,
-            um_function=um_func_dict[um_drop_val],
-            pw_function=pw_func_dict[pw_drop_val],
+            um_function=um_func_dict[um_drop_val][0],
+            pw_function=pw_func_dict[pw_drop_val][0],
             um_kwargs=um_kwargs,
             pw_kwargs=pw_kwargs,
         )
