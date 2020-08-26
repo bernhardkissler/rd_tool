@@ -10,9 +10,9 @@ import plotly.graph_objs as go
 
 import numpy as np
 
-import main_functions as mf
-import util_mod as um
-import prob_weighting as pw
+import rd_functions.main_functions as mf
+import rd_functions.util_mod as um
+import rd_functions.prob_weighting as pw
 
 import apps.func_dicts as fd
 

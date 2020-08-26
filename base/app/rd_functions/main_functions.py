@@ -1,6 +1,6 @@
-import util_mod as um
-import prob_weighting as pw
-import helpers as he
+import rd_functions.util_mod as um
+import rd_functions.prob_weighting as pw
+import rd_functions.helpers as he
 from typing import List
 
 
