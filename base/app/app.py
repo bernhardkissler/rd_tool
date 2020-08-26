@@ -14,6 +14,8 @@ import main_functions as mf
 import util_mod as um
 import prob_weighting as pw
 
+from math import isclose
+
 pw_func_dict = {
     "TKW": pw.weigh_tversky_kahneman,
     "GEW": pw.weigh_goldstein_einhorn,
@@ -34,19 +36,19 @@ mf_func_dict = {
     "EU": mf.expected_utility,
 }
 
-app = dash.Dash(external_stylesheets=[dbc.themes.BOOTSTRAP])
+app = dash.Dash(external_stylesheets=[dbc.themes.LUX])
 
 input_segment = dbc.Container(
     [
         # TODO sync the two ways of entering data and maybe split them into different tabs
         html.H3("Enter a gamble", className="py-2"),
-        dcc.Tabs(
+        html.Div(
             [
-                dcc.Tab(
+                html.Div(
                     [
-                        html.Div(
+                        dcc.Tabs(
                             [
-                                html.Div(
+                                dcc.Tab(
                                     [
                                         html.Div(
                                             [
@@ -94,44 +96,44 @@ input_segment = dbc.Container(
                                             n_clicks=0,
                                         ),
                                     ],
-                                    className="col-6",
+                                    value="STD",
+                                    label="Standard data entry",
                                 ),
-                                html.Div(dcc.Graph(id="gamble_fig"), className="col"),
+                                dcc.Tab(
+                                    [
+                                        html.Div(
+                                            [
+                                                dbc.Label("Payoffs"),
+                                                dbc.Input(
+                                                    id="pays_input",
+                                                    type="text",
+                                                    placeholder="list of payoffs",
+                                                    debounce=True,
+                                                ),
+                                                dbc.Label("Probabilities"),
+                                                dbc.Input(
+                                                    id="probs_input",
+                                                    type="text",
+                                                    placeholder="list of probabilities",
+                                                    debounce=True,
+                                                ),
+                                            ],
+                                            className="py-2",
+                                        )
+                                    ],
+                                    value="BLK",
+                                    label="Bulk data entry",
+                                ),
                             ],
-                            className="row my-2",
-                        )
+                            id="data_entry_tab",
+                            value="STD",
+                        ),
                     ],
-                    value="STD",
-                    label="Standard data entry",
+                    className="col-6",
                 ),
-                dcc.Tab(
-                    [
-                        html.Div(
-                            [
-                                dbc.Label("Payoffs"),
-                                dbc.Input(
-                                    id="pays_input",
-                                    type="text",
-                                    placeholder="list of payoffs",
-                                    debounce=True,
-                                ),
-                                dbc.Label("Probabilities"),
-                                dbc.Input(
-                                    id="probs_input",
-                                    type="text",
-                                    placeholder="list of probabilities",
-                                    debounce=True,
-                                ),
-                            ],
-                            className="py-2",
-                        )
-                    ],
-                    value="BLK",
-                    label="Bulk data entry",
-                ),
+                html.Div([dcc.Graph(id="gamble_fig"),], className="col"),
             ],
-            id="data_entry_tab",
-            value="STD",
+            className="row mt-2",
         ),
         dbc.Alert(id="probs_alert", color="warning", is_open=False, dismissable=True,),
         html.Hr(),
@@ -140,10 +142,25 @@ input_segment = dbc.Container(
 )
 
 
-@app.callback(Output("gamble_fig", "figure"), [Input("input_tbl", "data"),])
-def update_gamble_fig(rows):
-    probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
-    pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
+@app.callback(
+    Output("gamble_fig", "figure"),
+    [
+        Input("input_tbl", "data"),
+        Input("pays_input", "value"),
+        Input("probs_input", "value"),
+        Input("data_entry_tab", "value"),
+    ],
+)
+def update_gamble_fig(rows, pays_input, probs_input, tab_val_entry):
+    if tab_val_entry == "STD":
+        probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
+        pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
+    elif tab_val_entry == "BLK":
+        probs = list(reversed([float(i) for i in probs_input.split(",")]))
+        pays = list(reversed([float(i) for i in pays_input.split(",")]))
+
+    # probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
+    # pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
 
     y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
     x_1 = [0] + [1] * len(y_1)
@@ -197,7 +214,7 @@ def check_probs(rows, probs_input, tab_val_entry):
     elif tab_val_entry == "BLK":
         probs = [float(i) for i in probs_input.split(",")]
         print(probs)
-    if sum(probs) != 1:
+    if not isclose(sum(probs), 1):
         return (
             True,
             "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
@@ -224,8 +241,8 @@ def add_row(n_clicks, rows, columns):
     [Input("input_tbl", "data"), Input("input_tbl", "columns")],
 )
 def sync_inputs_tbl(rows, columns):
-    pays = [i["payoffs_tbl"] for i in rows]
-    probs = [i["probabilities_tbl"] for i in rows]
+    pays = str([i["payoffs_tbl"] for i in rows])[1:-1]
+    probs = str([i["probabilities_tbl"] for i in rows])[1:-1]
     return pays, probs
 
 
