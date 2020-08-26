@@ -32,20 +32,27 @@ pw_func_dict = {
         "Prelec probability weighting function",
         "$w(p)=e^{-b(-ln(p))^{a}}$",
     ],
-    "YW": [pw.weig_user, "", ""],
+    "YW": [pw.weig_user, "Custom probability weighting function", ""],
 }
 
 um_func_dict = {
-    "TKU": [um.utility_tversky_kahneman, "", ""],
-    "RU": [um.root_utility, "", ""],
-    "LU": [um.lin_utility, "", ""],
-    "YU": [um.user_utility, "", ""],
+    "TKU": [
+        um.utility_tversky_kahneman,
+        "Tversky Kahneman utility function",
+        """$$U(x)=\\begin{cases}
+                  (x-r)^{a}             & \\text{if }x \\geq r \\\\
+                  -l \\cdot (-(x-r))^{a} & \\text{if }x < r
+              \\end{cases}$$""",
+    ],
+    "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $"],
+    "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$"],
+    "YU": [um.user_utility, "Custom utilty function", ""],
 }
 
 mf_func_dict = {
-    "CPT": mf.cumulative_prospect_theory,
-    "RDU": mf.rank_dependent_utility,
-    "EU": mf.expected_utility,
+    "CPT": [mf.cumulative_prospect_theory, "Cumulative prospect theory"],
+    "RDU": [mf.rank_dependent_utility, "Rank dependent utility"],
+    "EU": [mf.expected_utility, "Expected utility"],
 }
 
 app = dash.Dash(
@@ -176,9 +183,11 @@ def update_gamble_fig(rows, pays_input, probs_input, tab_val_entry):
         probs = list(reversed([float(i) for i in probs_input.split(",")]))
         pays = list(reversed([float(i) for i in pays_input.split(",")]))
 
-    # probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
-    # pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
+    fig = gamble_fig(pays, probs)
+    return fig
 
+
+def gamble_fig(pays, probs):
     y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
     x_1 = [0] + [1] * len(y_1)
     y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
@@ -213,6 +222,7 @@ def update_gamble_fig(rows, pays_input, probs_input, tab_val_entry):
     )
     fig.update_xaxes(range=[-0.4, 1.4], showgrid=False, zeroline=False, visible=False)
     fig.update_yaxes(range=[-0.1, 1.1], showgrid=False, zeroline=False, visible=False)
+
     return fig
 
 
@@ -719,8 +729,50 @@ def update_um_graph(
     return fig
 
 
-output_input_segment = dbc.Card(
-    dbc.CardBody([html.H6("Inputs"), dbc.Container(id="output_input_params")])
+output_segment = dbc.Container(
+    [
+        html.Hr(),
+        html.H3("Output", className="py-2"),
+        dbc.CardGroup(
+            [
+                dbc.Card(
+                    dbc.CardBody(
+                        [html.H6("Inputs"), dbc.Container(id="output_input_params"),]
+                    ),
+                ),
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H6("Decision theory"),
+                            dbc.Container(id="output_theor_params"),
+                        ]
+                    ),
+                ),
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H6("Utility function"),
+                            dbc.Container(id="output_um_params"),
+                        ]
+                    ),
+                ),
+                dbc.Card(
+                    dbc.CardBody(
+                        [
+                            html.H6("Probability weighting function"),
+                            dbc.Container(id="output_pw_params"),
+                        ]
+                    ),
+                ),
+                dbc.Card(
+                    dbc.CardBody(
+                        [html.H6("Result"), dbc.Container(id="output_results_params"),]
+                    ),
+                ),
+            ],
+        ),
+    ],
+    className="px-2",
 )
 
 
@@ -742,28 +794,15 @@ def update_output_input(
     elif tab_val_entry == "BLK":
         probs = [float(i) for i in probs_input.split(",")]
         pays = [float(i) for i in pays_input.split(",")]
-    return "{}, {}".format(pays, probs)
 
-
-output_theor_segment = dbc.Card(
-    [
-        dbc.CardBody(
-            [html.H6("Decision theory"), dbc.Container(id="output_theor_params")]
-        )
-    ]
-)
+    return "Payoffs: {}, Probabilities {}".format(pays, probs)
 
 
 @app.callback(
     Output("output_theor_params", "children"), [Input("theor_dropdown", "value"),],
 )
 def update_output_theor(theor_drop_val):
-    return theor_drop_val
-
-
-output_um_segment = dbc.Card(
-    [dbc.CardBody([html.H6("Utility function"), dbc.Container(id="output_um_params")])]
-)
+    return mf_func_dict[theor_drop_val][1]
 
 
 @app.callback(
@@ -776,7 +815,7 @@ output_um_segment = dbc.Card(
         Input("um_RU_exp", "value"),
     ],
 )
-def update_output_theor(
+def update_output_um_theor(
     um_drop_val, TKU_a, TKU_l, TKU_r, RU_exp,
 ):
     if um_drop_val == "TKU":
@@ -787,19 +826,16 @@ def update_output_theor(
         um_kwargs = {}
     elif um_drop_val == "YU":
         um_kwargs = {}
-    return "{}, {}".format(um_drop_val, um_kwargs)
-
-
-output_pw_segment = dbc.Card(
-    [
-        dbc.CardBody(
-            [
-                html.H6("Probability weighting function"),
-                dcc.Markdown(id="output_pw_params"),
-            ]
-        )
-    ]
-)
+    return """
+                Theory:
+                {}                
+                Formula:
+                {}                
+                Parameters:
+                {}                
+                """.format(
+        um_func_dict[um_drop_val][1], um_func_dict[um_drop_val][2], um_kwargs
+    )
 
 
 @app.callback(
@@ -814,7 +850,9 @@ output_pw_segment = dbc.Card(
         Input("theor_dropdown", "value"),
     ],
 )
-def update_output_theor(pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, theor_drop_val):
+def update_output_pw_theor(
+    pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, theor_drop_val
+):
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}
     elif pw_drop_val == "GEW":
@@ -829,69 +867,14 @@ def update_output_theor(pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, theor_drop
     else:
         return """
                 Theory:
-
+                {}        
+                Formula:              
                 {}
-                
-                Formula:
-
-                
                 Parameters:
-
-                {}
-                
+                {}          
                 """.format(
-            pw_func_dict[pw_drop_val][1], pw_kwargs
+            pw_func_dict[pw_drop_val][1], pw_func_dict[pw_drop_val][2], pw_kwargs
         )
-
-
-output_results_segment = dbc.Card(
-    [dbc.CardBody([html.H6("Result"), dbc.Container(id="output_results_params")])]
-)
-
-output_segment = dbc.Container(
-    [
-        html.Hr(),
-        html.H3("Output", className="py-2"),
-        dbc.CardGroup(
-            [
-                output_input_segment,
-                output_theor_segment,
-                output_um_segment,
-                output_pw_segment,
-                output_results_segment,
-            ],
-        ),
-    ],
-    className="px-2",
-)
-
-
-app.layout = html.Div(
-    [
-        html.Div(
-            html.Div(
-                dbc.Navbar(
-                    [
-                        dbc.NavbarBrand(
-                            "Risky decisions - Tool", className="ml-5 text-white"
-                        ),
-                        # dbc.NavItem(dbc.NavLink("Top", href="#")),
-                    ],
-                    color="dark",
-                ),
-                className="col-12",
-            ),
-            className="row",
-        ),
-        html.Div(
-            html.Div(
-                [input_segment, theor_segment, pw_um_segment, output_segment,],
-                className="col-10",
-            ),
-            className="row justify-content-md-center mt-2",
-        ),
-    ]
-)
 
 
 @app.callback(
@@ -973,11 +956,11 @@ def update_output(
         um_kwargs = {"text": um_user_func}
 
     if theor_drop_val == "EU":
-        res = mf_func_dict[theor_drop_val](
+        res = mf_func_dict[theor_drop_val][0](
             pays, probs, um_function=um_func_dict[um_drop_val][0], um_kwargs=um_kwargs,
         )
     else:
-        res = mf_func_dict[theor_drop_val](
+        res = mf_func_dict[theor_drop_val][0](
             pays,
             probs,
             um_function=um_func_dict[um_drop_val][0],
@@ -985,7 +968,35 @@ def update_output(
             um_kwargs=um_kwargs,
             pw_kwargs=pw_kwargs,
         )
-    return res
+    return round(res, 4)
+
+
+app.layout = html.Div(
+    [
+        html.Div(
+            html.Div(
+                dbc.Navbar(
+                    [
+                        dbc.NavbarBrand(
+                            "Risky decisions - Tool", className="ml-5 text-white"
+                        ),
+                        # dbc.NavItem(dbc.NavLink("Top", href="#")),
+                    ],
+                    color="dark",
+                ),
+                className="col-12",
+            ),
+            className="row",
+        ),
+        html.Div(
+            html.Div(
+                [input_segment, theor_segment, pw_um_segment, output_segment,],
+                className="col-10",
+            ),
+            className="row justify-content-md-center mt-2",
+        ),
+    ]
+)
 
 
 if __name__ == "__main__":
