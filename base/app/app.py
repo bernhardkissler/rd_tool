@@ -20,17 +20,17 @@ pw_func_dict = {
     "TKW": [
         pw.weigh_tversky_kahneman,
         "Tversky Kahnemann probability weighting function",
-        "$w(p)=\\frac{p^{\delta}}{(p^{\delta}+(1-\ p)^{\delta})^{\\frac{1}{\delta}}}$",
+        "$W(p)=\\frac{p^{\delta}}{(p^{\delta}+(1-\ p)^{\delta})^{\\frac{1}{\delta}}}$",
     ],
     "GEW": [
         pw.weigh_goldstein_einhorn,
         "Goldstein Einhorn probability weighting function",
-        "$w(p)=\\frac{(b\cdot{p})^{a}}{(b\cdot{p})^{a} + (1-p)^{a}}$",
+        "$W(p)=\\frac{(b\cdot{p})^{a}}{(b\cdot{p})^{a} + (1-p)^{a}}$",
     ],
     "PW": [
         pw.weigh_prelec,
         "Prelec probability weighting function",
-        "$w(p)=e^{-b(-ln(p))^{a}}$",
+        "$W(p)=e^{-b(-ln(p))^{a}}$",
     ],
     "YW": [pw.weig_user, "Custom probability weighting function", ""],
 }
@@ -795,7 +795,10 @@ def update_output_input(
         probs = [float(i) for i in probs_input.split(",")]
         pays = [float(i) for i in pays_input.split(",")]
 
-    return "Payoffs: {}, Probabilities {}".format(pays, probs)
+    return (
+        html.P("Payoffs: {}".format(pays)),
+        html.P("Probabilities: {}".format(probs)),
+    )
 
 
 @app.callback(
@@ -826,15 +829,10 @@ def update_output_um_theor(
         um_kwargs = {}
     elif um_drop_val == "YU":
         um_kwargs = {}
-    return """
-                Theory:
-                {}                
-                Formula:
-                {}                
-                Parameters:
-                {}                
-                """.format(
-        um_func_dict[um_drop_val][1], um_func_dict[um_drop_val][2], um_kwargs
+    return (
+        html.P("Theory: {}".format(um_func_dict[um_drop_val][1])),
+        html.P("Formula: {}".format(um_func_dict[um_drop_val][2])),
+        html.P("Parameters: {}".format(um_kwargs)),
     )
 
 
@@ -863,17 +861,12 @@ def update_output_pw_theor(
         pw_kwargs = {}
 
     if theor_drop_val == "EU":
-        return "EU doesn't allow for pw"
+        return html.P("EU doesn't allow for pw")
     else:
-        return """
-                Theory:
-                {}        
-                Formula:              
-                {}
-                Parameters:
-                {}          
-                """.format(
-            pw_func_dict[pw_drop_val][1], pw_func_dict[pw_drop_val][2], pw_kwargs
+        return (
+            html.P("Theory: {}".format(pw_func_dict[pw_drop_val][1])),
+            html.P("Formula: {}".format(pw_func_dict[pw_drop_val][2])),
+            html.P("Parameters: {}".format(pw_kwargs)),
         )
 
 
@@ -968,7 +961,7 @@ def update_output(
             um_kwargs=um_kwargs,
             pw_kwargs=pw_kwargs,
         )
-    return round(res, 4)
+    return html.P("{}".format(round(res, 4)))
 
 
 app.layout = html.Div(
