@@ -69,22 +69,15 @@ output_segment = dbc.Container(
 
 @app.callback(
     Output("output_input_params", "children"),
-    [
-        Input("input_tbl", "data"),
-        Input("pays_input", "value"),
-        Input("probs_input", "value"),
-        Input("data_entry_tab", "value"),
-    ],
+    [Input("input_tbl", "data"), Input("data_entry_tab", "value"),],
 )
 def update_output_input(
-    rows, pays_input, probs_input, tab_val_entry,
+    rows, tab_val_entry,
 ):
-    if tab_val_entry == "STD":
-        probs = [float(i["probabilities_tbl"]) for i in rows]
-        pays = [float(i["payoffs_tbl"]) for i in rows]
-    elif tab_val_entry == "BLK":
-        probs = [float(i) for i in probs_input.split(",")]
-        pays = [float(i) for i in pays_input.split(",")]
+    # if tab_val_entry == "STD":
+    probs = [float(i["probabilities_tbl"]) for i in rows]
+    pays = [float(i["payoffs_tbl"]) for i in rows]
+    # elif tab_val_entry == "RT":
 
     return (
         html.P("Payoffs: {}".format(pays)),
@@ -165,8 +158,6 @@ def update_output_pw_theor(
     Output("output_results_params", "children"),
     [
         Input("input_tbl", "data"),
-        Input("pays_input", "value"),
-        Input("probs_input", "value"),
         Input("data_entry_tab", "value"),
         Input("theor_dropdown", "value"),
         # pw params
@@ -190,8 +181,6 @@ def update_output_pw_theor(
 )
 def update_output(
     rows,
-    pays_input,
-    probs_input,
     tab_val_entry,
     theor_drop_val,
     # pw params
@@ -212,13 +201,10 @@ def update_output(
     um_n_clicks,
     um_user_func,
 ):
-    if tab_val_entry == "STD":
-        probs = [float(i["probabilities_tbl"]) for i in rows]
-        pays = [float(i["payoffs_tbl"]) for i in rows]
-    elif tab_val_entry == "BLK":
-        probs = [float(i) for i in probs_input.split(",")]
-        pays = [float(i) for i in pays_input.split(",")]
-
+    # if tab_val_entry == "STD":
+    probs = [float(i["probabilities_tbl"]) for i in rows]
+    pays = [float(i["payoffs_tbl"]) for i in rows]
+    # elif tab_val_entry == "RT":
     # pw params
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}

@@ -22,7 +22,6 @@ from app import app
 
 input_segment = dbc.Container(
     [
-        # TODO sync the two ways of entering data and maybe split them into different tabs
         html.H3("Enter a gamble", className="py-2"),
         html.Div(
             [
@@ -83,28 +82,12 @@ input_segment = dbc.Container(
                                 ),
                                 dcc.Tab(
                                     [
-                                        html.Div(
-                                            [
-                                                dbc.Label("Payoffs"),
-                                                dbc.Input(
-                                                    id="pays_input",
-                                                    type="text",
-                                                    placeholder="list of payoffs",
-                                                    debounce=True,
-                                                ),
-                                                dbc.Label("Probabilities"),
-                                                dbc.Input(
-                                                    id="probs_input",
-                                                    type="text",
-                                                    placeholder="list of probabilities",
-                                                    debounce=True,
-                                                ),
-                                            ],
-                                            className="py-2",
+                                        dcc.Markdown(
+                                            "Hier kommt gleich der Regret THeory scheiß rein"
                                         )
                                     ],
-                                    value="BLK",
-                                    label="Bulk data entry",
+                                    value="RT",
+                                    label="Regret theory entry",
                                 ),
                             ],
                             id="data_entry_tab",
@@ -128,18 +111,14 @@ input_segment = dbc.Container(
     Output("gamble_fig", "figure"),
     [
         Input("input_tbl", "data"),
-        Input("pays_input", "value"),
-        Input("probs_input", "value"),
         Input("data_entry_tab", "value"),
     ],
 )
-def update_gamble_fig(rows, pays_input, probs_input, tab_val_entry):
-    if tab_val_entry == "STD":
-        probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
-        pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
-    elif tab_val_entry == "BLK":
-        probs = list(reversed([float(i) for i in probs_input.split(",")]))
-        pays = list(reversed([float(i) for i in pays_input.split(",")]))
+def update_gamble_fig(rows, tab_val_entry):
+    # if tab_val_entry == "STD":
+    probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
+    pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
+    # elif tab_val_entry == "RT":
 
     fig = gamble_fig(pays, probs)
     return fig
@@ -188,17 +167,14 @@ def gamble_fig(pays, probs):
     [Output("probs_alert", "is_open"), Output("probs_alert", "children")],
     [
         Input("input_tbl", "data"),
-        Input("probs_input", "value"),
         Input("data_entry_tab", "value"),
     ],
 )
-def check_probs(rows, probs_input, tab_val_entry):
+def check_probs(rows,  tab_val_entry):
     # TODO check out how best to handle floating point errors
-    if tab_val_entry == "STD":
-        probs = [float(i["probabilities_tbl"]) for i in rows]
-    elif tab_val_entry == "BLK":
-        probs = [float(i) for i in probs_input.split(",")]
-        print(probs)
+    # if tab_val_entry == "STD":
+    probs = [float(i["probabilities_tbl"]) for i in rows]
+    # elif tab_val_entry == "RT":
     if not isclose(sum(probs), 1):
         return (
             True,
@@ -221,14 +197,14 @@ def add_row(n_clicks, rows, columns):
     return rows
 
 
-@app.callback(
-    [Output("pays_input", "value"), Output("probs_input", "value")],
-    [Input("input_tbl", "data"), Input("input_tbl", "columns")],
-)
-def sync_inputs_tbl(rows, columns):
-    pays = str([i["payoffs_tbl"] for i in rows])[1:-1]
-    probs = str([i["probabilities_tbl"] for i in rows])[1:-1]
-    return pays, probs
+# @app.callback(
+#     [Output("pays_input", "value"), Output("probs_input", "value")],
+#     [Input("input_tbl", "data"), Input("input_tbl", "columns")],
+# )
+# def sync_inputs_tbl(rows, columns):
+#     pays = str([i["payoffs_tbl"] for i in rows])[1:-1]
+#     probs = str([i["probabilities_tbl"] for i in rows])[1:-1]
+#     return pays, probs
 
 
 # TODO Check wether dash has introduced two way syncing at https://community.plotly.com/t/synchronize-components-bidirectionally/14158
