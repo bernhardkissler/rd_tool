@@ -26,8 +26,8 @@ app.layout = html.Div(
         html.Div(
             html.Div(
                 [
-                    input_rd.input_segment,
                     main_rd.theor_segment,
+                    input_rd.input_segment,
                     main_rd.pw_um_segment,
                     output_rd.output_segment,
                 ],

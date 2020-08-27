@@ -34,6 +34,7 @@ um_func_dict = {
     "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $"],
     "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$"],
     "YU": [um.user_utility, "Custom utilty function", ""],
+    "BU": [um.bern_utility, "Bernoulli's utility funtion", "$U(x) = log(x)$"],
 }
 
 mf_func_dict = {

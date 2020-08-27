@@ -22,6 +22,7 @@ from app import app
 
 input_segment = dbc.Container(
     [
+        html.Hr(),
         html.H3("Enter a gamble", className="py-2"),
         html.Div(
             [
@@ -34,35 +35,39 @@ input_segment = dbc.Container(
                                         html.Div(
                                             [
                                                 dash_table.DataTable(
-                                                    id="input_tbl",
+                                                    id="std_input_tbl",
                                                     columns=(
                                                         [
                                                             {
-                                                                "id": "payoffs_tbl",
-                                                                "name": "Payoffs",
+                                                                "id": "std_probabilities_tbl",
+                                                                "name": "Probabilities",
                                                                 "type": "numeric",
+                                                                # "deletable": True,
+                                                                # "renamable": True,
                                                             }
                                                         ]
                                                         + [
                                                             {
-                                                                "id": "probabilities_tbl",
-                                                                "name": "Probabilities",
+                                                                "id": "std_payoffs_tbl",
+                                                                "name": "Payoffs",
                                                                 "type": "numeric",
+                                                                # "deletable": True,
+                                                                # "renamable": True,
                                                             }
                                                         ]
                                                     ),
                                                     data=[
                                                         dict(
-                                                            payoffs_tbl=1,
-                                                            probabilities_tbl=0.1,
+                                                            std_probabilities_tbl=0.1,
+                                                            std_payoffs_tbl=1,
                                                         ),
                                                         dict(
-                                                            payoffs_tbl=2,
-                                                            probabilities_tbl=0.4,
+                                                            std_probabilities_tbl=0.4,
+                                                            std_payoffs_tbl=2,
                                                         ),
                                                         dict(
-                                                            payoffs_tbl=3,
-                                                            probabilities_tbl=0.5,
+                                                            std_probabilities_tbl=0.5,
+                                                            std_payoffs_tbl=3,
                                                         ),
                                                     ],
                                                     editable=True,
@@ -73,7 +78,7 @@ input_segment = dbc.Container(
                                         ),
                                         dbc.Button(
                                             "Add Row",
-                                            id="editing-rows-button",
+                                            id="std_editing_rows_button",
                                             n_clicks=0,
                                         ),
                                     ],
@@ -82,9 +87,55 @@ input_segment = dbc.Container(
                                 ),
                                 dcc.Tab(
                                     [
-                                        dcc.Markdown(
-                                            "Hier kommt gleich der Regret THeory scheiß rein"
-                                        )
+                                        html.Div(
+                                            [
+                                                dash_table.DataTable(
+                                                    id="rt_input_tbl",
+                                                    columns=(
+                                                        [
+                                                            {
+                                                                "id": "rt_probabilities_tbl",
+                                                                "name": "Probabilities",
+                                                                "type": "numeric",
+                                                                "deletable": True,
+                                                                "renamable": True,
+                                                            }
+                                                        ]
+                                                        + [
+                                                            {
+                                                                "id": "rt_payoffs_tbl",
+                                                                "name": "Payoffs",
+                                                                "type": "numeric",
+                                                                "deletable": True,
+                                                                "renamable": True,
+                                                            }
+                                                        ]
+                                                    ),
+                                                    data=[
+                                                        dict(
+                                                            rt_probabilities_tbl=0.1,
+                                                            rt_payoffs_tbl=1,
+                                                        ),
+                                                        dict(
+                                                            rt_probabilities_tbl=0.4,
+                                                            rt_payoffs_tbl=2,
+                                                        ),
+                                                        dict(
+                                                            rt_probabilities_tbl=0.5,
+                                                            rt_payoffs_tbl=3,
+                                                        ),
+                                                    ],
+                                                    editable=True,
+                                                    row_deletable=True,
+                                                ),
+                                            ],
+                                            className="mx-3 py-2",
+                                        ),
+                                        dbc.Button(
+                                            "Add Row",
+                                            id="rt_editing_rows_button",
+                                            n_clicks=0,
+                                        ),
                                     ],
                                     value="RT",
                                     label="Regret theory entry",
@@ -110,15 +161,20 @@ input_segment = dbc.Container(
 @app.callback(
     Output("gamble_fig", "figure"),
     [
-        Input("input_tbl", "data"),
+        Input("std_input_tbl", "data"),
+        Input("rt_input_tbl", "data"),
         Input("data_entry_tab", "value"),
     ],
 )
-def update_gamble_fig(rows, tab_val_entry):
-    # if tab_val_entry == "STD":
-    probs = list(reversed([float(i["probabilities_tbl"]) for i in rows]))
-    pays = list(reversed([float(i["payoffs_tbl"]) for i in rows]))
-    # elif tab_val_entry == "RT":
+def update_gamble_fig(std_rows, rt_rows, tab_val_entry):
+    if tab_val_entry == "STD":
+        probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
+        pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
+        print(std_rows)
+    elif tab_val_entry == "RT":
+        probs = list(reversed([float(i["rt_probabilities_tbl"]) for i in rt_rows]))
+        pays = list(reversed([float(i["rt_payoffs_tbl"]) for i in rt_rows]))
+        print(rt_rows)
 
     fig = gamble_fig(pays, probs)
     return fig
@@ -126,7 +182,6 @@ def update_gamble_fig(rows, tab_val_entry):
 
 def gamble_fig(pays, probs):
     y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
-    x_1 = [0] + [1] * len(y_1)
     y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
 
     fig = go.Figure(data=[go.Scatter(x=[], y=[],)])
@@ -165,15 +220,12 @@ def gamble_fig(pays, probs):
 
 @app.callback(
     [Output("probs_alert", "is_open"), Output("probs_alert", "children")],
-    [
-        Input("input_tbl", "data"),
-        Input("data_entry_tab", "value"),
-    ],
+    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
 )
-def check_probs(rows,  tab_val_entry):
+def check_probs(rows, tab_val_entry):
     # TODO check out how best to handle floating point errors
     # if tab_val_entry == "STD":
-    probs = [float(i["probabilities_tbl"]) for i in rows]
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
     # elif tab_val_entry == "RT":
     if not isclose(sum(probs), 1):
         return (
@@ -187,9 +239,9 @@ def check_probs(rows,  tab_val_entry):
 
 
 @app.callback(
-    Output("input_tbl", "data"),
-    [Input("editing-rows-button", "n_clicks")],
-    [State("input_tbl", "data"), State("input_tbl", "columns")],
+    Output("std_input_tbl", "data"),
+    [Input("std_editing_rows_button", "n_clicks")],
+    [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
 )
 def add_row(n_clicks, rows, columns):
     if n_clicks > 0:
@@ -199,17 +251,17 @@ def add_row(n_clicks, rows, columns):
 
 # @app.callback(
 #     [Output("pays_input", "value"), Output("probs_input", "value")],
-#     [Input("input_tbl", "data"), Input("input_tbl", "columns")],
+#     [Input("std_input_tbl", "data"), Input("std_input_tbl", "columns")],
 # )
 # def sync_inputs_tbl(rows, columns):
-#     pays = str([i["payoffs_tbl"] for i in rows])[1:-1]
-#     probs = str([i["probabilities_tbl"] for i in rows])[1:-1]
+#     pays = str([i["std_payoffs_tbl"] for i in rows])[1:-1]
+#     probs = str([i["std_probabilities_tbl"] for i in rows])[1:-1]
 #     return pays, probs
 
 
 # TODO Check wether dash has introduced two way syncing at https://community.plotly.com/t/synchronize-components-bidirectionally/14158
 # @app.callback(
-#     Output("input_tbl", "data"),
+#     Output("std_input_tbl", "data"),
 #     [Input("pays_input", "value"), Input("probs_input", "value")],
 # )
 # def sync_inputs_plain(pays, probs):

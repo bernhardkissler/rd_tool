@@ -63,6 +63,7 @@ pw_um_segment = dbc.Container(
                                     "label": "Tversky Kahneman utility function",
                                     "value": "TKU",
                                 },
+                                {"label": "Bernoulli utility function", "value": "BU"},
                                 {"label": "Root utility function", "value": "RU",},
                                 {"label": "Linear Utility function", "value": "LU",},
                                 {"label": "Your utility function", "value": "YU",},
@@ -97,6 +98,8 @@ pw_um_segment = dbc.Container(
                                     [
                                         dbc.Collapse(
                                             [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.um_func_dict["TKU"][2]),
                                                 dbc.Label("a:"),
                                                 dbc.Input(
                                                     id="um_TKU_a",
@@ -123,6 +126,8 @@ pw_um_segment = dbc.Container(
                                         ),
                                         dbc.Collapse(
                                             [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.um_func_dict["RU"][2]),
                                                 dbc.Label("exp:"),
                                                 dbc.Input(
                                                     id="um_RU_exp",
@@ -133,7 +138,20 @@ pw_um_segment = dbc.Container(
                                             ],
                                             id="um_collapse_RU",
                                         ),
-                                        dbc.Collapse([], id="um_collapse_LU"),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.um_func_dict["BU"][2]),
+                                            ],
+                                            id="um_collapse_BU",
+                                        ),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.um_func_dict["LU"][2]),
+                                            ],
+                                            id="um_collapse_LU",
+                                        ),
                                         html.Hr(),
                                         dbc.Label("Minimum display value"),
                                         dbc.Input(
@@ -206,6 +224,8 @@ pw_um_segment = dbc.Container(
                                     [
                                         dbc.Collapse(
                                             [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.pw_func_dict["TKW"][2]),
                                                 dbc.Label("d:"),
                                                 dbc.Input(
                                                     id="pw_TKW_d",
@@ -218,6 +238,8 @@ pw_um_segment = dbc.Container(
                                         ),
                                         dbc.Collapse(
                                             [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.pw_func_dict["GEW"][2]),
                                                 dbc.Label("b:"),
                                                 dbc.Input(
                                                     id="pw_GEW_b",
@@ -241,6 +263,8 @@ pw_um_segment = dbc.Container(
                                         ),
                                         dbc.Collapse(
                                             [
+                                                dbc.Label("Formula:"),
+                                                html.Div(fd.pw_func_dict["PW"][2]),
                                                 dbc.Label("b:"),
                                                 dbc.Input(
                                                     id="pw_PW_b",
@@ -407,6 +431,7 @@ def update_pw_graph(
         Output("um_collapse_TKU", "is_open"),
         Output("um_collapse_RU", "is_open"),
         Output("um_collapse_LU", "is_open"),
+        Output("um_collapse_BU", "is_open"),
         Output("um_collapse_YU", "is_open"),
     ],
     [Input("um_dropdown", "value")],
@@ -414,20 +439,23 @@ def update_pw_graph(
         State("um_collapse_TKU", "is_open"),
         State("um_collapse_RU", "is_open"),
         State("um_collapse_LU", "is_open"),
+        State("um_collapse_BU", "is_open"),
         State("um_collapse_YU", "is_open"),
     ],
 )
-def toggle_um_params(drop_val, TKU_open, RU_open, LU_open, YU_open):
-    TKU_open, RU_open, LU_open, YU_open = False, False, False, False
+def toggle_um_params(drop_val, TKU_open, RU_open, LU_open, BU_open, YU_open):
+    TKU_open, RU_open, LU_open, BU_open, YU_open = False, False, False, False, False
     if drop_val == "TKU":
         TKU_open = True
     elif drop_val == "RU":
         RU_open = True
     elif drop_val == "LU":
         LU_open = True
+    elif drop_val == "BU":
+        BU_open = True
     elif drop_val == "YU":
         YU_open = True
-    return TKU_open, RU_open, LU_open, YU_open
+    return TKU_open, RU_open, LU_open, BU_open, YU_open
 
 
 @app.callback(
@@ -452,6 +480,8 @@ def update_um_graph(
     elif um_drop_val == "RU":
         kwargs = {"exp": RU_exp}
     elif um_drop_val == "LU":
+        kwargs = {}
+    elif um_drop_val == "BU":
         kwargs = {}
     elif um_drop_val == "YU":
         kwargs = {"text": user_func}

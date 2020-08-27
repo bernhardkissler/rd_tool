@@ -69,14 +69,14 @@ output_segment = dbc.Container(
 
 @app.callback(
     Output("output_input_params", "children"),
-    [Input("input_tbl", "data"), Input("data_entry_tab", "value"),],
+    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
 )
 def update_output_input(
     rows, tab_val_entry,
 ):
     # if tab_val_entry == "STD":
-    probs = [float(i["probabilities_tbl"]) for i in rows]
-    pays = [float(i["payoffs_tbl"]) for i in rows]
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    pays = [float(i["std_payoffs_tbl"]) for i in rows]
     # elif tab_val_entry == "RT":
 
     return (
@@ -110,6 +110,8 @@ def update_output_um_theor(
     elif um_drop_val == "RU":
         um_kwargs = {"exp": RU_exp}
     elif um_drop_val == "LU":
+        um_kwargs = {}
+    elif um_drop_val == "BU":
         um_kwargs = {}
     elif um_drop_val == "YU":
         um_kwargs = {}
@@ -157,7 +159,7 @@ def update_output_pw_theor(
 @app.callback(
     Output("output_results_params", "children"),
     [
-        Input("input_tbl", "data"),
+        Input("std_input_tbl", "data"),
         Input("data_entry_tab", "value"),
         Input("theor_dropdown", "value"),
         # pw params
@@ -202,8 +204,8 @@ def update_output(
     um_user_func,
 ):
     # if tab_val_entry == "STD":
-    probs = [float(i["probabilities_tbl"]) for i in rows]
-    pays = [float(i["payoffs_tbl"]) for i in rows]
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    pays = [float(i["std_payoffs_tbl"]) for i in rows]
     # elif tab_val_entry == "RT":
     # pw params
     if pw_drop_val == "TKW":
@@ -221,6 +223,8 @@ def update_output(
     elif um_drop_val == "RU":
         um_kwargs = {"exp": RU_exp}
     elif um_drop_val == "LU":
+        um_kwargs = {}
+    elif um_drop_val == "BU":
         um_kwargs = {}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
