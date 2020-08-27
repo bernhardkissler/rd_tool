@@ -151,7 +151,6 @@ input_segment = dbc.Container(
             ],
             className="row mt-2",
         ),
-        dbc.Alert(id="probs_alert", color="warning", is_open=False, dismissable=True,),
         html.Hr(),
     ],
     className="px-2",
@@ -170,11 +169,11 @@ def update_gamble_fig(std_rows, rt_rows, tab_val_entry):
     if tab_val_entry == "STD":
         probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
         pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
-        print(std_rows)
+        # print(std_rows)
     elif tab_val_entry == "RT":
         probs = list(reversed([float(i["rt_probabilities_tbl"]) for i in rt_rows]))
         pays = list(reversed([float(i["rt_payoffs_tbl"]) for i in rt_rows]))
-        print(rt_rows)
+        # print(rt_rows)
 
     fig = gamble_fig(pays, probs)
     return fig
@@ -219,7 +218,7 @@ def gamble_fig(pays, probs):
 
 
 @app.callback(
-    [Output("probs_alert", "is_open"), Output("probs_alert", "children")],
+    [Output("danger_toast_2", "is_open"), Output("danger_toast_2", "children")],
     [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
 )
 def check_probs(rows, tab_val_entry):

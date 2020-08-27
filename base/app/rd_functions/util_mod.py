@@ -1,6 +1,9 @@
+from math import nan
+from rd_functions.custom_exceptions import PositiveValuesOnlyError
 import sys
 from simpleeval import simple_eval
 import math
+import rd_functions.custom_exceptions as ce
 
 # TODO check https://en.wikipedia.org/wiki/Expected_utility_hypothesis for more interesing utility functions
 
@@ -23,10 +26,11 @@ def root_utility(x: float, exp: float = 2.0) -> float:
     A simple root utility function with u(x) = x**1/exp; by default the quadratic root is used
     """
     if x <= 0:
-        print("Please provide only positive payoffs when using this utility function")
-        # TODO check if we need sys.exit(1)
+        res = nan
+        raise ce.PositiveValuesOnlyError
     else:
-        return x ** (1 / exp)
+        res = x ** (1 / exp)
+    return res
 
 
 def lin_utility(x: float) -> float:
@@ -38,11 +42,12 @@ def lin_utility(x: float) -> float:
 
 def bern_utility(x: float) -> float:
     """ A simple utility function based on bernoulli's initial formulation of EU """
-    if x <= 0:
-        print("Please provide only positive payoffs when using this utility function")
-        # TODO check if we need sys.exit(1)
-    else:
-        return math.log(x)
+    try:
+        res = math.log(x)
+    except ValueError:
+        res = nan
+        raise ce.PositiveValuesOnlyError
+    return res
 
 
 def user_utility(x: float, text: str) -> float:

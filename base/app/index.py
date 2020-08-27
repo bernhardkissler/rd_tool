@@ -30,6 +30,8 @@ app.layout = html.Div(
                     input_rd.input_segment,
                     main_rd.pw_um_segment,
                     output_rd.output_segment,
+                    main_rd.toast_1,
+                    main_rd.toast_2
                 ],
                 className="col-10",
             ),

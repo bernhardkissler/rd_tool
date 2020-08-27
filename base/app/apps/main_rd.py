@@ -1,22 +1,24 @@
-import dash
+# import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-import dash_table
+
+# import dash_table
 
 import plotly.graph_objs as go
 
 import numpy as np
 
-import rd_functions.main_functions as mf
-import rd_functions.util_mod as um
-import rd_functions.prob_weighting as pw
+# import rd_functions.main_functions as mf
+# import rd_functions.util_mod as um
+# import rd_functions.prob_weighting as pw
+import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
-from math import isclose
+from math import isclose, nan
 
 from app import app
 
@@ -100,6 +102,7 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["TKU"][2]),
+                                                html.Hr(),
                                                 dbc.Label("a:"),
                                                 dbc.Input(
                                                     id="um_TKU_a",
@@ -128,6 +131,7 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["RU"][2]),
+                                                html.Hr(),
                                                 dbc.Label("exp:"),
                                                 dbc.Input(
                                                     id="um_RU_exp",
@@ -142,6 +146,7 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["BU"][2]),
+                                                html.Hr(),
                                             ],
                                             id="um_collapse_BU",
                                         ),
@@ -149,6 +154,7 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["LU"][2]),
+                                                html.Hr(),
                                             ],
                                             id="um_collapse_LU",
                                         ),
@@ -226,12 +232,14 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.pw_func_dict["TKW"][2]),
+                                                html.Hr(),
                                                 dbc.Label("d:"),
                                                 dbc.Input(
                                                     id="pw_TKW_d",
                                                     type="number",
                                                     value=0.65,
-                                                    step=0.1,
+                                                    min=0,
+                                                    step=0.01,
                                                 ),
                                             ],
                                             id="pw_collapse_TKW",
@@ -240,6 +248,7 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.pw_func_dict["GEW"][2]),
+                                                html.Hr(),
                                                 dbc.Label("b:"),
                                                 dbc.Input(
                                                     id="pw_GEW_b",
@@ -265,6 +274,7 @@ pw_um_segment = dbc.Container(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.pw_func_dict["PW"][2]),
+                                                html.Hr(),
                                                 dbc.Label("b:"),
                                                 dbc.Input(
                                                     id="pw_PW_b",
@@ -459,7 +469,11 @@ def toggle_um_params(drop_val, TKU_open, RU_open, LU_open, BU_open, YU_open):
 
 
 @app.callback(
-    Output("um_graph", "figure"),
+    [
+        Output("um_graph", "figure"),
+        Output("danger_toast_1", "children"),
+        Output("danger_toast_1", "is_open"),
+    ],
     [
         Input("um_dropdown", "value"),
         Input("um_min_value", "value"),
@@ -487,11 +501,46 @@ def update_um_graph(
         kwargs = {"text": user_func}
 
     x_1_data = np.linspace(min_val, max_val, 1000)
-    y_1_data = [fd.um_func_dict[um_drop_val][0](float(i), **kwargs) for i in x_1_data]
+    # y_1_data = [fd.um_func_dict[um_drop_val][0](float(i), **kwargs) for i in x_1_data]
+
+    danger_text = ""
+    danger_bool = False
+    y_1_data = []
+
+    for i in x_1_data:
+        try:
+            y_1_data.append(fd.um_func_dict[um_drop_val][0](float(i), **kwargs))
+        except ce.PositiveValuesOnlyError:
+            y_1_data.append(nan)
+            danger_text = (
+                "The utility function you chose does only process positive values"
+            )
+            danger_bool = True
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
         template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0)
     )
-    return fig
+
+    return fig, danger_text, danger_bool
+
+
+toast_1 = dbc.Toast(
+    "",
+    id="danger_toast_1",
+    header="Warning - Something isn't right",
+    is_open=False,
+    dismissable=True,
+    icon="danger",
+    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+)
+toast_2 = dbc.Toast(
+    "",
+    id="danger_toast_2",
+    header="Warning - Something isn't right",
+    is_open=False,
+    dismissable=True,
+    icon="danger",
+    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+)
 
