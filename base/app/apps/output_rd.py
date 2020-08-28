@@ -196,6 +196,8 @@ def update_output_pw_theor(
         Input("um_RU_exp", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
+        # rt params
+        Input("rt_weight", "value"),
     ],
 )
 def update_output(
@@ -221,6 +223,8 @@ def update_output(
     RU_exp,
     um_n_clicks,
     um_user_func,
+    # rt params
+    rt_weight,
 ):
     if tab_val_entry == "STD":
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
@@ -254,10 +258,18 @@ def update_output(
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
-    if theor_drop_val == "EU" or theor_drop_val == "RT":
+    if theor_drop_val == "EU":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays,
             probs,
+            um_function=fd.um_func_dict[um_drop_val][0],
+            um_kwargs=um_kwargs,
+        )
+    elif theor_drop_val == "RT":
+        res = fd.mf_func_dict[theor_drop_val][0](
+            pays,
+            probs,
+            weight=rt_weight,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
         )

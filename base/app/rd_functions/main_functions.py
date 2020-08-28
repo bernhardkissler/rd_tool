@@ -8,41 +8,42 @@ def regret_theory(
     pays: List[List[float]],
     probs: List[float],
     weight: float = 1.0,
-    um_function=um.root_utility,
+    um_function=um.lin_utility,
     um_kwargs={},
 ) -> float:
     """ Implementation of Regret theory according to Loomes and Sugden 1982; If several gambles are provided, every gamble is evaluated in relation to the weighted average of all other gambles"""
-    # print(pays)
-    pays_ut = [[um_function(x, **um_kwargs) for x in gamble] for gamble in pays]
-
     pays_delta = []
-    for i_outer, eval_pay in enumerate(pays_ut):
+    for i_outer, eval_pay in enumerate(pays):
         comp_pays = [
-            pays_ut[i_inner] for i_inner in range(len(pays_ut)) if i_outer != i_inner
+            pays[i_inner] for i_inner in range(len(pays)) if i_outer != i_inner
         ]
         comp_pays_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
         pay_delta = [
-            regret_theory_interaction(eval_pay[i], comp_pays_avg[i], weight)
-            # eval_pay[i] + weight * (eval_pay[i] - comp_pays_avg[i])
+            regret_theory_interaction(
+                eval_pay[i], comp_pays_avg[i], weight, um_function, um_kwargs=um_kwargs
+            )
             for i in range(len(eval_pay))
         ]
         pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
-        print(eval_pay)
-        print(comp_pays_avg)
-        print(pays_delta)
-        print("__________________________________________________________")
+    print("***********************************")
+    print(pays_delta)
+    print("***********************************")
     ind_vals = [sum(pays) for pays in pays_delta]
 
     return ind_vals
 
 
-def regret_theory_interaction(x_1, x_2, weight):
+def regret_theory_interaction(
+    x_1, x_2, weight, um_function, um_kwargs={},
+):
     """ classic regret interaction proposed by Loomes and Sugden 1982 """
-    return x_1 + weight * (x_1 - x_2)
+    return um_function(x_1, **um_kwargs) + weight * (
+        um_function(x_1, **um_kwargs) - um_function(x_2, **um_kwargs)
+    )
 
 
 def expected_utility(
-    pays: List[float], probs: List[float], um_function=um.root_utility, um_kwargs={}
+    pays: List[float], probs: List[float], um_function=um.lin_utility, um_kwargs={}
 ) -> float:
     """
     Takes in two vectors (payoffs and their probability) of numbers of equal length and returns the sum of their product, which is the expected utility.

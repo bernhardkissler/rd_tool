@@ -476,42 +476,6 @@ def update_rt_graph(
     um_n_clicks,
     um_user_func,
 ):
-    x_1_data = np.linspace(min_val, max_val, 10).tolist()
-    y_1_data = np.linspace(min_val, max_val, 10).tolist()
-    x_2_data = [
-        item
-        for sublist in [[round(elem, 2)] * 10 for elem in x_1_data]
-        for item in sublist
-    ]
-    y_2_data = [round(elem, 2) for elem in y_1_data] * 10
-
-    heat = [
-        item
-        for sublist in [
-            [
-                mf.regret_theory_interaction(x_val, y_val, rt_weight)
-                for x_val in x_1_data
-            ]
-            for y_val in y_1_data
-        ]
-        for item in sublist
-    ]
-    fig = go.Figure(
-        data=go.Scatter(
-            x=x_2_data,
-            y=y_2_data,
-            mode="markers",
-            opacity=0.5,
-            marker=dict(
-                size=45,
-                color=heat,
-                symbol="square",
-                # colorscale='Viridis',
-                showscale=True,
-            ),
-        )
-    )
-
     # Begin actual points
     pays = [
         list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
@@ -532,22 +496,102 @@ def update_rt_graph(
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
-    res = fd.mf_func_dict["RT"][0](
-        pays, probs, um_function=fd.um_func_dict[um_drop_val][0], um_kwargs=um_kwargs,
-    )
-    # print(res)
-    # print(pays)
-    # print(probs)
-    # for pay in pays:
-    #     fig.add_trace(go.Scatter(x=pay, y=probs))
+    x_1_data = np.linspace(min_val, max_val, 10).tolist()
+    y_1_data = np.linspace(min_val, max_val, 10).tolist()
+    x_2_data = [
+        item
+        for sublist in [[round(elem, 2)] * 10 for elem in x_1_data]
+        for item in sublist
+    ]
+    y_2_data = [round(elem, 2) for elem in y_1_data] * 10
 
-    # TODO integrate rt points
-    """
-    decide on wether utility functions should be applied to heatmap and points and pull them from rt mainfunction    
-    """
+    heat = [
+        item
+        for sublist in [
+            [
+                mf.regret_theory_interaction(
+                    x_val,
+                    y_val,
+                    rt_weight,
+                    fd.um_func_dict[um_drop_val][0],
+                    um_kwargs=um_kwargs,
+                )
+                for x_val in x_1_data
+            ]
+            for y_val in y_1_data
+        ]
+        for item in sublist
+    ]
+    fig = go.Figure(
+        data=go.Scatter(
+            x=x_2_data,
+            y=y_2_data,
+            mode="markers",
+            opacity=0.5,
+            marker=dict(
+                size=60,
+                color=heat,
+                symbol="square",
+                # colorscale='Viridis',
+                showscale=True,
+            ),
+            hoverinfo="none",
+        )
+    )
+
+    comp_pays_avg = []
+    for i_outer, _ in enumerate(pays):
+        comp_pays = [
+            pays[i_inner] for i_inner in range(len(pays)) if i_outer != i_inner
+        ]
+        comp_pay_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
+        comp_pays_avg.append(comp_pay_avg)
+
+    rt_value = [
+        [
+            mf.regret_theory_interaction(
+                pays[i_outer][i_inner],
+                comp_pays_avg[i_outer][i_inner],
+                rt_weight,
+                fd.um_func_dict[um_drop_val][0],
+                um_kwargs=um_kwargs,
+            )
+            for i_inner in range(len(pays[i_outer]))
+        ]
+        for i_outer in range(len(pays))
+    ]
+    rt_weighted_value = [
+        [pay[i] * probs[i] for i in range(len(pay))] for pay in rt_value
+    ]
+    print("---------------------------------------")
+    print(pays)
+    print(comp_pays_avg)
+    print(rt_value)
+    print(rt_weighted_value)
+    print("---------------------------------------")
+
+    # TODO works for linear utility but not for TKU and some other alternatives
+
+    for i in range(len(pays)):
+        fig.add_trace(
+            go.Scatter(
+                y=pays[i],
+                x=comp_pays_avg[i],
+                mode="markers",
+                marker=dict(size=[prob * 100 for prob in probs]),
+                name="Payoff {}".format(i),
+                text=[str(round(prob * 100, 2)) for prob in probs],
+                hovertemplate=" Y of %{y}: <br> X of: %{x} </br> with probability %{text}%",
+            )
+        )
 
     fig.update_layout(
-        template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0)
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        title="Regret theory interaction",
+        xaxis_title="Alternative action values",
+        yaxis_title="Action values",
+        showlegend=False,
     )
     return fig
 
@@ -612,7 +656,11 @@ def update_pw_graph(
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
-        template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        title="Probability weighting function",
+        xaxis_title="Probability",
+        yaxis_title="Weighted Probability",
     )
     return fig
 
@@ -700,7 +748,11 @@ def update_um_graph(
 
     fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
     fig.update_layout(
-        template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0)
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        title="Utility function",
+        xaxis_title="Payoff",
+        yaxis_title="Utility",
     )
 
     return fig, danger_text, danger_bool
