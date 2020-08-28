@@ -12,7 +12,7 @@ def regret_theory(
     um_kwargs={},
 ) -> float:
     """ Implementation of Regret theory according to Loomes and Sugden 1982; If several gambles are provided, every gamble is evaluated in relation to the weighted average of all other gambles"""
-
+    # print(pays)
     pays_ut = [[um_function(x, **um_kwargs) for x in gamble] for gamble in pays]
 
     pays_delta = []
@@ -27,7 +27,12 @@ def regret_theory(
             for i in range(len(eval_pay))
         ]
         pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
+        # print(eval_pay)
+        # print(comp_pays_avg)
+        # print(pays_delta)
+        # print("__________________________________________________________")
 
+    # print()
     ind_vals = [sum(pays) for pays in pays_delta]
 
     return ind_vals

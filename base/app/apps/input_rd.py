@@ -84,7 +84,7 @@ input_segment = dbc.Container(
                                     ],
                                     value="STD",
                                     label="Standard data entry",
-                                    id="std_tab",
+                                    id="std_input_tab",
                                 ),
                                 dcc.Tab(
                                     [
@@ -111,19 +111,31 @@ input_segment = dbc.Container(
                                                                 # "renamable": True,
                                                             }
                                                         ]
+                                                        + [
+                                                            {
+                                                                "id": "rt_payoffs_tbl_1",
+                                                                "name": "Payoffs",
+                                                                "type": "numeric",
+                                                                # "deletable": True,
+                                                                # "renamable": True,
+                                                            }
+                                                        ]
                                                     ),
                                                     data=[
                                                         dict(
                                                             rt_probabilities_tbl=0.1,
                                                             rt_payoffs_tbl_0=1,
+                                                            rt_payoffs_tbl_1=4,
                                                         ),
                                                         dict(
                                                             rt_probabilities_tbl=0.4,
                                                             rt_payoffs_tbl_0=2,
+                                                            rt_payoffs_tbl_1=5,
                                                         ),
                                                         dict(
                                                             rt_probabilities_tbl=0.5,
                                                             rt_payoffs_tbl_0=3,
+                                                            rt_payoffs_tbl_1=6,
                                                         ),
                                                     ],
                                                     editable=True,
@@ -145,7 +157,7 @@ input_segment = dbc.Container(
                                     ],
                                     value="RT",
                                     label="Regret theory entry",
-                                    id="rt_tab",
+                                    id="rt_input_tab",
                                 ),
                             ],
                             id="data_entry_tab",
@@ -166,8 +178,8 @@ input_segment = dbc.Container(
 
 @app.callback(
     [
-        Output("std_tab", "disabled"),
-        Output("rt_tab", "disabled"),
+        Output("std_input_tab", "disabled"),
+        Output("rt_input_tab", "disabled"),
         Output("data_entry_tab", "value"),
     ],
     [Input("theor_dropdown", "value")],
@@ -197,19 +209,15 @@ def update_gamble_fig(std_rows, rt_rows, rt_columns, tab_val_entry):
     if tab_val_entry == "RT":
         #     probs = list(reversed([float(i["rt_probabilities_tbl"]) for i in rt_rows]))
         #     pays = list(reversed([float(i["rt_payoffs_tbl"]) for i in rt_rows]))
-        test = [
+        pays = [
             list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
             for rt_column in rt_columns
             if rt_column["id"] != "rt_probabilities_tbl"
-        ]
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-        print(rt_rows)
-        print("------------------------------------------------------------")
-        print(rt_columns)
-        print("------------------------------------------------------------")
-        print(test)
-        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
-
+        ][0]
+        probs = list(
+            reversed([float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows])
+        )
+        # TODO get figure to properly display several gambles
     fig = gamble_fig(pays, probs)
     return fig
 
@@ -303,7 +311,7 @@ def update_columns(n_clicks, existing_columns):
     if n_clicks > 0:
         existing_columns.append(
             {
-                "id": "rt_payoffs_tbl_{}".format(str(n_clicks)),
+                "id": "rt_payoffs_tbl_{}".format(str(n_clicks + 1)),
                 "name": "Payoffs",
                 # "renamable": True,
                 "deletable": True,

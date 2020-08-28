@@ -46,7 +46,7 @@ theor_segment = dbc.Container(
     [State("pw_um_tabs", "value")],
 )
 def block_pw(drop_val, tab_state):
-    if drop_val == "EU":
+    if drop_val == "EU" or drop_val == "RT":
         return True, "um_tab"
     else:
         return False, tab_state
@@ -95,7 +95,7 @@ pw_um_segment = dbc.Container(
                         html.Div(
                             [
                                 html.Div(
-                                    [dcc.Graph(id="um_graph"),], className="col-9",
+                                    [dcc.Graph(id="um_graph"),], className="col-8",
                                 ),
                                 html.Div(
                                     [
@@ -225,7 +225,7 @@ pw_um_segment = dbc.Container(
                         html.Div(
                             [
                                 html.Div(
-                                    [dcc.Graph(id="pw_graph"),], className="col-9",
+                                    [dcc.Graph(id="pw_graph"),], className="col-8",
                                 ),
                                 html.Div(
                                     [
@@ -331,6 +331,23 @@ pw_um_segment = dbc.Container(
                     label="Choose a probability weighting function",
                     value="pw_tab",
                     id="pw_tab",
+                ),
+                dcc.Tab(
+                    [
+                        dcc.Markdown(
+                            """
+                    jsnfjndsjnsdjnfjdnsfdj
+                    
+                    
+                    sjfnsjdnjfnsdjnf
+                    
+                    ksfndnjfdn
+                    """
+                        )
+                    ],
+                    label="See the interaction in Regret theory",
+                    value="rt_input_tab",
+                    id="rt_tab",
                 ),
             ],
             value="um_tab",

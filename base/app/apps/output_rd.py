@@ -69,15 +69,26 @@ output_segment = dbc.Container(
 
 @app.callback(
     Output("output_input_params", "children"),
-    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
+    [
+        Input("std_input_tbl", "data"),
+        Input("data_entry_tab", "value"),
+        Input("rt_input_tbl", "data"),
+        Input("rt_input_tbl", "columns"),
+    ],
 )
 def update_output_input(
-    rows, tab_val_entry,
+    rows, tab_val_entry, rt_rows, rt_columns,
 ):
-    # if tab_val_entry == "STD":
-    probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    pays = [float(i["std_payoffs_tbl"]) for i in rows]
-    # elif tab_val_entry == "RT":
+    if tab_val_entry == "STD":
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        pays = [float(i["std_payoffs_tbl"]) for i in rows]
+    elif tab_val_entry == "RT":
+        pays = [
+            [float(rt_row[rt_column["id"]]) for rt_row in rt_rows]
+            for rt_column in rt_columns
+            if rt_column["id"] != "rt_probabilities_tbl"
+        ]
+        probs = [float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows]
 
     return (
         html.P("Payoffs: {}".format(pays)),
@@ -146,8 +157,12 @@ def update_output_pw_theor(
     elif pw_drop_val == "YW":
         pw_kwargs = {}
 
-    if theor_drop_val == "EU":
-        return html.P("EU doesn't allow for pw")
+    if theor_drop_val == "EU" or theor_drop_val == "RT":
+        return html.P(
+            "{} doesn't allow for probability weighting.".format(
+                fd.mf_func_dict[theor_drop_val][1]
+            )
+        )
     else:
         return (
             html.P("Theory: {}".format(fd.pw_func_dict[pw_drop_val][1])),
@@ -161,6 +176,8 @@ def update_output_pw_theor(
     [
         Input("std_input_tbl", "data"),
         Input("data_entry_tab", "value"),
+        Input("rt_input_tbl", "data"),
+        Input("rt_input_tbl", "columns"),
         Input("theor_dropdown", "value"),
         # pw params
         Input("pw_dropdown", "value"),
@@ -184,6 +201,8 @@ def update_output_pw_theor(
 def update_output(
     rows,
     tab_val_entry,
+    rt_rows,
+    rt_columns,
     theor_drop_val,
     # pw params
     pw_drop_val,
@@ -203,10 +222,16 @@ def update_output(
     um_n_clicks,
     um_user_func,
 ):
-    # if tab_val_entry == "STD":
-    probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    pays = [float(i["std_payoffs_tbl"]) for i in rows]
-    # elif tab_val_entry == "RT":
+    if tab_val_entry == "STD":
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        pays = [float(i["std_payoffs_tbl"]) for i in rows]
+    elif tab_val_entry == "RT":
+        pays = [
+            list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
+            for rt_column in rt_columns
+            if rt_column["id"] != "rt_probabilities_tbl"
+        ]
+        probs = [float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows]
     # pw params
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}
@@ -229,7 +254,7 @@ def update_output(
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
-    if theor_drop_val == "EU":
+    if theor_drop_val == "EU" or theor_drop_val == "RT":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays,
             probs,
@@ -245,4 +270,8 @@ def update_output(
             um_kwargs=um_kwargs,
             pw_kwargs=pw_kwargs,
         )
-    return html.P("{}".format(round(res, 4)))
+    if type(res) == list:
+        res = [round(elem, 4) for elem in res]
+    else:
+        res = round(res, 4)
+    return html.P("{}".format(res))
