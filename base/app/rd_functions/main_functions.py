@@ -4,6 +4,34 @@ import rd_functions.helpers as he
 from typing import List
 
 
+def regret_theory(
+    pays: List[List[float]],
+    probs: List[float],
+    weight: float = 1.0,
+    um_function=um.root_utility,
+    um_kwargs={},
+) -> float:
+    """ Implementation of Regret theory according to Loomes and Sugden 1982; If several gambles are provided, every gamble is evaluated in relation to the weighted average of all other gambles"""
+
+    pays_ut = [[um_function(x, **um_kwargs) for x in gamble] for gamble in pays]
+
+    pays_delta = []
+    for i_outer, eval_pay in enumerate(pays_ut):
+        comp_pays = [
+            pays_ut[i_inner] for i_inner in range(len(pays_ut)) if i_outer != i_inner
+        ]
+        comp_pays_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
+        pay_delta = [
+            eval_pay[1] + weight * (eval_pay[i] - comp_pays_avg[i])
+            for i in range(len(eval_pay))
+        ]
+        pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
+
+    ind_vals = [sum(pays) for pays in pays_delta]
+
+    return ind_vals
+
+
 def expected_utility(
     pays: List[float], probs: List[float], um_function=um.root_utility, um_kwargs={}
 ) -> float:
@@ -100,19 +128,3 @@ def cumulative_prospect_theory(
     ]
     ind_vals = [pays_final[i] * probs_final[i] for i in range(len(pays_final))]
     return sum(ind_vals)
-
-
-# cumulative_prospect_theory([1, 2, 3], [0.1,0.3,0.6])
-# cumulative_prospect_theory(
-#     [4, 2, 3, 4], [0.25, 0.25, 0.25, 0.25], pw_kwargs={"d": 1},
-# )
-
-# rank_dependent_utility([1, 2, 3], [0.1, 0.4, 0.5])
-# um.root_utility()
-# um.utility_tversky_kahneman(-3, r=0, a=0.88, l=2.25)
-# um.root_utility(3)
-# expected_utility([3, 2], [0.3, 0.7], util_function=um.lin_utility)
-# rank_dependent_utility([1, 2], [0.4, 0.6], util_function=um.lin_utility)
-# cumulative_prospect_theory([-3, 2], [0.4, 0.6])
-# um.utility_tversky_kahneman()
-
