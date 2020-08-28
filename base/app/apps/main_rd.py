@@ -11,7 +11,8 @@ import plotly.graph_objs as go
 
 import numpy as np
 
-# import rd_functions.main_functions as mf
+import rd_functions.main_functions as mf
+
 # import rd_functions.util_mod as um
 # import rd_functions.prob_weighting as pw
 import rd_functions.custom_exceptions as ce
@@ -41,15 +42,21 @@ theor_segment = dbc.Container(
 
 # MARK disable choice of pw for certain theories here
 @app.callback(
-    [Output("pw_tab", "disabled"), Output("pw_um_tabs", "value")],
+    [
+        Output("pw_tab", "disabled"),
+        Output("rt_tab", "disabled"),
+        Output("pw_um_tabs", "value"),
+    ],
     [Input("theor_dropdown", "value")],
     [State("pw_um_tabs", "value")],
 )
 def block_pw(drop_val, tab_state):
-    if drop_val == "EU" or drop_val == "RT":
-        return True, "um_tab"
+    if drop_val == "EU":
+        return True, True, "um_tab"
+    elif drop_val == "RT":
+        return True, False, "um_tab"
     else:
-        return False, tab_state
+        return False, True, "um_tab"
 
 
 pw_um_segment = dbc.Container(
@@ -334,16 +341,52 @@ pw_um_segment = dbc.Container(
                 ),
                 dcc.Tab(
                     [
-                        dcc.Markdown(
-                            """
-                    jsnfjndsjnsdjnfjdnsfdj
-                    
-                    
-                    sjfnsjdnjfnsdjnf
-                    
-                    ksfndnjfdn
-                    """
-                        )
+                        html.H3("Regret theory interaction", className="py-2",),
+                        html.Div(
+                            [
+                                html.Div(
+                                    [dcc.Graph(id="rt_graph"),], className="col-8",
+                                ),
+                                html.Div(
+                                    [
+                                        # dbc.Label("Formula:"),
+                                        # html.Div(fd.pw_func_dict["PW"][2]),
+                                        # html.Hr(),
+                                        dbc.Label("weight:"),
+                                        dbc.Input(
+                                            id="rt_weight",
+                                            type="number",
+                                            value=0.5,
+                                            min=0,
+                                            max=1,
+                                            step=0.01,
+                                        ),
+                                        html.Hr(),
+                                        dbc.Label("Minimum display value"),
+                                        dbc.Input(
+                                            id="rt_min_value",
+                                            type="number",
+                                            value=-10,
+                                            step=0.01,
+                                        ),
+                                        dbc.Label("Maximum display value"),
+                                        dbc.Input(
+                                            id="rt_max_value",
+                                            type="number",
+                                            value=10,
+                                            step=0.01,
+                                        ),
+                                        dbc.Button(
+                                            "Reset all values",
+                                            id="rt_reset_btn",
+                                            className="my-3",
+                                        ),
+                                    ],
+                                    className="col",
+                                ),
+                            ],
+                            className="row mt-2",
+                        ),
                     ],
                     label="See the interaction in Regret theory",
                     value="rt_input_tab",
@@ -387,6 +430,126 @@ def pw_reset(n_clicks):
 )
 def um_reset(n_clicks):
     return 0.88, 2.25, 0, 2, 0, 10
+
+
+@app.callback(
+    [
+        Output("rt_weight", "value"),
+        Output("rt_min_value", "value"),
+        Output("rt_max_value", "value"),
+    ],
+    [Input("rt_reset_btn", "n_clicks")],
+)
+def rt_reset(n_clicks):
+    return 0.5, 0, 10
+
+
+@app.callback(
+    Output("rt_graph", "figure"),
+    [
+        Input("rt_min_value", "value"),
+        Input("rt_max_value", "value"),
+        Input("rt_weight", "value"),
+        Input("rt_input_tbl", "data"),
+        Input("rt_input_tbl", "columns"),
+        # um params
+        Input("um_dropdown", "value"),
+        Input("um_TKU_a", "value"),
+        Input("um_TKU_l", "value"),
+        Input("um_TKU_r", "value"),
+        Input("um_RU_exp", "value"),
+        Input("um_text_runner", "n_clicks"),
+        Input("um_text", "value"),
+    ],
+)
+def update_rt_graph(
+    min_val,
+    max_val,
+    rt_weight,
+    rt_rows,
+    rt_columns,
+    um_drop_val,
+    TKU_a,
+    TKU_l,
+    TKU_r,
+    RU_exp,
+    um_n_clicks,
+    um_user_func,
+):
+    x_1_data = np.linspace(min_val, max_val, 10).tolist()
+    y_1_data = np.linspace(min_val, max_val, 10).tolist()
+    x_2_data = [
+        item
+        for sublist in [[round(elem, 2)] * 10 for elem in x_1_data]
+        for item in sublist
+    ]
+    y_2_data = [round(elem, 2) for elem in y_1_data] * 10
+
+    heat = [
+        item
+        for sublist in [
+            [
+                mf.regret_theory_interaction(x_val, y_val, rt_weight)
+                for x_val in x_1_data
+            ]
+            for y_val in y_1_data
+        ]
+        for item in sublist
+    ]
+    fig = go.Figure(
+        data=go.Scatter(
+            x=x_2_data,
+            y=y_2_data,
+            mode="markers",
+            opacity=0.5,
+            marker=dict(
+                size=45,
+                color=heat,
+                symbol="square",
+                # colorscale='Viridis',
+                showscale=True,
+            ),
+        )
+    )
+
+    # Begin actual points
+    pays = [
+        list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
+        for rt_column in rt_columns
+        if rt_column["id"] != "rt_probabilities_tbl"
+    ]
+    probs = [float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows]
+
+    # um params
+    if um_drop_val == "TKU":
+        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+    elif um_drop_val == "RU":
+        um_kwargs = {"exp": RU_exp}
+    elif um_drop_val == "LU":
+        um_kwargs = {}
+    elif um_drop_val == "BU":
+        um_kwargs = {}
+    elif um_drop_val == "YU":
+        um_kwargs = {"text": um_user_func}
+
+    res = fd.mf_func_dict["RT"][0](
+        pays, probs, um_function=fd.um_func_dict[um_drop_val][0], um_kwargs=um_kwargs,
+    )
+    # print(res)
+    # print(pays)
+    # print(probs)
+    # for pay in pays:
+    #     fig.add_trace(go.Scatter(x=pay, y=probs))
+
+    # TODO integrate rt points
+    """
+    decide on wether utility functions should be applied to heatmap and points and pull them from rt mainfunction    
+    """
+
+    fig.update_layout(
+        template="plotly_white", margin=dict(l=25, r=25, b=25, t=25, pad=0)
+    )
+    return fig
 
 
 @app.callback(
