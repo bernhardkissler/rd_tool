@@ -1,4 +1,4 @@
-import dash
+# import dash
 import dash_bootstrap_components as dbc
 import dash_core_components as dcc
 import dash_html_components as html
@@ -10,11 +10,11 @@ import plotly.graph_objs as go
 
 import numpy as np
 
-import rd_functions.main_functions as mf
-import rd_functions.util_mod as um
-import rd_functions.prob_weighting as pw
+# import rd_functions.main_functions as mf
+# import rd_functions.util_mod as um
+# import rd_functions.prob_weighting as pw
 
-import apps.func_dicts as fd
+# import apps.func_dicts as fd
 
 from math import isclose
 
@@ -84,6 +84,7 @@ input_segment = dbc.Container(
                                     ],
                                     value="STD",
                                     label="Standard data entry",
+                                    id="std_tab",
                                 ),
                                 dcc.Tab(
                                     [
@@ -97,32 +98,32 @@ input_segment = dbc.Container(
                                                                 "id": "rt_probabilities_tbl",
                                                                 "name": "Probabilities",
                                                                 "type": "numeric",
-                                                                "deletable": True,
-                                                                "renamable": True,
+                                                                # "deletable": True,
+                                                                # "renamable": True,
                                                             }
                                                         ]
                                                         + [
                                                             {
-                                                                "id": "rt_payoffs_tbl",
+                                                                "id": "rt_payoffs_tbl_0",
                                                                 "name": "Payoffs",
                                                                 "type": "numeric",
-                                                                "deletable": True,
-                                                                "renamable": True,
+                                                                # "deletable": True,
+                                                                # "renamable": True,
                                                             }
                                                         ]
                                                     ),
                                                     data=[
                                                         dict(
                                                             rt_probabilities_tbl=0.1,
-                                                            rt_payoffs_tbl=1,
+                                                            rt_payoffs_tbl_0=1,
                                                         ),
                                                         dict(
                                                             rt_probabilities_tbl=0.4,
-                                                            rt_payoffs_tbl=2,
+                                                            rt_payoffs_tbl_0=2,
                                                         ),
                                                         dict(
                                                             rt_probabilities_tbl=0.5,
-                                                            rt_payoffs_tbl=3,
+                                                            rt_payoffs_tbl_0=3,
                                                         ),
                                                     ],
                                                     editable=True,
@@ -136,9 +137,15 @@ input_segment = dbc.Container(
                                             id="rt_editing_rows_button",
                                             n_clicks=0,
                                         ),
+                                        dbc.Button(
+                                            "Add Column",
+                                            id="rt_editing_columns_button",
+                                            n_clicks=0,
+                                        ),
                                     ],
                                     value="RT",
                                     label="Regret theory entry",
+                                    id="rt_tab",
                                 ),
                             ],
                             id="data_entry_tab",
@@ -158,22 +165,50 @@ input_segment = dbc.Container(
 
 
 @app.callback(
+    [
+        Output("std_tab", "disabled"),
+        Output("rt_tab", "disabled"),
+        Output("data_entry_tab", "value"),
+    ],
+    [Input("theor_dropdown", "value")],
+    [State("data_entry_tab", "value")],
+)
+def manage_input_tabs(drop_val, tab_state):
+    if drop_val == "RT":
+        return True, False, "RT"
+    else:
+        return False, True, "STD"
+
+
+@app.callback(
     Output("gamble_fig", "figure"),
     [
         Input("std_input_tbl", "data"),
         Input("rt_input_tbl", "data"),
+        Input("rt_input_tbl", "columns"),
         Input("data_entry_tab", "value"),
     ],
 )
-def update_gamble_fig(std_rows, rt_rows, tab_val_entry):
-    if tab_val_entry == "STD":
-        probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
-        pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
-        # print(std_rows)
-    elif tab_val_entry == "RT":
-        probs = list(reversed([float(i["rt_probabilities_tbl"]) for i in rt_rows]))
-        pays = list(reversed([float(i["rt_payoffs_tbl"]) for i in rt_rows]))
-        # print(rt_rows)
+def update_gamble_fig(std_rows, rt_rows, rt_columns, tab_val_entry):
+    # if tab_val_entry == "STD":
+    probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
+    pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
+    # print(std_rows)
+    if tab_val_entry == "RT":
+        #     probs = list(reversed([float(i["rt_probabilities_tbl"]) for i in rt_rows]))
+        #     pays = list(reversed([float(i["rt_payoffs_tbl"]) for i in rt_rows]))
+        test = [
+            list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
+            for rt_column in rt_columns
+            if rt_column["id"] != "rt_probabilities_tbl"
+        ]
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+        print(rt_rows)
+        print("------------------------------------------------------------")
+        print(rt_columns)
+        print("------------------------------------------------------------")
+        print(test)
+        print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
     fig = gamble_fig(pays, probs)
     return fig
@@ -248,21 +283,31 @@ def add_row(n_clicks, rows, columns):
     return rows
 
 
-# @app.callback(
-#     [Output("pays_input", "value"), Output("probs_input", "value")],
-#     [Input("std_input_tbl", "data"), Input("std_input_tbl", "columns")],
-# )
-# def sync_inputs_tbl(rows, columns):
-#     pays = str([i["std_payoffs_tbl"] for i in rows])[1:-1]
-#     probs = str([i["std_probabilities_tbl"] for i in rows])[1:-1]
-#     return pays, probs
+@app.callback(
+    Output("rt_input_tbl", "data"),
+    [Input("rt_editing_rows_button", "n_clicks")],
+    [State("rt_input_tbl", "data"), State("rt_input_tbl", "columns")],
+)
+def add_row(n_clicks, rows, columns):
+    if n_clicks > 0:
+        rows.append({c["id"]: "" for c in columns})
+    return rows
 
 
-# TODO Check wether dash has introduced two way syncing at https://community.plotly.com/t/synchronize-components-bidirectionally/14158
-# @app.callback(
-#     Output("std_input_tbl", "data"),
-#     [Input("pays_input", "value"), Input("probs_input", "value")],
-# )
-# def sync_inputs_plain(pays, probs):
-#     pays_ls = [float(i) for i in pays.split(",")]
-#     probs_ls = [float(i) for i in probs.split(",")]
+@app.callback(
+    Output("rt_input_tbl", "columns"),
+    [Input("rt_editing_columns_button", "n_clicks")],
+    [State("rt_input_tbl", "columns")],
+)
+def update_columns(n_clicks, existing_columns):
+    if n_clicks > 0:
+        existing_columns.append(
+            {
+                "id": "rt_payoffs_tbl_{}".format(str(n_clicks)),
+                "name": "Payoffs",
+                # "renamable": True,
+                "deletable": True,
+                "type": "numeric",
+            }
+        )
+    return existing_columns

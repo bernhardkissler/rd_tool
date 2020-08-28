@@ -31,6 +31,7 @@ theor_segment = dbc.Container(
                 {"label": "Cumulative prospect theory", "value": "CPT",},
                 {"label": "Rank dependent utility", "value": "RDU",},
                 {"label": "Expected utility", "value": "EU",},
+                {"label": "Regret theory", "value": "RT"},
             ],
             value="CPT",
         ),
@@ -537,6 +538,15 @@ toast_1 = dbc.Toast(
 toast_2 = dbc.Toast(
     "",
     id="danger_toast_2",
+    header="Warning - Something isn't right",
+    is_open=False,
+    dismissable=True,
+    icon="danger",
+    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+)
+toast_3 = dbc.Toast(
+    "",
+    id="danger_toast_3",
     header="Warning - Something isn't right",
     is_open=False,
     dismissable=True,

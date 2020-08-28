@@ -41,4 +41,6 @@ mf_func_dict = {
     "CPT": [mf.cumulative_prospect_theory, "Cumulative prospect theory"],
     "RDU": [mf.rank_dependent_utility, "Rank dependent utility"],
     "EU": [mf.expected_utility, "Expected utility"],
+    "RT": [mf.regret_theory, "Regret theory"],
+    "RT_i": [mf.regret_theory_interaction, "Regret theory interaction"],
 }
