@@ -22,7 +22,8 @@ def regret_theory(
         ]
         comp_pays_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
         pay_delta = [
-            eval_pay[1] + weight * (eval_pay[i] - comp_pays_avg[i])
+            regret_theory_interaction(eval_pay[i], comp_pays_avg[i], weight)
+            # eval_pay[i] + weight * (eval_pay[i] - comp_pays_avg[i])
             for i in range(len(eval_pay))
         ]
         pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
@@ -30,6 +31,11 @@ def regret_theory(
     ind_vals = [sum(pays) for pays in pays_delta]
 
     return ind_vals
+
+
+def regret_theory_interaction(x_1, x_2, weight):
+    """ classic regret interaction proposed by Loomes and Sugden 1982 """
+    return x_1 + weight * (x_1 - x_2)
 
 
 def expected_utility(
