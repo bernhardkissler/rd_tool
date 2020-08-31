@@ -4,6 +4,8 @@ from dash.dependencies import Input, Output
 import dash_bootstrap_components as dbc
 
 from app import app
+
+server = app.server
 from apps import input_rd, main_rd, output_rd
 
 app.layout = html.Div(
@@ -31,7 +33,7 @@ app.layout = html.Div(
                     main_rd.pw_um_segment,
                     output_rd.output_segment,
                     main_rd.toast_1,
-                    main_rd.toast_2
+                    main_rd.toast_2,
                 ],
                 className="col-10",
             ),
