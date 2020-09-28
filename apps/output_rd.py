@@ -23,7 +23,7 @@ from app import app
 output_segment = dbc.Container(
     [
         html.Hr(),
-        html.H3("Output", className="py-2"),
+        html.H3("Output", id="output_link", className="py-2"),
         dbc.CardGroup(
             [
                 dbc.Card(

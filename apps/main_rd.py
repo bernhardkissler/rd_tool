@@ -65,7 +65,7 @@ pw_um_segment = dbc.Container(
             [
                 dcc.Tab(
                     [
-                        html.H3("Utility function", className="py-2",),
+                        html.H3("Utility function", id="uf_link", className="py-2",),
                         dcc.Dropdown(
                             id="um_dropdown",
                             options=[
@@ -193,7 +193,11 @@ pw_um_segment = dbc.Container(
                 ),
                 dcc.Tab(
                     [
-                        html.H3("Probability weighting function", className="py-2",),
+                        html.H3(
+                            "Probability weighting function",
+                            id="pw_link",
+                            className="py-2",
+                        ),
                         dcc.Dropdown(
                             id="pw_dropdown",
                             options=[
