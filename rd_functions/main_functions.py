@@ -25,9 +25,9 @@ def regret_theory(
             for i in range(len(eval_pay))
         ]
         pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
-    print("***********************************")
-    print(pays_delta)
-    print("***********************************")
+    # print("***********************************")
+    # print(pays_delta)
+    # print("***********************************")
     ind_vals = [sum(pays) for pays in pays_delta]
 
     return ind_vals

@@ -567,12 +567,12 @@ def update_rt_graph(
     rt_weighted_value = [
         [pay[i] * probs[i] for i in range(len(pay))] for pay in rt_value
     ]
-    print("---------------------------------------")
-    print(pays)
-    print(comp_pays_avg)
-    print(rt_value)
-    print(rt_weighted_value)
-    print("---------------------------------------")
+    # print("---------------------------------------")
+    # print(pays)
+    # print(comp_pays_avg)
+    # print(rt_value)
+    # print(rt_weighted_value)
+    # print("---------------------------------------")
 
     # TODO works for linear utility but not for TKU and some other alternatives
 

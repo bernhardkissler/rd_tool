@@ -12,7 +12,7 @@ from apps import input_rd, main_rd, output_rd
 navbar = dbc.Navbar(
     [
         dbc.NavbarBrand(
-            html.A("Risky decisions - tool", href="#", className="text-white"),
+            html.A("Choices under risk - tool", href="#", className="text-white"),
         ),
         dbc.Collapse(
             [
@@ -61,12 +61,12 @@ app.layout = html.Div(
                     main_rd.toast_2,
                 ],
                 # FIXME nicht sehr elegantes padding, damit die Navbar nicht den COntent verdeckt
-                className="col-10 pt-5 mt-5",
+                className="col pt-5 mt-5",
             ),
-            className="row justify-content-md-center mt-2",
+            className="row mt-2",
         ),
     ]
 )
 
 if __name__ == "__main__":
-    app.run_server(debug=True)
+    app.run_server(debug=True, port=8080, host="0.0.0.0")
