@@ -10,6 +10,8 @@ import plotly.graph_objs as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
+plot_color = "#F26B5B"
+
 import numpy as np
 
 # import rd_functions.main_functions as mf
@@ -168,8 +170,7 @@ input_segment = dbc.Container(
                     ],
                     className="col-4",
                 ),
-                html.Div([dcc.Graph(id="gamble_fig")], className="col",),
-                html.Div([dcc.Graph(id="cdf_fig")], className="col",),
+                html.Div([dcc.Graph(id="gamble_figs")], className="col",),
             ],
             className="row mt-2",
         ),
@@ -195,9 +196,9 @@ def manage_input_tabs(drop_val, tab_state):
         return False, True, "STD"
 
 
-# Manage Decision Tree Gamble Fig
+# Manage gamble Figs
 @app.callback(
-    Output("gamble_fig", "figure"),
+    Output("gamble_figs", "figure"),
     [
         Input("std_input_tbl", "data"),
         Input("rt_input_tbl", "data"),
@@ -205,84 +206,7 @@ def manage_input_tabs(drop_val, tab_state):
         Input("data_entry_tab", "value"),
     ],
 )
-def update_gamble_fig(std_rows, rt_rows, rt_columns, tab_val_entry):
-    # if tab_val_entry == "STD":
-    probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
-    pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
-    # print(std_rows)
-    if tab_val_entry == "RT":
-        #     probs = list(reversed([float(i["rt_probabilities_tbl"]) for i in rt_rows]))
-        #     pays = list(reversed([float(i["rt_payoffs_tbl"]) for i in rt_rows]))
-        pays = [
-            list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
-            for rt_column in rt_columns
-            if rt_column["id"] != "rt_probabilities_tbl"
-        ][0]
-        probs = list(
-            reversed([float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows])
-        )
-        # TODO get figure to properly display several gambles
-    fig = gamble_fig(pays, probs)
-    return fig
-
-
-def gamble_fig(pays, probs):
-    y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
-    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
-
-    fig = go.Figure(data=[go.Scatter(x=[], y=[],)])
-    for i in range(len(probs)):
-        fig.add_annotation(
-            x=0.5, y=y_2[i], text=probs[i], ax=0, ay=-15, arrowcolor="rgba(0,0,0,0)",
-        )
-
-    for i in range(len(probs)):
-        fig.add_annotation(
-            x=1, y=y_1[i + 1], text=pays[i], ax=20, ay=0, arrowcolor="rgba(0,0,0,0)",
-        )
-    for i in range(len(probs)):
-        fig.add_trace(
-            go.Scatter(
-                x=[0, 1],
-                y=[0.5, y_1[i + 1]],
-                mode="markers+lines",
-                line=dict(color="#636EFA"),
-                marker=dict(color="#636EFA"),
-                hoverinfo="none",
-            )
-        )
-
-    fig.update_layout(
-        title="Your Choices",
-        template="plotly_white",
-        margin=dict(
-            l=0,
-            r=0,
-            b=0,
-            # t=0,
-            pad=0,
-        ),
-        font=dict(size=18),
-        showlegend=False,
-        height=400,
-    )
-    fig.update_xaxes(range=[-0.4, 1.4], showgrid=False, zeroline=False, visible=False)
-    fig.update_yaxes(range=[-0.1, 1.1], showgrid=False, zeroline=False, visible=False)
-
-    return fig
-
-
-# Manage PDF & CDF Fig
-@app.callback(
-    Output("cdf_fig", "figure"),
-    [
-        Input("std_input_tbl", "data"),
-        Input("rt_input_tbl", "data"),
-        Input("rt_input_tbl", "columns"),
-        Input("data_entry_tab", "value"),
-    ],
-)
-def update_cdf_fig(std_rows, rt_rows, rt_columns, tab_val_entry):
+def update_gamble_figs(std_rows, rt_rows, rt_columns, tab_val_entry):
     probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
     pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
     if tab_val_entry == "RT":
@@ -294,36 +218,11 @@ def update_cdf_fig(std_rows, rt_rows, rt_columns, tab_val_entry):
         probs = list(
             reversed([float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows])
         )
-    fig = cdf_fig(pays, probs)
+    fig = gamble_figs(pays, probs)
     return fig
 
 
-def cdf_fig(pays, probs):
-    # Transformation for gamble fig
-    y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
-    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
-
-    # Transformation for cdf
-    pays_ord, probs_ord = sorted(pays), [x for _, x in sorted(zip(pays, probs))]
-    pays_graph = [
-        item
-        for sublist in [
-            [pays_ord[i], pays_ord[i + 1]]
-            if i < len(pays_ord) - 1
-            else [pays_ord[i], pays_ord[i] + 1]
-            for i in range(len(pays_ord))
-        ]
-        for item in sublist
-    ]
-    probs_graph = [
-        item
-        for sublist in [
-            2 * [sum(probs_ord[: i + 1])] if i < len(probs_ord) else 2 * []
-            for i in range(len(probs_ord))
-        ]
-        for item in sublist
-    ]
-
+def gamble_figs(pays, probs):
     # Prepare plot
     fig = make_subplots(
         rows=2,
@@ -336,14 +235,28 @@ def cdf_fig(pays, probs):
             "Cumulative Density Function",
         ),
     )
+    fig.update_layout(
+        # title="Cumulative Density Function",
+        template="plotly_white",
+        margin=dict(l=0, r=0, t=20, b=0, pad=0,),
+        showlegend=False,
+        xaxis2_showticklabels=True,
+        xaxis3_showticklabels=True,
+        height=300,
+    )
+
+    # Decision Tree Figure
+    y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
+    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
+
     for i in range(len(probs)):
         fig.add_trace(
             go.Scatter(
                 x=[0, 1],
                 y=[0.5, y_1[i + 1]],
-                mode="markers+lines",
-                line=dict(color="#636EFA"),
-                marker=dict(color="#636EFA"),
+                mode="lines",
+                line=dict(color=plot_color),
+                marker=dict(color=plot_color),
                 hoverinfo="none",
             ),
             row=1,
@@ -372,11 +285,6 @@ def cdf_fig(pays, probs):
             row=1,
             col=1,
         )
-
-    fig.add_trace(go.Bar(x=pays, y=probs), row=1, col=2)
-    fig.add_trace(go.Scatter(x=pays_graph, y=probs_graph, mode="lines"), row=2, col=2)
-
-    # update Layout
     fig.update_xaxes(
         range=[-0.4, 1.4], showgrid=False, zeroline=False, visible=False, row=1, col=1
     )
@@ -384,32 +292,58 @@ def cdf_fig(pays, probs):
         range=[-0.1, 1.1], showgrid=False, zeroline=False, visible=False, row=1, col=1
     )
 
-    fig.update_layout(
-        title="Cumulative Density Function",
-        template="plotly_white",
-        margin=dict(
-            l=0,
-            r=0,
-            b=0,
-            # t=0,
-            pad=0,
-        ),
-        # font=dict(size=18),
-        showlegend=False,
-        height=400,
-    )
+    # PDF Figure Trace
+    fig.add_trace(go.Bar(x=pays, y=probs, marker_color=plot_color), row=1, col=2)
     fig.update_xaxes(
         showgrid=False,
-        # zeroline=False,
-        # visible=False
+        zeroline=False,
+        visible=True,
+        tickmode="array",
+        tickvals=pays,
+        row=1,
+        col=2,
     )
     fig.update_yaxes(
-        range=[0.0, 1],
-        showgrid=False,
-        # zeroline=False,
-        # visible=False
+        showgrid=False, zeroline=True, row=1, col=2,
     )
 
+    # Transformation for cdf
+    pays_ord, probs_ord = sorted(pays), [x for _, x in sorted(zip(pays, probs))]
+    pays_graph = [
+        [pays_ord[i], pays_ord[i + 1]]
+        if i < len(pays_ord) - 1
+        else [pays_ord[i], pays_ord[i] * 1.1]
+        for i in range(len(pays_ord))
+    ]
+    probs_graph = [
+        2 * [sum(probs_ord[: i + 1])] if i < len(probs_ord) else 2 * []
+        for i in range(len(probs_ord))
+    ]
+    for i, _ in enumerate(pays_graph):
+        fig.add_trace(
+            go.Scatter(
+                x=pays_graph[i],
+                y=probs_graph[i],
+                mode="lines",
+                line=dict(color=plot_color),
+            ),
+            row=2,
+            col=2,
+        )
+    print(f"pays = {pays_graph}", "\n", f"probs = {probs_graph}")
+
+    fig.update_xaxes(
+        showgrid=False,
+        zeroline=False,
+        visible=True,
+        tickmode="array",
+        tickvals=pays,
+        row=2,
+        col=2,
+    )
+    fig.update_yaxes(
+        range=[0.0, 1.05], showgrid=False, zeroline=True, row=2, col=2,
+    )
     return fig
 
 
