@@ -69,26 +69,21 @@ output_segment = dbc.Container(
 
 @app.callback(
     Output("output_input_params", "children"),
-    [
-        Input("std_input_tbl", "data"),
-        Input("data_entry_tab", "value"),
-        Input("rt_input_tbl", "data"),
-        Input("rt_input_tbl", "columns"),
-    ],
+    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
 )
 def update_output_input(
-    rows, tab_val_entry, rt_rows, rt_columns,
+    rows, tab_val_entry,
 ):
     if tab_val_entry == "STD":
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
         pays = [float(i["std_payoffs_tbl"]) for i in rows]
     elif tab_val_entry == "RT":
+        # CHECK changed to new std_table with hidden column, implement simple comp value
         pays = [
-            [float(rt_row[rt_column["id"]]) for rt_row in rt_rows]
-            for rt_column in rt_columns
-            if rt_column["id"] != "rt_probabilities_tbl"
+            [float(i["std_payoffs_tbl"]) for i in rows],
+            [float(i["comp_payoffs_tbl"]) for i in rows],
         ]
-        probs = [float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows]
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
 
     return (
         html.P("Payoffs: {}".format(pays)),
@@ -176,8 +171,6 @@ def update_output_pw_theor(
     [
         Input("std_input_tbl", "data"),
         Input("data_entry_tab", "value"),
-        Input("rt_input_tbl", "data"),
-        Input("rt_input_tbl", "columns"),
         Input("theor_dropdown", "value"),
         # pw params
         Input("pw_dropdown", "value"),
@@ -203,8 +196,6 @@ def update_output_pw_theor(
 def update_output(
     rows,
     tab_val_entry,
-    rt_rows,
-    rt_columns,
     theor_drop_val,
     # pw params
     pw_drop_val,
@@ -230,12 +221,12 @@ def update_output(
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
         pays = [float(i["std_payoffs_tbl"]) for i in rows]
     elif tab_val_entry == "RT":
+        # CHECK changed to new std_table with hidden column, implement simple comp value
         pays = [
-            list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
-            for rt_column in rt_columns
-            if rt_column["id"] != "rt_probabilities_tbl"
+            [float(i["std_payoffs_tbl"]) for i in rows],
+            [float(i["comp_payoffs_tbl"]) for i in rows],
         ]
-        probs = [float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows]
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
     # pw params
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}

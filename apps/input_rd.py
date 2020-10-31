@@ -88,17 +88,17 @@ input_segment = dbc.Container(
                                                         dict(
                                                             std_probabilities_tbl=0.1,
                                                             std_payoffs_tbl=1,
-                                                            comp_payoffs_tbl=1,
+                                                            comp_payoffs_tbl=4,
                                                         ),
                                                         dict(
                                                             std_probabilities_tbl=0.4,
                                                             std_payoffs_tbl=2,
-                                                            comp_payoffs_tbl=2,
+                                                            comp_payoffs_tbl=5,
                                                         ),
                                                         dict(
                                                             std_probabilities_tbl=0.5,
                                                             std_payoffs_tbl=3,
-                                                            comp_payoffs_tbl=3,
+                                                            comp_payoffs_tbl=6,
                                                         ),
                                                     ],
                                                     editable=True,
@@ -220,25 +220,13 @@ def manage_input_tabs(drop_val, tab_state):
 # Manage gamble Figs
 @app.callback(
     Output("gamble_figs", "figure"),
-    [
-        Input("std_input_tbl", "data"),
-        Input("rt_input_tbl", "data"),
-        Input("rt_input_tbl", "columns"),
-        Input("data_entry_tab", "value"),
-    ],
+    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
 )
-def update_gamble_figs(std_rows, rt_rows, rt_columns, tab_val_entry):
-    probs = list(reversed([float(i["std_probabilities_tbl"]) for i in std_rows]))
-    pays = list(reversed([float(i["std_payoffs_tbl"]) for i in std_rows]))
-    if tab_val_entry == "RT":
-        pays = [
-            list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
-            for rt_column in rt_columns
-            if rt_column["id"] != "rt_probabilities_tbl"
-        ][0]
-        probs = list(
-            reversed([float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows])
-        )
+def update_gamble_figs(std_rows, tab_val_entry):
+    # TODO add logic to display second figs when RT or Salience?
+    # CHECK probs and pays were list(reversed()) before does this make a difference?
+    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
+    pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
     fig = gamble_figs(pays, probs)
     return fig
 

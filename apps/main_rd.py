@@ -454,8 +454,7 @@ def rt_reset(n_clicks):
         Input("rt_min_value", "value"),
         Input("rt_max_value", "value"),
         Input("rt_weight", "value"),
-        Input("rt_input_tbl", "data"),
-        Input("rt_input_tbl", "columns"),
+        Input("std_input_tbl", "data"),
         # um params
         Input("um_dropdown", "value"),
         Input("um_TKU_a", "value"),
@@ -470,8 +469,7 @@ def update_rt_graph(
     min_val,
     max_val,
     rt_weight,
-    rt_rows,
-    rt_columns,
+    std_rows,
     um_drop_val,
     TKU_a,
     TKU_l,
@@ -481,12 +479,12 @@ def update_rt_graph(
     um_user_func,
 ):
     # Begin actual points
+    # CHECK changed to new std_table with hidden column, implement simple comp value
     pays = [
-        list(reversed([float(rt_row[rt_column["id"]]) for rt_row in rt_rows]))
-        for rt_column in rt_columns
-        if rt_column["id"] != "rt_probabilities_tbl"
+        [float(i["std_payoffs_tbl"]) for i in std_rows],
+        [float(i["comp_payoffs_tbl"]) for i in std_rows],
     ]
-    probs = [float(rt_row["rt_probabilities_tbl"]) for rt_row in rt_rows]
+    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
 
     # um params
     if um_drop_val == "TKU":
