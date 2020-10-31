@@ -32,162 +32,80 @@ input_segment = dbc.Container(
             [
                 html.Div(
                     [
-                        dcc.Tabs(
+                        html.Div(
                             [
-                                dcc.Tab(
-                                    [
-                                        html.Div(
-                                            [
-                                                dash_table.DataTable(
-                                                    id="std_input_tbl",
-                                                    columns=(
-                                                        [
-                                                            {
-                                                                "id": "std_probabilities_tbl",
-                                                                "name": "Probabilities",
-                                                                "type": "numeric",
-                                                            }
-                                                        ]
-                                                        + [
-                                                            {
-                                                                "id": "std_payoffs_tbl",
-                                                                "name": "Payoffs",
-                                                                "type": "numeric",
-                                                            }
-                                                        ]
-                                                        + [
-                                                            {
-                                                                "id": "comp_payoffs_tbl",
-                                                                "name": "Comp Payoffs",
-                                                                "type": "numeric",
-                                                            }
-                                                        ]
-                                                    ),
-                                                    hidden_columns=["comp_payoffs_tbl"],
-                                                    style_cell_conditional=[
-                                                        {
-                                                            "if": {
-                                                                "column_id": "std_probabilities_tbl"
-                                                            },
-                                                            "width": "33%",
-                                                        },
-                                                        {
-                                                            "if": {
-                                                                "column_id": "std_payoffs_tbl"
-                                                            },
-                                                            "width": "33%",
-                                                        },
-                                                        {
-                                                            "if": {
-                                                                "column_id": "comp_payoffs_tbl"
-                                                            },
-                                                            "width": "33%",
-                                                        },
-                                                    ],
-                                                    data=[
-                                                        dict(
-                                                            std_probabilities_tbl=0.1,
-                                                            std_payoffs_tbl=1,
-                                                            comp_payoffs_tbl=4,
-                                                        ),
-                                                        dict(
-                                                            std_probabilities_tbl=0.4,
-                                                            std_payoffs_tbl=2,
-                                                            comp_payoffs_tbl=5,
-                                                        ),
-                                                        dict(
-                                                            std_probabilities_tbl=0.5,
-                                                            std_payoffs_tbl=3,
-                                                            comp_payoffs_tbl=6,
-                                                        ),
-                                                    ],
-                                                    editable=True,
-                                                    row_deletable=True,
-                                                ),
-                                            ],
-                                            className="mx-3 py-2",
+                                dash_table.DataTable(
+                                    id="std_input_tbl",
+                                    columns=(
+                                        [
+                                            {
+                                                "id": "std_probabilities_tbl",
+                                                "name": "Probabilities",
+                                                "type": "numeric",
+                                            }
+                                        ]
+                                        + [
+                                            {
+                                                "id": "std_payoffs_tbl",
+                                                "name": "Payoffs",
+                                                "type": "numeric",
+                                            }
+                                        ]
+                                        + [
+                                            {
+                                                "id": "comp_payoffs_tbl",
+                                                "name": "Comp Payoffs",
+                                                "type": "numeric",
+                                            }
+                                        ]
+                                    ),
+                                    css=[
+                                        {
+                                            "selector": ".show-hide",
+                                            "rule": "display: none",
+                                        }
+                                    ],
+                                    hidden_columns=["comp_payoffs_tbl"],
+                                    style_cell_conditional=[
+                                        {
+                                            "if": {
+                                                "column_id": "std_probabilities_tbl"
+                                            },
+                                            "width": "33%",
+                                        },
+                                        {
+                                            "if": {"column_id": "std_payoffs_tbl"},
+                                            "width": "33%",
+                                        },
+                                        {
+                                            "if": {"column_id": "comp_payoffs_tbl"},
+                                            "width": "33%",
+                                        },
+                                    ],
+                                    data=[
+                                        dict(
+                                            std_probabilities_tbl=0.1,
+                                            std_payoffs_tbl=1,
+                                            comp_payoffs_tbl=4,
                                         ),
-                                        dbc.Button(
-                                            "Add Row",
-                                            id="std_editing_rows_button",
-                                            n_clicks=0,
+                                        dict(
+                                            std_probabilities_tbl=0.4,
+                                            std_payoffs_tbl=2,
+                                            comp_payoffs_tbl=5,
+                                        ),
+                                        dict(
+                                            std_probabilities_tbl=0.5,
+                                            std_payoffs_tbl=3,
+                                            comp_payoffs_tbl=6,
                                         ),
                                     ],
-                                    value="STD",
-                                    label="Standard data entry",
-                                    id="std_input_tab",
-                                ),
-                                dcc.Tab(
-                                    [
-                                        html.Div(
-                                            [
-                                                dash_table.DataTable(
-                                                    id="rt_input_tbl",
-                                                    columns=(
-                                                        [
-                                                            {
-                                                                "id": "rt_probabilities_tbl",
-                                                                "name": "Probabilities",
-                                                                "type": "numeric",
-                                                            }
-                                                        ]
-                                                        + [
-                                                            {
-                                                                "id": "rt_payoffs_tbl_0",
-                                                                "name": "Payoffs",
-                                                                "type": "numeric",
-                                                            }
-                                                        ]
-                                                        + [
-                                                            {
-                                                                "id": "rt_payoffs_tbl_1",
-                                                                "name": "Payoffs",
-                                                                "type": "numeric",
-                                                            }
-                                                        ]
-                                                    ),
-                                                    data=[
-                                                        dict(
-                                                            rt_probabilities_tbl=0.1,
-                                                            rt_payoffs_tbl_0=1,
-                                                            rt_payoffs_tbl_1=4,
-                                                        ),
-                                                        dict(
-                                                            rt_probabilities_tbl=0.4,
-                                                            rt_payoffs_tbl_0=2,
-                                                            rt_payoffs_tbl_1=5,
-                                                        ),
-                                                        dict(
-                                                            rt_probabilities_tbl=0.5,
-                                                            rt_payoffs_tbl_0=3,
-                                                            rt_payoffs_tbl_1=6,
-                                                        ),
-                                                    ],
-                                                    editable=True,
-                                                    row_deletable=True,
-                                                ),
-                                            ],
-                                            className="mx-3 py-2",
-                                        ),
-                                        dbc.Button(
-                                            "Add Row",
-                                            id="rt_editing_rows_button",
-                                            n_clicks=0,
-                                        ),
-                                        dbc.Button(
-                                            "Add Column",
-                                            id="rt_editing_columns_button",
-                                            n_clicks=0,
-                                        ),
-                                    ],
-                                    value="RT",
-                                    label="Regret theory entry",
-                                    id="rt_input_tab",
+                                    editable=True,
+                                    row_deletable=True,
                                 ),
                             ],
-                            id="data_entry_tab",
-                            value="STD",
+                            className="mx-3 py-2",
                         ),
+                        dbc.Button("Add Row", id="std_editing_rows_button", n_clicks=0),
                     ],
                     className="col-4",
                 ),
@@ -202,27 +120,22 @@ input_segment = dbc.Container(
 
 
 @app.callback(
-    [
-        Output("std_input_tab", "disabled"),
-        Output("rt_input_tab", "disabled"),
-        Output("data_entry_tab", "value"),
-    ],
-    [Input("theor_dropdown", "value")],
-    [State("data_entry_tab", "value")],
+    [Output("std_input_tbl", "hidden_columns"),], [Input("theor_dropdown", "value")],
 )
-def manage_input_tabs(drop_val, tab_state):
+def hide_rt_input_column(drop_val):
+    # Hide the rt_input column in which the user can write an alternative lottery to which the target lottery may be compared
     if drop_val == "RT":
-        return True, False, "RT"
+        return [[]]
     else:
-        return False, True, "STD"
+        return [["comp_payoffs_tbl"]]
 
 
 # Manage gamble Figs
 @app.callback(
-    Output("gamble_figs", "figure"),
-    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
+    Output("gamble_figs", "figure"), [Input("std_input_tbl", "data")],
 )
-def update_gamble_figs(std_rows, tab_val_entry):
+def update_gamble_figs(std_rows):
+    # Update plots illustrating the lottery entered by the user
     # TODO add logic to display second figs when RT or Salience?
     # CHECK probs and pays were list(reversed()) before does this make a difference?
     probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
@@ -232,7 +145,7 @@ def update_gamble_figs(std_rows, tab_val_entry):
 
 
 def gamble_figs(pays, probs):
-    # Prepare plot
+    # Prepare plots to illustrate the lottery entered by the user
     fig = make_subplots(
         rows=2,
         cols=2,
@@ -342,7 +255,6 @@ def gamble_figs(pays, probs):
             row=2,
             col=2,
         )
-    # print(f"pays = {pays_graph}", "\n", f"probs = {probs_graph}")
 
     fig.update_xaxes(
         showgrid=False,
@@ -362,13 +274,11 @@ def gamble_figs(pays, probs):
 # Callbacks for Table
 @app.callback(
     [Output("danger_toast_2", "is_open"), Output("danger_toast_2", "children")],
-    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
+    [Input("std_input_tbl", "data")],
 )
-def check_probs(rows, tab_val_entry):
-    # TODO check out how best to handle floating point errors
-    # if tab_val_entry == "STD":
+def check_probs(rows):
+    # Check whether probs in table approximately sum to 1
     probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    # elif tab_val_entry == "RT":
     if not isclose(sum(probs), 1):
         return (
             True,
@@ -386,36 +296,7 @@ def check_probs(rows, tab_val_entry):
     [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
 )
 def add_row(n_clicks, rows, columns):
+    # extend the input table by one empty row per click
     if n_clicks > 0:
         rows.append({c["id"]: "" for c in columns})
     return rows
-
-
-@app.callback(
-    Output("rt_input_tbl", "data"),
-    [Input("rt_editing_rows_button", "n_clicks")],
-    [State("rt_input_tbl", "data"), State("rt_input_tbl", "columns")],
-)
-def add_row(n_clicks, rows, columns):
-    if n_clicks > 0:
-        rows.append({c["id"]: "" for c in columns})
-    return rows
-
-
-@app.callback(
-    Output("rt_input_tbl", "columns"),
-    [Input("rt_editing_columns_button", "n_clicks")],
-    [State("rt_input_tbl", "columns")],
-)
-def update_columns(n_clicks, existing_columns):
-    if n_clicks > 0:
-        existing_columns.append(
-            {
-                "id": "rt_payoffs_tbl_{}".format(str(n_clicks + 1)),
-                "name": "Payoffs",
-                # "renamable": True,
-                "deletable": True,
-                "type": "numeric",
-            }
-        )
-    return existing_columns

@@ -69,21 +69,21 @@ output_segment = dbc.Container(
 
 @app.callback(
     Output("output_input_params", "children"),
-    [Input("std_input_tbl", "data"), Input("data_entry_tab", "value"),],
+    [Input("std_input_tbl", "data"), Input("theor_dropdown", "value"),],
 )
 def update_output_input(
-    rows, tab_val_entry,
+    rows, theor_drop_val,
 ):
-    if tab_val_entry == "STD":
-        probs = [float(i["std_probabilities_tbl"]) for i in rows]
-        pays = [float(i["std_payoffs_tbl"]) for i in rows]
-    elif tab_val_entry == "RT":
+    if theor_drop_val == "RT":
         # CHECK changed to new std_table with hidden column, implement simple comp value
         pays = [
             [float(i["std_payoffs_tbl"]) for i in rows],
             [float(i["comp_payoffs_tbl"]) for i in rows],
         ]
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    else:
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        pays = [float(i["std_payoffs_tbl"]) for i in rows]
 
     return (
         html.P("Payoffs: {}".format(pays)),
@@ -170,7 +170,6 @@ def update_output_pw_theor(
     Output("output_results_params", "children"),
     [
         Input("std_input_tbl", "data"),
-        Input("data_entry_tab", "value"),
         Input("theor_dropdown", "value"),
         # pw params
         Input("pw_dropdown", "value"),
@@ -195,7 +194,6 @@ def update_output_pw_theor(
 )
 def update_output(
     rows,
-    tab_val_entry,
     theor_drop_val,
     # pw params
     pw_drop_val,
@@ -217,16 +215,16 @@ def update_output(
     # rt params
     rt_weight,
 ):
-    if tab_val_entry == "STD":
-        probs = [float(i["std_probabilities_tbl"]) for i in rows]
-        pays = [float(i["std_payoffs_tbl"]) for i in rows]
-    elif tab_val_entry == "RT":
+    if theor_drop_val == "RT":
         # CHECK changed to new std_table with hidden column, implement simple comp value
         pays = [
             [float(i["std_payoffs_tbl"]) for i in rows],
             [float(i["comp_payoffs_tbl"]) for i in rows],
         ]
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    else:
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        pays = [float(i["std_payoffs_tbl"]) for i in rows]
     # pw params
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}
