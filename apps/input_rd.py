@@ -46,8 +46,6 @@ input_segment = dbc.Container(
                                                                 "id": "std_probabilities_tbl",
                                                                 "name": "Probabilities",
                                                                 "type": "numeric",
-                                                                # "deletable": True,
-                                                                # "renamable": True,
                                                             }
                                                         ]
                                                         + [
@@ -55,23 +53,52 @@ input_segment = dbc.Container(
                                                                 "id": "std_payoffs_tbl",
                                                                 "name": "Payoffs",
                                                                 "type": "numeric",
-                                                                # "deletable": True,
-                                                                # "renamable": True,
+                                                            }
+                                                        ]
+                                                        + [
+                                                            {
+                                                                "id": "comp_payoffs_tbl",
+                                                                "name": "Comp Payoffs",
+                                                                "type": "numeric",
                                                             }
                                                         ]
                                                     ),
+                                                    hidden_columns=["comp_payoffs_tbl"],
+                                                    style_cell_conditional=[
+                                                        {
+                                                            "if": {
+                                                                "column_id": "std_probabilities_tbl"
+                                                            },
+                                                            "width": "33%",
+                                                        },
+                                                        {
+                                                            "if": {
+                                                                "column_id": "std_payoffs_tbl"
+                                                            },
+                                                            "width": "33%",
+                                                        },
+                                                        {
+                                                            "if": {
+                                                                "column_id": "comp_payoffs_tbl"
+                                                            },
+                                                            "width": "33%",
+                                                        },
+                                                    ],
                                                     data=[
                                                         dict(
                                                             std_probabilities_tbl=0.1,
                                                             std_payoffs_tbl=1,
+                                                            comp_payoffs_tbl=1,
                                                         ),
                                                         dict(
                                                             std_probabilities_tbl=0.4,
                                                             std_payoffs_tbl=2,
+                                                            comp_payoffs_tbl=2,
                                                         ),
                                                         dict(
                                                             std_probabilities_tbl=0.5,
                                                             std_payoffs_tbl=3,
+                                                            comp_payoffs_tbl=3,
                                                         ),
                                                     ],
                                                     editable=True,
@@ -102,8 +129,6 @@ input_segment = dbc.Container(
                                                                 "id": "rt_probabilities_tbl",
                                                                 "name": "Probabilities",
                                                                 "type": "numeric",
-                                                                # "deletable": True,
-                                                                # "renamable": True,
                                                             }
                                                         ]
                                                         + [
@@ -111,8 +136,6 @@ input_segment = dbc.Container(
                                                                 "id": "rt_payoffs_tbl_0",
                                                                 "name": "Payoffs",
                                                                 "type": "numeric",
-                                                                # "deletable": True,
-                                                                # "renamable": True,
                                                             }
                                                         ]
                                                         + [
@@ -120,8 +143,6 @@ input_segment = dbc.Container(
                                                                 "id": "rt_payoffs_tbl_1",
                                                                 "name": "Payoffs",
                                                                 "type": "numeric",
-                                                                # "deletable": True,
-                                                                # "renamable": True,
                                                             }
                                                         ]
                                                     ),
@@ -238,6 +259,9 @@ def gamble_figs(pays, probs):
     fig.update_layout(
         # title="Cumulative Density Function",
         template="plotly_white",
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        # font=dict(color="white"),
         margin=dict(l=0, r=0, t=20, b=0, pad=0,),
         showlegend=False,
         xaxis2_showticklabels=True,
