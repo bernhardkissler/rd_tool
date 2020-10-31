@@ -330,7 +330,7 @@ def gamble_figs(pays, probs):
             row=2,
             col=2,
         )
-    print(f"pays = {pays_graph}", "\n", f"probs = {probs_graph}")
+    # print(f"pays = {pays_graph}", "\n", f"probs = {probs_graph}")
 
     fig.update_xaxes(
         showgrid=False,
