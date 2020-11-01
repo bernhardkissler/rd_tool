@@ -223,7 +223,7 @@ pw_um_segment = html.Div(
                                     [
                                         dbc.Label(
                                             "Minimum display value:",
-                                            width=5,
+                                            width=4,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -232,11 +232,11 @@ pw_um_segment = html.Div(
                                                 type="number",
                                                 value=0,
                                             ),
-                                            width=7,
+                                            width=2,
                                         ),
                                         dbc.Label(
                                             "Maximum display value:",
-                                            width=5,
+                                            width=4,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -245,7 +245,7 @@ pw_um_segment = html.Div(
                                                 type="number",
                                                 value=10,
                                             ),
-                                            width=7,
+                                            width=2,
                                         ),
                                     ],
                                     row=True,
@@ -458,7 +458,7 @@ pw_um_segment = html.Div(
                                             [
                                                 dbc.Label(
                                                     "Minimum display value:",
-                                                    width=5,
+                                                    width=4,
                                                     className="my-1",
                                                 ),
                                                 dbc.Col(
@@ -470,11 +470,11 @@ pw_um_segment = html.Div(
                                                         max=1,
                                                         step=0.01,
                                                     ),
-                                                    width=7,
+                                                    width=2,
                                                 ),
                                                 dbc.Label(
                                                     "Maximum display value:",
-                                                    width=5,
+                                                    width=4,
                                                     className="my-1",
                                                 ),
                                                 dbc.Col(
@@ -486,7 +486,7 @@ pw_um_segment = html.Div(
                                                         max=1,
                                                         step=0.01,
                                                     ),
-                                                    width=7,
+                                                    width=2,
                                                 ),
                                             ],
                                             row=True,
