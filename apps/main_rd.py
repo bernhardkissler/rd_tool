@@ -44,6 +44,7 @@ theor_segment = html.Div(
     style={"background-color": sub_bg_color},
 )
 
+# adjust after deleting RT interaction graph
 # MARK disable choice of pw for certain theories here
 @app.callback(
     [
@@ -417,6 +418,7 @@ pw_um_segment = html.Div(
                     value="pw_tab",
                     id="pw_tab",
                 ),
+                # Regret interaction Tab starting here
                 dcc.Tab(
                     [
                         html.H3("Regret theory interaction", className="py-2",),
@@ -470,6 +472,7 @@ pw_um_segment = html.Div(
                     value="rt_input_tab",
                     id="rt_tab",
                 ),
+                # Regret interacting tab ending here
             ],
             value="um_tab",
             id="pw_um_tabs",
@@ -493,6 +496,7 @@ pw_um_segment = html.Div(
     [Input("pw_reset_btn", "n_clicks")],
 )
 def pw_reset(n_clicks):
+    #  Reset all parameters for the probability weighting function
     return 0.65, 0.5, 0.6, 0.5, 0.6, 0, 1
 
 
@@ -508,9 +512,11 @@ def pw_reset(n_clicks):
     [Input("um_reset_btn", "n_clicks")],
 )
 def um_reset(n_clicks):
+    # Reset all parameters for the utility function
     return 0.88, 2.25, 0, 2, 0, 10
 
 
+# delete with RT interaction panel
 @app.callback(
     [
         Output("rt_weight", "value"),
@@ -523,6 +529,7 @@ def rt_reset(n_clicks):
     return 0.5, 0, 10
 
 
+# delete with RT interaction panel
 @app.callback(
     Output("rt_graph", "figure"),
     [
