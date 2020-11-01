@@ -64,7 +64,7 @@ app.layout = html.Div(
                 className="col pt-4 mt-5",
             ),
             className="row justify-content-md-center mt-2",
-            style={"background-color": "#A5B8D0"},
+            style={"background-color": "#F1EEE6"},
         ),
     ]
 )

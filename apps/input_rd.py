@@ -10,7 +10,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-plot_color = "#F26B5B"
+plot_color = "#0F4C81"
 sub_bg_color = "rgba(255,255,255, 0.75)"
 
 import numpy as np
