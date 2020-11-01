@@ -11,6 +11,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 
 plot_color = "#F26B5B"
+sub_bg_color = "rgba(255,255,255, 0.75)"
 
 import numpy as np
 
@@ -24,9 +25,8 @@ from math import isclose
 
 from app import app
 
-input_segment = dbc.Container(
+input_segment = html.Div(
     [
-        html.Hr(),
         html.H3("Enter a gamble", className="py-2"),
         html.Div(
             [
@@ -66,36 +66,46 @@ input_segment = dbc.Container(
                                         }
                                     ],
                                     hidden_columns=["comp_payoffs_tbl"],
-                                    style_cell_conditional=[
-                                        {
-                                            "if": {
-                                                "column_id": "std_probabilities_tbl"
-                                            },
-                                            "width": "33%",
-                                        },
-                                        {
-                                            "if": {"column_id": "std_payoffs_tbl"},
-                                            "width": "33%",
-                                        },
-                                        {
-                                            "if": {"column_id": "comp_payoffs_tbl"},
-                                            "width": "33%",
-                                        },
-                                    ],
+                                    # style_cell_conditional=[
+                                    #     {
+                                    #         "if": {
+                                    #             "column_id": "std_probabilities_tbl"
+                                    #         },
+                                    #         "width": "33%",
+                                    #     },
+                                    #     {
+                                    #         "if": {"column_id": "std_payoffs_tbl"},
+                                    #         "width": "33%",
+                                    #     },
+                                    #     {
+                                    #         "if": {"column_id": "comp_payoffs_tbl"},
+                                    #         "width": "33%",
+                                    #     },
+                                    # ],
                                     data=[
                                         dict(
                                             std_probabilities_tbl=0.1,
-                                            std_payoffs_tbl=1,
+                                            std_payoffs_tbl=-1,
+                                            comp_payoffs_tbl=0,
+                                        ),
+                                        dict(
+                                            std_probabilities_tbl=0.2,
+                                            std_payoffs_tbl=2,
+                                            comp_payoffs_tbl=1,
+                                        ),
+                                        dict(
+                                            std_probabilities_tbl=0.3,
+                                            std_payoffs_tbl=3,
                                             comp_payoffs_tbl=4,
                                         ),
                                         dict(
-                                            std_probabilities_tbl=0.4,
-                                            std_payoffs_tbl=2,
-                                            comp_payoffs_tbl=5,
+                                            std_probabilities_tbl=0.2,
+                                            std_payoffs_tbl=5,
+                                            comp_payoffs_tbl=6,
                                         ),
                                         dict(
-                                            std_probabilities_tbl=0.5,
-                                            std_payoffs_tbl=3,
+                                            std_probabilities_tbl=0.2,
+                                            std_payoffs_tbl=6,
                                             comp_payoffs_tbl=6,
                                         ),
                                     ],
@@ -103,7 +113,7 @@ input_segment = dbc.Container(
                                     row_deletable=True,
                                 ),
                             ],
-                            className="mx-3 py-2",
+                            className="pb-2",
                         ),
                         dbc.Button("Add Row", id="std_editing_rows_button", n_clicks=0),
                     ],
@@ -113,9 +123,9 @@ input_segment = dbc.Container(
             ],
             className="row mt-2",
         ),
-        html.Hr(),
     ],
-    className="px-2",
+    className="container p-4 my-2",
+    style={"background-color": sub_bg_color},
 )
 
 
@@ -137,7 +147,6 @@ def hide_rt_input_column(drop_val):
 def update_gamble_figs(std_rows):
     # Update plots illustrating the lottery entered by the user
     # TODO add logic to display second figs when RT or Salience?
-    # CHECK probs and pays were list(reversed()) before does this make a difference?
     probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
     pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
     fig = gamble_figs(pays, probs)
@@ -171,8 +180,8 @@ def gamble_figs(pays, probs):
     )
 
     # Decision Tree Figure
-    y_1 = [0.5] + list(np.linspace(0, 1, len(probs)))
-    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(probs)))]
+    y_1 = [0.5] + list(np.linspace(0, 1, len(list(reversed(probs)))))
+    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(list(reversed(probs)))))]
 
     for i in range(len(probs)):
         fig.add_trace(
@@ -191,19 +200,18 @@ def gamble_figs(pays, probs):
         fig.add_annotation(
             x=0.5,
             y=y_2[i],
-            text=probs[i],
+            text=list(reversed(probs))[i],
             ax=0,
             ay=-15,
             arrowcolor="rgba(0,0,0,0)",
             row=1,
             col=1,
         )
-
     for i in range(len(probs)):
         fig.add_annotation(
             x=1,
             y=y_1[i + 1],
-            text=pays[i],
+            text=list(reversed(pays))[i],
             ax=20,
             ay=0,
             arrowcolor="rgba(0,0,0,0)",

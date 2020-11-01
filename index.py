@@ -61,9 +61,10 @@ app.layout = html.Div(
                     main_rd.toast_2,
                 ],
                 # FIXME nicht sehr elegantes padding, damit die Navbar nicht den COntent verdeckt
-                className="col pt-5 mt-5",
+                className="col pt-4 mt-5",
             ),
-            className="row mt-2",
+            className="row justify-content-md-center mt-2",
+            style={"background-color": "#A5B8D0"},
         ),
     ]
 )
