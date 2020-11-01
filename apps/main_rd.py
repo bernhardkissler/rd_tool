@@ -19,11 +19,14 @@ import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
+plot_color = "#F26B5B"
+sub_bg_color = "rgba(255,255,255, 0.75)"
+
 from math import isclose, nan
 
 from app import app
 
-theor_segment = dbc.Container(
+theor_segment = html.Div(
     [
         html.H3("Choose a decision theory", className="py-2",),
         dcc.Dropdown(
@@ -37,7 +40,8 @@ theor_segment = dbc.Container(
             value="CPT",
         ),
     ],
-    className="px-2 pb-2",
+    className="container p-4 my-2",
+    style={"background-color": sub_bg_color},
 )
 
 # MARK disable choice of pw for certain theories here
@@ -59,58 +63,67 @@ def block_pw(drop_val, tab_state):
         return False, True, "um_tab"
 
 
-pw_um_segment = dbc.Container(
+pw_um_segment = html.Div(
     [
         dcc.Tabs(
             [
                 dcc.Tab(
                     [
                         html.H3("Utility function", id="uf_link", className="py-2",),
-                        dcc.Dropdown(
-                            id="um_dropdown",
-                            options=[
-                                {
-                                    "label": "Tversky Kahneman utility function",
-                                    "value": "TKU",
-                                },
-                                {"label": "Bernoulli utility function", "value": "BU"},
-                                {"label": "Root utility function", "value": "RU",},
-                                {"label": "Linear Utility function", "value": "LU",},
-                                {"label": "Your utility function", "value": "YU",},
-                            ],
-                            value="TKU",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("Your utility function:"),
-                                # MARK Textarea for ASTEVAL
-                                dbc.Input(
-                                    id="um_text",
-                                    type="text",
-                                    placeholder="Input your own function",
-                                    debounce=True,
-                                ),
-                                dbc.Button(
-                                    "Run Function",
-                                    id="um_text_runner",
-                                    className="mt-2",
-                                ),
-                            ],
-                            id="um_collapse_YU",
-                            className="py-2",
-                        ),
                         html.Div(
                             [
                                 html.Div(
-                                    [dcc.Graph(id="um_graph"),], className="col-8",
-                                ),
-                                html.Div(
                                     [
+                                        dcc.Dropdown(
+                                            id="um_dropdown",
+                                            options=[
+                                                {
+                                                    "label": "Tversky Kahneman utility function",
+                                                    "value": "TKU",
+                                                },
+                                                {
+                                                    "label": "Bernoulli utility function",
+                                                    "value": "BU",
+                                                },
+                                                {
+                                                    "label": "Root utility function",
+                                                    "value": "RU",
+                                                },
+                                                {
+                                                    "label": "Linear Utility function",
+                                                    "value": "LU",
+                                                },
+                                                {
+                                                    "label": "Your utility function",
+                                                    "value": "YU",
+                                                },
+                                            ],
+                                            value="TKU",
+                                            className="py-2",
+                                        ),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label("Your utility function:"),
+                                                # MARK Textarea for ASTEVAL
+                                                dbc.Input(
+                                                    id="um_text",
+                                                    type="text",
+                                                    placeholder="Input your own function",
+                                                    debounce=True,
+                                                ),
+                                                dbc.Button(
+                                                    "Run Function",
+                                                    id="um_text_runner",
+                                                    className="mt-2",
+                                                ),
+                                            ],
+                                            id="um_collapse_YU",
+                                            className="py-2",
+                                        ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["TKU"][2]),
-                                                html.Hr(),
                                                 dbc.Label("a:"),
                                                 dbc.Input(
                                                     id="um_TKU_a",
@@ -134,12 +147,12 @@ pw_um_segment = dbc.Container(
                                                 ),
                                             ],
                                             id="um_collapse_TKU",
+                                            className="py-2",
                                         ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["RU"][2]),
-                                                html.Hr(),
                                                 dbc.Label("exp:"),
                                                 dbc.Input(
                                                     id="um_RU_exp",
@@ -149,31 +162,23 @@ pw_um_segment = dbc.Container(
                                                 ),
                                             ],
                                             id="um_collapse_RU",
+                                            className="py-2",
                                         ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["BU"][2]),
-                                                html.Hr(),
                                             ],
                                             id="um_collapse_BU",
+                                            className="py-2",
                                         ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.um_func_dict["LU"][2]),
-                                                html.Hr(),
                                             ],
                                             id="um_collapse_LU",
-                                        ),
-                                        html.Hr(),
-                                        dbc.Label("Minimum display value"),
-                                        dbc.Input(
-                                            id="um_min_value", type="number", value=0
-                                        ),
-                                        dbc.Label("Maximum display value"),
-                                        dbc.Input(
-                                            id="um_max_value", type="number", value=10
+                                            className="py-2",
                                         ),
                                         dbc.Button(
                                             "Reset all values",
@@ -182,6 +187,44 @@ pw_um_segment = dbc.Container(
                                         ),
                                     ],
                                     className="col",
+                                ),
+                                html.Div(
+                                    [
+                                        dcc.Graph(id="um_graph"),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Minimum display value:",
+                                                    width=5,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="um_min_value",
+                                                        type="number",
+                                                        value=0,
+                                                    ),
+                                                    width=7,
+                                                ),
+                                                dbc.Label(
+                                                    "Maximum display value:",
+                                                    width=5,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="um_max_value",
+                                                        type="number",
+                                                        value=10,
+                                                    ),
+                                                    width=7,
+                                                ),
+                                            ],
+                                            row=True,
+                                            className="my-2",
+                                        ),
+                                    ],
+                                    className="col-8",
                                 ),
                             ],
                             className="row mt-2",
@@ -198,53 +241,58 @@ pw_um_segment = dbc.Container(
                             id="pw_link",
                             className="py-2",
                         ),
-                        dcc.Dropdown(
-                            id="pw_dropdown",
-                            options=[
-                                {
-                                    "label": "Tversky Kahneman weighting function",
-                                    "value": "TKW",
-                                },
-                                {
-                                    "label": "Goldstein Einhorn weigting function",
-                                    "value": "GEW",
-                                },
-                                {"label": "Prelec weighting function", "value": "PW",},
-                                {"label": "Your weighting function", "value": "YW",},
-                            ],
-                            value="TKW",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("Your probability weighting function:"),
-                                # MARK Textarea for ASTEVAL
-                                dbc.Input(
-                                    id="pw_text",
-                                    type="text",
-                                    placeholder="Input your own function",
-                                    debounce=True,
-                                ),
-                                dbc.Button(
-                                    "Run Function",
-                                    id="pw_text_runner",
-                                    className="mt-2",
-                                ),
-                            ],
-                            id="pw_collapse_YW",
-                            className="py-2",
-                        ),
                         html.Div(
                             [
                                 html.Div(
-                                    [dcc.Graph(id="pw_graph"),], className="col-8",
-                                ),
-                                html.Div(
                                     [
+                                        dcc.Dropdown(
+                                            id="pw_dropdown",
+                                            options=[
+                                                {
+                                                    "label": "Tversky Kahneman weighting function",
+                                                    "value": "TKW",
+                                                },
+                                                {
+                                                    "label": "Goldstein Einhorn weigting function",
+                                                    "value": "GEW",
+                                                },
+                                                {
+                                                    "label": "Prelec weighting function",
+                                                    "value": "PW",
+                                                },
+                                                {
+                                                    "label": "Your weighting function",
+                                                    "value": "YW",
+                                                },
+                                            ],
+                                            value="TKW",
+                                            className="py-2",
+                                        ),
+                                        dbc.Collapse(
+                                            [
+                                                dbc.Label(
+                                                    "Your probability weighting function:"
+                                                ),
+                                                # MARK Textarea for ASTEVAL
+                                                dbc.Input(
+                                                    id="pw_text",
+                                                    type="text",
+                                                    placeholder="Input your own function",
+                                                    debounce=True,
+                                                ),
+                                                dbc.Button(
+                                                    "Run Function",
+                                                    id="pw_text_runner",
+                                                    className="mt-2",
+                                                ),
+                                            ],
+                                            id="pw_collapse_YW",
+                                            className="py-2",
+                                        ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.pw_func_dict["TKW"][2]),
-                                                html.Hr(),
                                                 dbc.Label("d:"),
                                                 dbc.Input(
                                                     id="pw_TKW_d",
@@ -255,12 +303,12 @@ pw_um_segment = dbc.Container(
                                                 ),
                                             ],
                                             id="pw_collapse_TKW",
+                                            className="py-2",
                                         ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.pw_func_dict["GEW"][2]),
-                                                html.Hr(),
                                                 dbc.Label("b:"),
                                                 dbc.Input(
                                                     id="pw_GEW_b",
@@ -281,12 +329,12 @@ pw_um_segment = dbc.Container(
                                                 ),
                                             ],
                                             id="pw_collapse_GEW",
+                                            className="py-2",
                                         ),
                                         dbc.Collapse(
                                             [
                                                 dbc.Label("Formula:"),
                                                 html.Div(fd.pw_func_dict["PW"][2]),
-                                                html.Hr(),
                                                 dbc.Label("b:"),
                                                 dbc.Input(
                                                     id="pw_PW_b",
@@ -307,25 +355,7 @@ pw_um_segment = dbc.Container(
                                                 ),
                                             ],
                                             id="pw_collapse_PW",
-                                        ),
-                                        html.Hr(),
-                                        dbc.Label("Minimum display value"),
-                                        dbc.Input(
-                                            id="pw_min_value",
-                                            type="number",
-                                            value=0,
-                                            min=0,
-                                            max=1,
-                                            step=0.01,
-                                        ),
-                                        dbc.Label("Maximum display value"),
-                                        dbc.Input(
-                                            id="pw_max_value",
-                                            type="number",
-                                            value=1,
-                                            min=0,
-                                            max=1,
-                                            step=0.01,
+                                            className="py-2",
                                         ),
                                         dbc.Button(
                                             "Reset all values",
@@ -334,6 +364,50 @@ pw_um_segment = dbc.Container(
                                         ),
                                     ],
                                     className="col",
+                                ),
+                                html.Div(
+                                    [
+                                        dcc.Graph(id="pw_graph"),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Minimum display value:",
+                                                    width=5,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="pw_min_value",
+                                                        type="number",
+                                                        value=0,
+                                                        min=0,
+                                                        max=1,
+                                                        step=0.01,
+                                                    ),
+                                                    width=7,
+                                                ),
+                                                dbc.Label(
+                                                    "Maximum display value:",
+                                                    width=5,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="pw_max_value",
+                                                        type="number",
+                                                        value=1,
+                                                        min=0,
+                                                        max=1,
+                                                        step=0.01,
+                                                    ),
+                                                    width=7,
+                                                ),
+                                            ],
+                                            row=True,
+                                            className="my-2",
+                                        ),
+                                    ],
+                                    className="col-8",
                                 ),
                             ],
                             className="row mt-2",
@@ -401,7 +475,8 @@ pw_um_segment = dbc.Container(
             id="pw_um_tabs",
         )
     ],
-    className="px-2",
+    className="container p-4 my-2",
+    style={"background-color": sub_bg_color},
 )
 
 
@@ -656,14 +731,27 @@ def update_pw_graph(
     x_1_data = np.linspace(min_val, max_val, 1000)
     y_1_data = [fd.pw_func_dict[pw_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
-    fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+    fig = go.Figure(
+        data=[
+            go.Scatter(
+                x=x_1_data,
+                y=y_1_data,
+                line=dict(color=plot_color),
+                marker=dict(color=plot_color),
+            )
+        ]
+    )
     fig.update_layout(
         template="plotly_white",
         margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         title="Probability weighting function",
         xaxis_title="Probability",
         yaxis_title="Weighted Probability",
     )
+    fig.update_xaxes(showgrid=False, zeroline=False)
+    fig.update_yaxes(showgrid=False)
     return fig
 
 
@@ -748,14 +836,27 @@ def update_um_graph(
             )
             danger_bool = True
 
-    fig = go.Figure(data=[go.Scatter(x=x_1_data, y=y_1_data)])
+    fig = go.Figure(
+        data=[
+            go.Scatter(
+                x=x_1_data,
+                y=y_1_data,
+                line=dict(color=plot_color),
+                marker=dict(color=plot_color),
+            )
+        ]
+    )
     fig.update_layout(
         template="plotly_white",
         margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
         title="Utility function",
         xaxis_title="Payoff",
         yaxis_title="Utility",
     )
+    fig.update_xaxes(showgrid=False, zeroline=False)
+    fig.update_yaxes(showgrid=False)
 
     return fig, danger_text, danger_bool
 
