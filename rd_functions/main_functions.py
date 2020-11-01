@@ -7,6 +7,7 @@ from typing import List
 def regret_theory(
     pays: List[List[float]],
     probs: List[float],
+    # MARK need to lookup what this weight parameter is actually supposed to do
     weight: float = 1.0,
     um_function=um.lin_utility,
     um_kwargs={},

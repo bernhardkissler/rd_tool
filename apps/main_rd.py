@@ -19,7 +19,7 @@ import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
-plot_color = "#F26B5B"
+plot_color = "#0F4C81"
 sub_bg_color = "rgba(255,255,255, 0.75)"
 
 from math import isclose, nan
@@ -47,21 +47,15 @@ theor_segment = html.Div(
 # adjust after deleting RT interaction graph
 # MARK disable choice of pw for certain theories here
 @app.callback(
-    [
-        Output("pw_tab", "disabled"),
-        Output("rt_tab", "disabled"),
-        Output("pw_um_tabs", "value"),
-    ],
+    [Output("pw_tab", "disabled"), Output("pw_um_tabs", "value"),],
     [Input("theor_dropdown", "value")],
     [State("pw_um_tabs", "value")],
 )
 def block_pw(drop_val, tab_state):
     if drop_val == "EU":
-        return True, True, "um_tab"
-    elif drop_val == "RT":
-        return True, False, "um_tab"
+        return True, "um_tab"
     else:
-        return False, True, "um_tab"
+        return False, "um_tab"
 
 
 pw_um_segment = html.Div(
@@ -418,61 +412,6 @@ pw_um_segment = html.Div(
                     value="pw_tab",
                     id="pw_tab",
                 ),
-                # Regret interaction Tab starting here
-                dcc.Tab(
-                    [
-                        html.H3("Regret theory interaction", className="py-2",),
-                        html.Div(
-                            [
-                                html.Div(
-                                    [dcc.Graph(id="rt_graph"),], className="col-8",
-                                ),
-                                html.Div(
-                                    [
-                                        # dbc.Label("Formula:"),
-                                        # html.Div(fd.pw_func_dict["PW"][2]),
-                                        # html.Hr(),
-                                        dbc.Label("weight:"),
-                                        dbc.Input(
-                                            id="rt_weight",
-                                            type="number",
-                                            value=0.5,
-                                            min=0,
-                                            max=1,
-                                            step=0.01,
-                                        ),
-                                        html.Hr(),
-                                        dbc.Label("Minimum display value"),
-                                        dbc.Input(
-                                            id="rt_min_value",
-                                            type="number",
-                                            value=-10,
-                                            step=0.01,
-                                        ),
-                                        dbc.Label("Maximum display value"),
-                                        dbc.Input(
-                                            id="rt_max_value",
-                                            type="number",
-                                            value=10,
-                                            step=0.01,
-                                        ),
-                                        dbc.Button(
-                                            "Reset all values",
-                                            id="rt_reset_btn",
-                                            className="my-3",
-                                        ),
-                                    ],
-                                    className="col",
-                                ),
-                            ],
-                            className="row mt-2",
-                        ),
-                    ],
-                    label="See the interaction in Regret theory",
-                    value="rt_input_tab",
-                    id="rt_tab",
-                ),
-                # Regret interacting tab ending here
             ],
             value="um_tab",
             id="pw_um_tabs",
@@ -514,170 +453,6 @@ def pw_reset(n_clicks):
 def um_reset(n_clicks):
     # Reset all parameters for the utility function
     return 0.88, 2.25, 0, 2, 0, 10
-
-
-# delete with RT interaction panel
-@app.callback(
-    [
-        Output("rt_weight", "value"),
-        Output("rt_min_value", "value"),
-        Output("rt_max_value", "value"),
-    ],
-    [Input("rt_reset_btn", "n_clicks")],
-)
-def rt_reset(n_clicks):
-    return 0.5, 0, 10
-
-
-# delete with RT interaction panel
-@app.callback(
-    Output("rt_graph", "figure"),
-    [
-        Input("rt_min_value", "value"),
-        Input("rt_max_value", "value"),
-        Input("rt_weight", "value"),
-        Input("std_input_tbl", "data"),
-        # um params
-        Input("um_dropdown", "value"),
-        Input("um_TKU_a", "value"),
-        Input("um_TKU_l", "value"),
-        Input("um_TKU_r", "value"),
-        Input("um_RU_exp", "value"),
-        Input("um_text_runner", "n_clicks"),
-        Input("um_text", "value"),
-    ],
-)
-def update_rt_graph(
-    min_val,
-    max_val,
-    rt_weight,
-    std_rows,
-    um_drop_val,
-    TKU_a,
-    TKU_l,
-    TKU_r,
-    RU_exp,
-    um_n_clicks,
-    um_user_func,
-):
-    # Begin actual points
-    # CHECK changed to new std_table with hidden column, implement simple comp value
-    pays = [
-        [float(i["std_payoffs_tbl"]) for i in std_rows],
-        [float(i["comp_payoffs_tbl"]) for i in std_rows],
-    ]
-    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
-
-    # um params
-    if um_drop_val == "TKU":
-        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
-    elif um_drop_val == "RU":
-        um_kwargs = {"exp": RU_exp}
-    elif um_drop_val == "LU":
-        um_kwargs = {}
-    elif um_drop_val == "BU":
-        um_kwargs = {}
-    elif um_drop_val == "YU":
-        um_kwargs = {"text": um_user_func}
-
-    x_1_data = np.linspace(min_val, max_val, 10).tolist()
-    y_1_data = np.linspace(min_val, max_val, 10).tolist()
-    x_2_data = [
-        item
-        for sublist in [[round(elem, 2)] * 10 for elem in x_1_data]
-        for item in sublist
-    ]
-    y_2_data = [round(elem, 2) for elem in y_1_data] * 10
-
-    heat = [
-        item
-        for sublist in [
-            [
-                mf.regret_theory_interaction(
-                    x_val,
-                    y_val,
-                    rt_weight,
-                    fd.um_func_dict[um_drop_val][0],
-                    um_kwargs=um_kwargs,
-                )
-                for x_val in x_1_data
-            ]
-            for y_val in y_1_data
-        ]
-        for item in sublist
-    ]
-    fig = go.Figure(
-        data=go.Scatter(
-            x=x_2_data,
-            y=y_2_data,
-            mode="markers",
-            opacity=0.5,
-            marker=dict(
-                size=60,
-                color=heat,
-                symbol="square",
-                # colorscale='Viridis',
-                showscale=True,
-            ),
-            hoverinfo="none",
-        )
-    )
-
-    comp_pays_avg = []
-    for i_outer, _ in enumerate(pays):
-        comp_pays = [
-            pays[i_inner] for i_inner in range(len(pays)) if i_outer != i_inner
-        ]
-        comp_pay_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
-        comp_pays_avg.append(comp_pay_avg)
-
-    rt_value = [
-        [
-            mf.regret_theory_interaction(
-                pays[i_outer][i_inner],
-                comp_pays_avg[i_outer][i_inner],
-                rt_weight,
-                fd.um_func_dict[um_drop_val][0],
-                um_kwargs=um_kwargs,
-            )
-            for i_inner in range(len(pays[i_outer]))
-        ]
-        for i_outer in range(len(pays))
-    ]
-    rt_weighted_value = [
-        [pay[i] * probs[i] for i in range(len(pay))] for pay in rt_value
-    ]
-    # print("---------------------------------------")
-    # print(pays)
-    # print(comp_pays_avg)
-    # print(rt_value)
-    # print(rt_weighted_value)
-    # print("---------------------------------------")
-
-    # TODO works for linear utility but not for TKU and some other alternatives
-
-    for i in range(len(pays)):
-        fig.add_trace(
-            go.Scatter(
-                y=pays[i],
-                x=comp_pays_avg[i],
-                mode="markers",
-                marker=dict(size=[prob * 100 for prob in probs]),
-                name="Payoff {}".format(i),
-                text=[str(round(prob * 100, 2)) for prob in probs],
-                hovertemplate=" Y of %{y}: <br> X of: %{x} </br> with probability %{text}%",
-            )
-        )
-
-    fig.update_layout(
-        template="plotly_white",
-        margin=dict(l=25, r=25, b=25, t=25, pad=0),
-        title="Regret theory interaction",
-        xaxis_title="Alternative action values",
-        yaxis_title="Action values",
-        showlegend=False,
-    )
-    return fig
 
 
 @app.callback(
