@@ -18,12 +18,42 @@ import numpy as np
 # import rd_functions.main_functions as mf
 # import rd_functions.util_mod as um
 # import rd_functions.prob_weighting as pw
+import rd_functions.summary_statistics as sm
 
 # import apps.func_dicts as fd
 
 from math import isclose
 
 from app import app
+
+stat_table = dbc.Table(
+    [
+        html.Thead(html.Tr(html.Td("Summary Statistics"))),
+        html.Tbody(
+            [
+                html.Tr(
+                    [
+                        html.Td("Mean"),
+                        html.Td("", id="stat_tbl_mean"),
+                        html.Td("Standard Deviation"),
+                        html.Td("", id="stat_tbl_std_dev"),
+                    ]
+                ),
+                html.Tr(
+                    [
+                        html.Td("Skewness"),
+                        html.Td("", id="stat_tbl_skew"),
+                        html.Td("Excess Kurtosis"),
+                        html.Td("", id="stat_tbl_kurt"),
+                    ]
+                ),
+                # html.Tr([html.Td("Mean"), html.Td("")]),
+            ]
+        ),
+    ],
+    hover=True,
+    size="sm",
+)
 
 input_segment = html.Div(
     [
@@ -123,10 +153,30 @@ input_segment = html.Div(
             ],
             className="row mt-2",
         ),
+        html.Div(stat_table, className="row mt-2"),
     ],
     className="container p-4 my-2",
     style={"background-color": sub_bg_color},
 )
+
+
+@app.callback(
+    [
+        Output("stat_tbl_mean", "children"),
+        Output("stat_tbl_std_dev", "children"),
+        Output("stat_tbl_skew", "children"),
+        Output("stat_tbl_kurt", "children"),
+    ],
+    [Input("std_input_tbl", "data")],
+)
+def update_stats_table(std_rows):
+    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
+    pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
+    mean_helper = round(sm.mean(pays, probs), 4)
+    std_dev_helper = round(sm.std_dev(pays, probs), 4)
+    skew_helper = round(sm.skew(pays, probs), 4)
+    kurtosis_helper = round(sm.kurtosis(pays, probs), 4)
+    return [mean_helper, std_dev_helper, skew_helper, kurtosis_helper]
 
 
 @app.callback(
@@ -245,7 +295,7 @@ def gamble_figs(pays, probs):
     pays_graph = [
         [pays_ord[i], pays_ord[i + 1]]
         if i < len(pays_ord) - 1
-        else [pays_ord[i], pays_ord[i] * 1.1]
+        else [pays_ord[i], pays_ord[i] + (pays_ord[i] - pays_ord[0]) * 0.1]
         for i in range(len(pays_ord))
     ]
     probs_graph = [
