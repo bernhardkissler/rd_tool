@@ -55,6 +55,26 @@ stat_table = dbc.Table(
     size="sm",
 )
 
+
+@app.callback(
+    [
+        Output("stat_tbl_mean", "children"),
+        Output("stat_tbl_std_dev", "children"),
+        Output("stat_tbl_skew", "children"),
+        Output("stat_tbl_kurt", "children"),
+    ],
+    [Input("std_input_tbl", "data")],
+)
+def update_stats_table(std_rows):
+    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
+    pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
+    mean_helper = round(sm.mean(pays, probs), 4)
+    std_dev_helper = round(sm.std_dev(pays, probs), 4)
+    skew_helper = round(sm.skew(pays, probs), 4)
+    kurtosis_helper = round(sm.kurtosis(pays, probs), 4)
+    return [mean_helper, std_dev_helper, skew_helper, kurtosis_helper]
+
+
 input_segment = html.Div(
     [
         html.H3("Enter a gamble", className="py-2"),
@@ -160,23 +180,35 @@ input_segment = html.Div(
 )
 
 
+# Callbacks for Table
 @app.callback(
-    [
-        Output("stat_tbl_mean", "children"),
-        Output("stat_tbl_std_dev", "children"),
-        Output("stat_tbl_skew", "children"),
-        Output("stat_tbl_kurt", "children"),
-    ],
+    [Output("danger_toast_2", "is_open"), Output("danger_toast_2", "children")],
     [Input("std_input_tbl", "data")],
 )
-def update_stats_table(std_rows):
-    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
-    pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
-    mean_helper = round(sm.mean(pays, probs), 4)
-    std_dev_helper = round(sm.std_dev(pays, probs), 4)
-    skew_helper = round(sm.skew(pays, probs), 4)
-    kurtosis_helper = round(sm.kurtosis(pays, probs), 4)
-    return [mean_helper, std_dev_helper, skew_helper, kurtosis_helper]
+def check_probs(rows):
+    # Check whether probs in table approximately sum to 1
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    if not isclose(sum(probs), 1):
+        return (
+            True,
+            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                sum(probs)
+            ),
+        )
+    else:
+        return False, ""
+
+
+@app.callback(
+    Output("std_input_tbl", "data"),
+    [Input("std_editing_rows_button", "n_clicks")],
+    [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
+)
+def add_row(n_clicks, rows, columns):
+    # extend the input table by one empty row per click
+    if n_clicks > 0:
+        rows.append({c["id"]: "" for c in columns})
+    return rows
 
 
 @app.callback(
@@ -328,33 +360,3 @@ def gamble_figs(pays, probs):
     )
     return fig
 
-
-# Callbacks for Table
-@app.callback(
-    [Output("danger_toast_2", "is_open"), Output("danger_toast_2", "children")],
-    [Input("std_input_tbl", "data")],
-)
-def check_probs(rows):
-    # Check whether probs in table approximately sum to 1
-    probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    if not isclose(sum(probs), 1):
-        return (
-            True,
-            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
-                sum(probs)
-            ),
-        )
-    else:
-        return False, ""
-
-
-@app.callback(
-    Output("std_input_tbl", "data"),
-    [Input("std_editing_rows_button", "n_clicks")],
-    [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
-)
-def add_row(n_clicks, rows, columns):
-    # extend the input table by one empty row per click
-    if n_clicks > 0:
-        rows.append({c["id"]: "" for c in columns})
-    return rows
