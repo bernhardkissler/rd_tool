@@ -1,6 +1,7 @@
 from math import nan
 from rd_functions.custom_exceptions import PositiveValuesOnlyError
-import sys
+
+# import sys
 from simpleeval import simple_eval
 import math
 import rd_functions.custom_exceptions as ce
@@ -35,9 +36,7 @@ def root_utility(x: float, exp: float = 2.0) -> float:
 
 
 def lin_utility(x: float) -> float:
-    """
-    A linear utility function where the utility of a value x equals x
-    """
+    """ A linear utility function where the utility of a value x equals x """
     return x
 
 
@@ -49,6 +48,31 @@ def bern_utility(x: float, a: float = 0) -> float:
         res = nan
         raise ce.PositiveValuesOnlyError
     return res
+
+
+def pow_utility(x: float, exp: float = 2) -> float:
+    """ Simple power utility function according to Stott 2006"""
+    return x ** exp
+
+
+def quad_utility(x: float, a: float = 1) -> float:
+    """ Simple quadratic utility function according to Stott 2006"""
+    return a * x - x ** 2
+
+
+def exp_utility(x: float, a: float = 1) -> float:
+    """ Simple Exponential utility function according to Stott 2006"""
+    return 1 - math.exp(-a * x)
+
+
+def bell_utility(x: float, a: float = 1, b: float = 1) -> float:
+    """ Simple Bell utility function according to Stott 2006"""
+    return b * x - math.exp(-a * x)
+
+
+def hara_utility(x: float, a: float = 1, b: float = 1) -> float:
+    """ Simple hara utility function according to Stott 2006"""
+    return -((b + x) ** a)
 
 
 def user_utility(x: float, text: str) -> float:

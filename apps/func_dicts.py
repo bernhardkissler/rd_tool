@@ -31,10 +31,15 @@ um_func_dict = {
                   -l \\cdot (-(x-r))^{a} & \\text{if }x < r
               \\end{cases}$$""",
     ],
+    "BU": [um.bern_utility, "Bernoulli's utility funtion", "$U(x) = log(a + x)$"],
     "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $"],
     "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$"],
+    "PU": [um.pow_utility, "Power utility function", "$U(x) = x^{exp}$"],
+    "QU": [um.quad_utility, "Quadratic utility function", "$U(x) = ax - x^{2}$"],
+    "EXU": [um.exp_utility, "Exponential utiltiy function", "$U(x) = 1-e^{-ax}$"],
+    "BEU": [um.bell_utility, "Bell utility function", "$U(x) = b\\cdot{x}-e^{-ax}$"],
+    "HU": [um.hara_utility, "Hara utility function", "$U(x) = -(b+x)^{a}$"],
     "YU": [um.user_utility, "Custom utilty function", ""],
-    "BU": [um.bern_utility, "Bernoulli's utility funtion", "$U(x) = log(a + x)$"],
 }
 
 mf_func_dict = {
