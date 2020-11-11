@@ -2,6 +2,9 @@ def mean(pays, probs=None):
     return sum([pays[i] * probs[i] for i in range(len(pays))])
 
 
+# TODO add function for Median?
+
+
 def std_dev(pays, probs):
     mean_helper = mean(pays, probs)
     return sum([(pays[i] - mean_helper) ** 2 * probs[i] for i in range(len(pays))]) ** (
@@ -27,6 +30,12 @@ def kurtosis(pays, probs):
         sum([(pays[i] - mean_helper) ** 4 * probs[i] for i in range(len(pays))])
         / std_dev_helper ** 4
     ) - 3
+
+
+# TODO add measures of financial risk from https://en.wikipedia.org/wiki/Risk_measure
+# https://en.wikipedia.org/wiki/List_of_financial_performance_measures
+# https://en.wikipedia.org/wiki/Risk_measure
+# TODO add things like sharpe ratio?
 
 
 # pays_test = [2, 4, 5, 7, 8, 10, 11, 25, 26, 27, 36]

@@ -6,6 +6,7 @@ import math
 import rd_functions.custom_exceptions as ce
 
 # TODO check https://en.wikipedia.org/wiki/Expected_utility_hypothesis for more interesing utility functions
+# https://en.wikipedia.org/wiki/Utility#Examples
 
 
 def utility_tversky_kahneman(
@@ -40,10 +41,10 @@ def lin_utility(x: float) -> float:
     return x
 
 
-def bern_utility(x: float) -> float:
+def bern_utility(x: float, a: float = 0) -> float:
     """ A simple utility function based on bernoulli's initial formulation of EU """
     try:
-        res = math.log(x)
+        res = math.log(a + x)
     except ValueError:
         res = nan
         raise ce.PositiveValuesOnlyError

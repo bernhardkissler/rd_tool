@@ -108,11 +108,10 @@ def update_output_theor(theor_drop_val):
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_BU_a", "value"),
     ],
 )
-def update_output_um_theor(
-    um_drop_val, TKU_a, TKU_l, TKU_r, RU_exp,
-):
+def update_output_um_theor(um_drop_val, TKU_a, TKU_l, TKU_r, RU_exp, BU_a):
     if um_drop_val == "TKU":
         um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
     elif um_drop_val == "RU":
@@ -120,7 +119,7 @@ def update_output_um_theor(
     elif um_drop_val == "LU":
         um_kwargs = {}
     elif um_drop_val == "BU":
-        um_kwargs = {}
+        um_kwargs = {"a": BU_a}
     elif um_drop_val == "YU":
         um_kwargs = {}
     return (
@@ -188,6 +187,7 @@ def update_output_pw_theor(
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_BU_a", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
     ],
@@ -210,6 +210,7 @@ def update_output(
     TKU_l,
     TKU_r,
     RU_exp,
+    BU_a,
     um_n_clicks,
     um_user_func,
 ):
@@ -241,7 +242,7 @@ def update_output(
     elif um_drop_val == "LU":
         um_kwargs = {}
     elif um_drop_val == "BU":
-        um_kwargs = {}
+        um_kwargs = {"a": BU_a}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
