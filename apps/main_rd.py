@@ -663,6 +663,14 @@ pw_segment = html.Div(
                                             "value": "PW",
                                         },
                                         {
+                                            "label": "Linear weighting function",
+                                            "value": "LW",
+                                        },
+                                        {
+                                            "label": "Power weighting function",
+                                            "value": "POW",
+                                        },
+                                        {
                                             "label": "Your weighting function",
                                             "value": "YW",
                                         },
@@ -805,6 +813,43 @@ pw_segment = html.Div(
                                     id="pw_collapse_PW",
                                     className="py-2",
                                 ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Formula:"),
+                                        html.Div(
+                                            fd.pw_func_dict["LW"][2], className="pb-2",
+                                        ),
+                                    ],
+                                    id="pw_collapse_LW",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Formula:"),
+                                        html.Div(
+                                            fd.pw_func_dict["POW"][2], className="pb-2",
+                                        ),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "r:", width=3, className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="pw_POW_r",
+                                                        type="number",
+                                                        value=1,
+                                                        step=1,
+                                                    ),
+                                                    width=9,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    id="pw_collapse_POW",
+                                    className="py-2",
+                                ),
                                 dbc.Button(
                                     "Reset all values",
                                     id="pw_reset_btn",
@@ -876,6 +921,7 @@ pw_segment = html.Div(
         Output("pw_GEW_a", "value"),
         Output("pw_PW_b", "value"),
         Output("pw_PW_a", "value"),
+        Output("pw_POW_r", "value"),
         Output("pw_min_value", "value"),
         Output("pw_max_value", "value"),
     ],
@@ -883,7 +929,7 @@ pw_segment = html.Div(
 )
 def pw_reset(n_clicks):
     #  Reset all parameters for the probability weighting function
-    return 0.65, 0.5, 0.6, 0.5, 0.6, 0, 1
+    return 0.65, 0.5, 0.6, 0.5, 0.6, 2, 0, 1
 
 
 @app.callback(
@@ -891,6 +937,8 @@ def pw_reset(n_clicks):
         Output("pw_collapse_TKW", "is_open"),
         Output("pw_collapse_GEW", "is_open"),
         Output("pw_collapse_PW", "is_open"),
+        Output("pw_collapse_LW", "is_open"),
+        Output("pw_collapse_POW", "is_open"),
         Output("pw_collapse_YW", "is_open"),
     ],
     [Input("pw_dropdown", "value")],
@@ -898,20 +946,33 @@ def pw_reset(n_clicks):
         State("pw_collapse_TKW", "is_open"),
         State("pw_collapse_GEW", "is_open"),
         State("pw_collapse_PW", "is_open"),
+        State("pw_collapse_LW", "is_open"),
+        State("pw_collapse_POW", "is_open"),
         State("pw_collapse_YW", "is_open"),
     ],
 )
-def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open, YW_open):
-    TKW_open, GEW_open, PW_open, YW_open = False, False, False, False
+def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open, LW_open, POW_open, YW_open):
+    TKW_open, GEW_open, PW_open, LW_open, POW_open, YW_open = (
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    )
     if drop_val == "TKW":
         TKW_open = True
     elif drop_val == "GEW":
         GEW_open = True
     elif drop_val == "PW":
         PW_open = True
+    elif drop_val == "LW":
+        LW_open = True
+    elif drop_val == "POW":
+        POW_open = True
     elif drop_val == "YW":
         YW_open = True
-    return TKW_open, GEW_open, PW_open, YW_open
+    return TKW_open, GEW_open, PW_open, LW_open, POW_open, YW_open
 
 
 @app.callback(
@@ -925,12 +986,23 @@ def toggle_pw_params(drop_val, TKW_open, GEW_open, PW_open, YW_open):
         Input("pw_GEW_a", "value"),
         Input("pw_PW_b", "value"),
         Input("pw_PW_a", "value"),
+        Input("pw_POW_r", "value"),
         Input("pw_text_runner", "n_clicks"),
         Input("pw_text", "value"),
     ],
 )
 def update_pw_graph(
-    pw_drop_val, min_val, max_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, n_clicks, user_func
+    pw_drop_val,
+    min_val,
+    max_val,
+    TKW_d,
+    GEW_b,
+    GEW_a,
+    PW_b,
+    PW_a,
+    POW_r,
+    n_clicks,
+    user_func,
 ):
     if pw_drop_val == "TKW":
         kwargs = {"d": TKW_d}
@@ -938,6 +1010,10 @@ def update_pw_graph(
         kwargs = {"b": GEW_b, "a": GEW_a}
     elif pw_drop_val == "PW":
         kwargs = {"b": PW_b, "a": PW_a}
+    elif pw_drop_val == "LW":
+        kwargs = {}
+    elif pw_drop_val == "POW":
+        kwargs = {"r": POW_r}
     elif pw_drop_val == "YW":
         kwargs = {"text": user_func}
 

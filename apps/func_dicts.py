@@ -19,6 +19,8 @@ pw_func_dict = {
         "Prelec probability weighting function",
         "$W(p)=e^{-b(-ln(p))^{a}}$",
     ],
+    "LW": [pw.weigh_lin, "Linear probability weighting function", "$W(p) = p $"],
+    "POW": [pw.weigh_pow, "Power probability weighting function", "$W(p) = p^{r}$"],
     "YW": [pw.weig_user, "Custom probability weighting function", ""],
 }
 

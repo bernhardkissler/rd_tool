@@ -34,6 +34,22 @@ def weigh_prelec(p: float, b: float = 0.5, a: float = 0.6) -> float:
         return np.exp(-b * (-np.log(p)) ** a)
 
 
+def weigh_lin(p: float) -> float:
+    """ Simple linear weighting function; See Stott 2006"""
+    if p < 0 or p > 1:
+        raise ce.ZeroToOneOnlyError
+    else:
+        return p
+
+
+def weigh_pow(p: float, r: float) -> float:
+    """ Simple power weighting function; See Stott 2006"""
+    if p < 0 or p > 1:
+        raise ce.ZeroToOneOnlyError
+    else:
+        return p ** r
+
+
 def weig_user(x: float, text: str) -> float:
     """ 
     Takes in a string and evaluates it (safely) with the simpleeval

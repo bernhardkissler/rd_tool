@@ -169,11 +169,12 @@ def update_output_um_theor(
         Input("pw_GEW_a", "value"),
         Input("pw_PW_b", "value"),
         Input("pw_PW_a", "value"),
+        Input("pw_POW_r", "value"),
         Input("theor_dropdown", "value"),
     ],
 )
 def update_output_pw_theor(
-    pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, theor_drop_val
+    pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, POW_r, theor_drop_val
 ):
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}
@@ -181,6 +182,10 @@ def update_output_pw_theor(
         pw_kwargs = {"b": GEW_b, "a": GEW_a}
     elif pw_drop_val == "PW":
         pw_kwargs = {"b": PW_b, "a": PW_a}
+    elif pw_drop_val == "LW":
+        pw_kwargs = {}
+    elif pw_drop_val == "POW":
+        pw_kwargs = {"r": POW_r}
     elif pw_drop_val == "YW":
         pw_kwargs = {}
 
@@ -210,6 +215,7 @@ def update_output_pw_theor(
         Input("pw_GEW_a", "value"),
         Input("pw_PW_b", "value"),
         Input("pw_PW_a", "value"),
+        Input("pw_POW_r", "value"),
         Input("pw_text_runner", "n_clicks"),
         Input("pw_text", "value"),
         # um params
@@ -240,13 +246,7 @@ def update_output(
     GEW_a,
     PW_b,
     PW_a,
-        Input("um_PU_exp", "value"),
-        Input("um_QU_a", "value"),
-        Input("um_EXU_a", "value"),
-        Input("um_BEU_a", "value"),
-        Input("um_BEU_b", "value"),
-        Input("um_HU_a", "value"),
-        Input("um_HU_b", "value"),
+    POW_r,
     pw_n_clicks,
     pw_user_func,
     # um params
@@ -283,6 +283,10 @@ def update_output(
         pw_kwargs = {"b": GEW_b, "a": GEW_a}
     elif pw_drop_val == "PW":
         pw_kwargs = {"b": PW_b, "a": PW_a}
+    elif pw_drop_val == "LW":
+        pw_kwargs = {}
+    elif pw_drop_val == "POW":
+        pw_kwargs = {"r": POW_r}
     elif pw_drop_val == "YW":
         pw_kwargs = {"text": pw_user_func}
 
