@@ -1061,18 +1061,20 @@ cl_segment = html.Div(
                                     id="cl_dropdown",
                                     options=[
                                         {
-                                            "label": "Tversky Kahneman weighting function",
-                                            "value": "TKW",
+                                            "label": "Loomes and Sugden 1982",
+                                            "value": "LS",
+                                        },
+                                        {
+                                            "label": "Your regret function",
+                                            "value": "YR",
                                         },
                                     ],
-                                    value="TKW",
+                                    value="LS",
                                     className="py-2",
                                 ),
                                 dbc.Collapse(
                                     [
-                                        dbc.Label(
-                                            "Your probability weighting function:"
-                                        ),
+                                        dbc.Label("Your Regret function:"),
                                         # MARK Textarea for ASTEVAL
                                         dbc.Input(
                                             id="cl_text",
@@ -1086,26 +1088,33 @@ cl_segment = html.Div(
                                             className="mt-2",
                                         ),
                                     ],
-                                    id="cl_collapse_YW",
+                                    id="cl_collapse_YR",
                                     className="py-2",
                                 ),
                                 dbc.Collapse(
                                     [
                                         dbc.Label("Formula:"),
                                         html.Div(
-                                            fd.pw_func_dict["POW"][2], className="pb-2",
+                                            fd.rg_func_dict["LS"][
+                                                2
+                                            ],  # TODO pull this into its own dict and add formula in latex
+                                            className="pb-2",
                                         ),
                                         dbc.FormGroup(
                                             [
                                                 dbc.Label(
-                                                    "r:", width=3, className="my-1",
+                                                    "weight:",
+                                                    width=3,
+                                                    className="my-1",
                                                 ),
                                                 dbc.Col(
                                                     dbc.Input(
-                                                        id="cl_POW_r",
+                                                        id="cl_LS_weight",
                                                         type="number",
                                                         value=1,
-                                                        step=1,
+                                                        step=0.01,
+                                                        min=0,
+                                                        max=1,
                                                     ),
                                                     width=9,
                                                 ),
@@ -1113,7 +1122,7 @@ cl_segment = html.Div(
                                             row=True,
                                         ),
                                     ],
-                                    id="cl_collapse_POW",
+                                    id="cl_collapse_LS",
                                     className="py-2",
                                 ),
                                 dbc.Button(
@@ -1178,6 +1187,33 @@ cl_segment = html.Div(
     className="container p-4 my-2",
     style={"background-color": sub_bg_color},
 )
+
+
+@app.callback(
+    [
+        Output("cl_LS_weight", "value"),
+        Output("cl_min_value", "value"),
+        Output("cl_max_value", "value"),
+    ],
+    [Input("cl_reset_btn", "n_clicks")],
+)
+def cl_reset(n_clicks):
+    #  Reset all parameters for the probability weighting function
+    return 1, 0, 1
+
+
+@app.callback(
+    [Output("cl_collapse_LS", "is_open"), Output("cl_collapse_YR", "is_open"),],
+    [Input("cl_dropdown", "value")],
+    [State("cl_collapse_LS", "is_open"), State("cl_collapse_YR", "is_open"),],
+)
+def toggle_pw_params(drop_val, LS_open, YR_open):
+    LS_open, YR_open = False, False
+    if drop_val == "LS":
+        LS_open = True
+    elif drop_val == "YR":
+        YR_open = True
+    return LS_open, YR_open
 
 
 # Initiate warning banners

@@ -1,6 +1,7 @@
 import rd_functions.main_functions as mf
 import rd_functions.util_mod as um
 import rd_functions.prob_weighting as pw
+import rd_functions.context_eval as ce
 
 
 pw_func_dict = {
@@ -49,5 +50,12 @@ mf_func_dict = {
     "RDU": [mf.rank_dependent_utility, "Rank dependent utility"],
     "EU": [mf.expected_utility, "Expected utility"],
     "RT": [mf.regret_theory, "Regret theory"],
-    "RT_i": [mf.regret_theory_interaction, "Regret theory interaction"],
+}
+
+rg_func_dict = {
+    "LS": [
+        ce.ls_regret,
+        "Regret theory interaction",
+        "$ Q(x,y) = u(x) + weight\\cdot(u(x) - u(y)) $",
+    ],
 }

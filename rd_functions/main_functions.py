@@ -1,6 +1,7 @@
 import rd_functions.util_mod as um
 import rd_functions.prob_weighting as pw
 import rd_functions.helpers as he
+import rd_functions.context_eval as ce
 from typing import List
 
 
@@ -20,7 +21,7 @@ def regret_theory(
         ]
         comp_pays_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
         pay_delta = [
-            regret_theory_interaction(
+            ce.ls_regret(
                 eval_pay[i], comp_pays_avg[i], weight, um_function, um_kwargs=um_kwargs
             )
             for i in range(len(eval_pay))
@@ -32,15 +33,6 @@ def regret_theory(
     ind_vals = [sum(pays) for pays in pays_delta]
 
     return ind_vals
-
-
-def regret_theory_interaction(
-    x_1, x_2, weight, um_function, um_kwargs={},
-):
-    """ classic regret function proposed by Loomes and Sugden 1982 """
-    return um_function(x_1, **um_kwargs) + weight * (
-        um_function(x_1, **um_kwargs) - um_function(x_2, **um_kwargs)
-    )
 
 
 def expected_utility(
