@@ -46,7 +46,7 @@ theor_segment = html.Div(
 
 # MARK disable choice of pw for certain theories here
 @app.callback(
-    [Output("pw_panel_collapse", "is_open"), Output("cl_panel_collapse", "is_open")],
+    [Output("pw_panel_collapse", "is_open"), Output("rg_panel_collapse", "is_open")],
     [Input("theor_dropdown", "value")],
 )
 def collapse_pw(drop_val):
@@ -1048,9 +1048,9 @@ def update_pw_graph(
     return fig
 
 
-cl_segment = html.Div(
+rg_segment = html.Div(
     [
-        html.H3("Context lottery function", id="cl_link", className="py-2",),
+        html.H3("Context lottery function", id="rg_link", className="py-2",),
         dbc.Collapse(
             [
                 html.Div(
@@ -1058,7 +1058,7 @@ cl_segment = html.Div(
                         html.Div(
                             [
                                 dcc.Dropdown(
-                                    id="cl_dropdown",
+                                    id="rg_dropdown",
                                     options=[
                                         {
                                             "label": "Loomes and Sugden 1982",
@@ -1077,18 +1077,18 @@ cl_segment = html.Div(
                                         dbc.Label("Your Regret function:"),
                                         # MARK Textarea for ASTEVAL
                                         dbc.Input(
-                                            id="cl_text",
+                                            id="rg_text",
                                             type="text",
                                             placeholder="Input your own function",
                                             debounce=True,
                                         ),
                                         dbc.Button(
                                             "Run Function",
-                                            id="cl_text_runner",
+                                            id="rg_text_runner",
                                             className="mt-2",
                                         ),
                                     ],
-                                    id="cl_collapse_YR",
+                                    id="rg_collapse_YR",
                                     className="py-2",
                                 ),
                                 dbc.Collapse(
@@ -1109,7 +1109,7 @@ cl_segment = html.Div(
                                                 ),
                                                 dbc.Col(
                                                     dbc.Input(
-                                                        id="cl_LS_weight",
+                                                        id="rg_LS_weight",
                                                         type="number",
                                                         value=1,
                                                         step=0.01,
@@ -1122,12 +1122,12 @@ cl_segment = html.Div(
                                             row=True,
                                         ),
                                     ],
-                                    id="cl_collapse_LS",
+                                    id="rg_collapse_LS",
                                     className="py-2",
                                 ),
                                 dbc.Button(
                                     "Reset all values",
-                                    id="cl_reset_btn",
+                                    id="rg_reset_btn",
                                     className="my-3",
                                 ),
                             ],
@@ -1135,7 +1135,7 @@ cl_segment = html.Div(
                         ),
                         html.Div(
                             [
-                                dcc.Graph(id="cl_graph"),
+                                dcc.Graph(id="rg_graph"),
                                 dbc.FormGroup(
                                     [
                                         dbc.Label(
@@ -1145,7 +1145,7 @@ cl_segment = html.Div(
                                         ),
                                         dbc.Col(
                                             dbc.Input(
-                                                id="cl_min_value",
+                                                id="rg_min_value",
                                                 type="number",
                                                 value=0,
                                                 min=0,
@@ -1161,7 +1161,7 @@ cl_segment = html.Div(
                                         ),
                                         dbc.Col(
                                             dbc.Input(
-                                                id="cl_max_value",
+                                                id="rg_max_value",
                                                 type="number",
                                                 value=1,
                                                 min=0,
@@ -1181,7 +1181,7 @@ cl_segment = html.Div(
                     className="row mt-2",
                 ),
             ],
-            id="cl_panel_collapse",
+            id="rg_panel_collapse",
         ),
     ],
     className="container p-4 my-2",
@@ -1191,23 +1191,23 @@ cl_segment = html.Div(
 
 @app.callback(
     [
-        Output("cl_LS_weight", "value"),
-        Output("cl_min_value", "value"),
-        Output("cl_max_value", "value"),
+        Output("rg_LS_weight", "value"),
+        Output("rg_min_value", "value"),
+        Output("rg_max_value", "value"),
     ],
-    [Input("cl_reset_btn", "n_clicks")],
+    [Input("rg_reset_btn", "n_clicks")],
 )
-def cl_reset(n_clicks):
+def rg_reset(n_clicks):
     #  Reset all parameters for the probability weighting function
     return 1, 0, 1
 
 
 @app.callback(
-    [Output("cl_collapse_LS", "is_open"), Output("cl_collapse_YR", "is_open"),],
-    [Input("cl_dropdown", "value")],
-    [State("cl_collapse_LS", "is_open"), State("cl_collapse_YR", "is_open"),],
+    [Output("rg_collapse_LS", "is_open"), Output("rg_collapse_YR", "is_open"),],
+    [Input("rg_dropdown", "value")],
+    [State("rg_collapse_LS", "is_open"), State("rg_collapse_YR", "is_open"),],
 )
-def toggle_pw_params(drop_val, LS_open, YR_open):
+def toggle_rg_params(drop_val, LS_open, YR_open):
     LS_open, YR_open = False, False
     if drop_val == "LS":
         LS_open = True
