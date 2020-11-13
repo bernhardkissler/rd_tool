@@ -13,7 +13,9 @@ def ls_regret(
     )
 
 
-def user_regret(x: float, text: str, um_function=um.lin_utility, um_kwargs={}) -> float:
+def user_regret(
+    x_1: float, x_2: float, text: str, um_function=um.lin_utility, um_kwargs={}
+) -> float:
     """ 
     Takes in a string and evaluates it (safely) with the simpleeval
     model to allow users to define their own regret functions
@@ -36,6 +38,6 @@ def user_regret(x: float, text: str, um_function=um.lin_utility, um_kwargs={}) -
             "sqrt": math.sqrt,
             "u": util_func,
         },
-        names={"x": x},
+        names={"x_1": x_1, "x_2": x_2},
     )
     return res
