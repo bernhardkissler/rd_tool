@@ -46,13 +46,16 @@ theor_segment = html.Div(
 
 # MARK disable choice of pw for certain theories here
 @app.callback(
-    Output("pw_panel_collapse", "is_open"), [Input("theor_dropdown", "value")],
+    [Output("pw_panel_collapse", "is_open"), Output("cl_panel_collapse", "is_open")],
+    [Input("theor_dropdown", "value")],
 )
 def collapse_pw(drop_val):
-    if drop_val in ["EU", "RT"]:
-        return False
+    if drop_val == "EU":
+        return False, False
+    elif drop_val in ["RT"]:
+        return False, True
     else:
-        return True
+        return True, False
 
 
 um_segment = html.Div(
@@ -1043,6 +1046,138 @@ def update_pw_graph(
     fig.update_xaxes(showgrid=False, zeroline=False)
     fig.update_yaxes(showgrid=False)
     return fig
+
+
+cl_segment = html.Div(
+    [
+        html.H3("Context lottery function", id="cl_link", className="py-2",),
+        dbc.Collapse(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    id="cl_dropdown",
+                                    options=[
+                                        {
+                                            "label": "Tversky Kahneman weighting function",
+                                            "value": "TKW",
+                                        },
+                                    ],
+                                    value="TKW",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label(
+                                            "Your probability weighting function:"
+                                        ),
+                                        # MARK Textarea for ASTEVAL
+                                        dbc.Input(
+                                            id="cl_text",
+                                            type="text",
+                                            placeholder="Input your own function",
+                                            debounce=True,
+                                        ),
+                                        dbc.Button(
+                                            "Run Function",
+                                            id="cl_text_runner",
+                                            className="mt-2",
+                                        ),
+                                    ],
+                                    id="cl_collapse_YW",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Formula:"),
+                                        html.Div(
+                                            fd.pw_func_dict["POW"][2], className="pb-2",
+                                        ),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "r:", width=3, className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="cl_POW_r",
+                                                        type="number",
+                                                        value=1,
+                                                        step=1,
+                                                    ),
+                                                    width=9,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    id="cl_collapse_POW",
+                                    className="py-2",
+                                ),
+                                dbc.Button(
+                                    "Reset all values",
+                                    id="cl_reset_btn",
+                                    className="my-3",
+                                ),
+                            ],
+                            className="col",
+                        ),
+                        html.Div(
+                            [
+                                dcc.Graph(id="cl_graph"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label(
+                                            "Minimum display value:",
+                                            width=4,
+                                            className="my-1",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="cl_min_value",
+                                                type="number",
+                                                value=0,
+                                                min=0,
+                                                max=1,
+                                                step=0.01,
+                                            ),
+                                            width=2,
+                                        ),
+                                        dbc.Label(
+                                            "Maximum display value:",
+                                            width=4,
+                                            className="my-1",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="cl_max_value",
+                                                type="number",
+                                                value=1,
+                                                min=0,
+                                                max=1,
+                                                step=0.01,
+                                            ),
+                                            width=2,
+                                        ),
+                                    ],
+                                    row=True,
+                                    className="my-2",
+                                ),
+                            ],
+                            className="col-8",
+                        ),
+                    ],
+                    className="row mt-2",
+                ),
+            ],
+            id="cl_panel_collapse",
+        ),
+    ],
+    className="container p-4 my-2",
+    style={"background-color": sub_bg_color},
+)
 
 
 # Initiate warning banners
