@@ -20,6 +20,7 @@ import rd_functions.custom_exceptions as ce
 import apps.func_dicts as fd
 
 plot_color = "#0F4C81"
+plot_color_sec = "#F26B5B"
 sub_bg_color = "rgba(255,255,255, 0.75)"
 
 from math import isclose, nan
@@ -1148,9 +1149,7 @@ rg_segment = html.Div(
                                                 id="rg_min_value",
                                                 type="number",
                                                 value=0,
-                                                min=0,
-                                                max=1,
-                                                step=0.01,
+                                                step=1,
                                             ),
                                             width=2,
                                         ),
@@ -1164,9 +1163,7 @@ rg_segment = html.Div(
                                                 id="rg_max_value",
                                                 type="number",
                                                 value=1,
-                                                min=0,
-                                                max=1,
-                                                step=0.01,
+                                                step=1,
                                             ),
                                             width=2,
                                         ),
@@ -1214,6 +1211,129 @@ def toggle_rg_params(drop_val, LS_open, YR_open):
     elif drop_val == "YR":
         YR_open = True
     return LS_open, YR_open
+
+
+@app.callback(
+    Output("rg_graph", "figure"),
+    [
+        Input("rg_dropdown", "value"),
+        Input("rg_min_value", "value"),
+        Input("rg_max_value", "value"),
+        Input("rg_LS_weight", "value"),
+        Input("rg_text_runner", "n_clicks"),
+        Input("rg_text", "value"),
+        # um_info
+        Input("um_dropdown", "value"),
+        Input("um_TKU_a", "value"),
+        Input("um_TKU_l", "value"),
+        Input("um_TKU_r", "value"),
+        Input("um_RU_exp", "value"),
+        Input("um_BU_a", "value"),
+        Input("um_PU_exp", "value"),
+        Input("um_QU_a", "value"),
+        Input("um_EXU_a", "value"),
+        Input("um_BEU_a", "value"),
+        Input("um_BEU_b", "value"),
+        Input("um_HU_a", "value"),
+        Input("um_HU_b", "value"),
+        Input("um_text_runner", "n_clicks"),
+        Input("um_text", "value"),
+    ],
+)
+def update_cl_graph(
+    rg_drop_val,
+    min_val,
+    max_val,
+    LS_weight,
+    n_clicks,
+    rg_user_func,
+    # um_ingo
+    um_drop_val,
+    TKU_a,
+    TKU_l,
+    TKU_r,
+    RU_exp,
+    BU_a,
+    PU_exp,
+    QU_a,
+    EXU_a,
+    BEU_a,
+    BEU_b,
+    HU_a,
+    HU_b,
+    um_n_clicks,
+    um_user_func,
+):
+
+    if rg_drop_val == "LS":
+        kwargs = {"weight": LS_weight}
+    elif rg_drop_val == "YR":
+        kwargs = {"text": rg_user_func}
+    # um_info
+    if um_drop_val == "TKU":
+        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+    elif um_drop_val == "RU":
+        um_kwargs = {"exp": RU_exp}
+    elif um_drop_val == "LU":
+        um_kwargs = {}
+    elif um_drop_val == "BU":
+        um_kwargs = {"a": BU_a}
+    elif um_drop_val == "PU":
+        um_kwargs = {"exp": PU_exp}
+    elif um_drop_val == "QU":
+        um_kwargs = {"a": QU_a}
+    elif um_drop_val == "EXU":
+        um_kwargs = {"a": EXU_a}
+    elif um_drop_val == "BEU":
+        um_kwargs = {"a": BEU_a, "b": BEU_b}
+    elif um_drop_val == "HU":
+        um_kwargs = {"a": HU_a, "b": HU_b}
+    elif um_drop_val == "YU":
+        um_kwargs = {"text": um_user_func}
+
+    x_1_data = np.linspace(min_val, max_val, 10)
+    y_1_data = np.linspace(min_val, max_val, 10)
+    z_1_data = [
+        [
+            fd.rg_func_dict[rg_drop_val][0](
+                x_1_data[i_inner],
+                y_1_data[i_outer],
+                weight=LS_weight,
+                um_function=fd.um_func_dict[um_drop_val][0],
+                um_kwargs=um_kwargs,
+            )
+            for i_inner in range(len(x_1_data))
+        ]
+        for i_outer in range(len(y_1_data))
+    ]
+
+    # z_1_data = [[1] * 10] * 10
+
+    fig = go.Figure(
+        data=[
+            go.Heatmap(
+                x=x_1_data,
+                y=y_1_data,
+                z=z_1_data,
+                colorscale=[[0, plot_color], [1, plot_color_sec]]
+                # line=dict(color=plot_color),
+                # marker=dict(color=plot_color),
+            )
+        ]
+    )
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        # title="Utility function",
+        xaxis_title="Primary Lottery",
+        yaxis_title="Context Lottery",
+        height=300,
+    )
+    # fig.update_xaxes(showgrid=False, zeroline=False)
+    # fig.update_yaxes(showgrid=False)
+    return fig
 
 
 # Initiate warning banners
