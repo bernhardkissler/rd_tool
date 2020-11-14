@@ -234,6 +234,11 @@ def update_output_pw_theor(
         Input("um_HU_b", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
+        # rg params
+        Input("rg_dropdown", "value"),
+        Input("rg_LS_weight", "value"),
+        Input("rg_text_runner", "n_clicks"),
+        Input("rg_text", "value"),
     ],
 )
 def update_output(
@@ -265,6 +270,11 @@ def update_output(
     HU_b,
     um_n_clicks,
     um_user_func,
+    # rg params
+    rg_drop_val,
+    LS_weight,
+    rg_n_clicks,
+    rg_user_func,
 ):
     if theor_drop_val == "RT":
         # CHECK changed to new std_table with hidden column, implement simple comp value
@@ -312,6 +322,14 @@ def update_output(
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
+    # rg params
+    if rg_drop_val == "LS":
+        rg_kwargs = {"weight": LS_weight}
+    elif rg_drop_val == "YR":
+        rg_kwargs = {
+            "text": rg_user_func,
+        }
+
     if theor_drop_val == "EU":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays,
@@ -325,6 +343,8 @@ def update_output(
             probs,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
+            rg_function=fd.rg_func_dict[rg_drop_val][0],
+            rg_kwargs=rg_kwargs,
         )
     else:
         res = fd.mf_func_dict[theor_drop_val][0](

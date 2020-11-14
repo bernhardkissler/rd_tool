@@ -5,7 +5,7 @@ from functools import partial
 
 
 def ls_regret(
-    x_1, x_2, weight, um_function, um_kwargs={},
+    x_1, x_2, um_function=um.lin_utility, um_kwargs={}, weight=1,
 ):
     """ classic regret function proposed by Loomes and Sugden 1982 """
     return um_function(x_1, **um_kwargs) + weight * (
@@ -14,7 +14,7 @@ def ls_regret(
 
 
 def user_regret(
-    x_1: float, x_2: float, text: str, um_function=um.lin_utility, um_kwargs={}
+    x_1: float, x_2: float, um_function=um.lin_utility, um_kwargs={}, text: str = ""
 ) -> float:
     """ 
     Takes in a string and evaluates it (safely) with the simpleeval

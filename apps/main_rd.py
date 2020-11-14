@@ -1240,7 +1240,7 @@ def toggle_rg_params(drop_val, LS_open, YR_open):
         Input("um_text", "value"),
     ],
 )
-def update_cl_graph(
+def update_rg_graph(
     rg_drop_val,
     min_val,
     max_val,
@@ -1264,11 +1264,6 @@ def update_cl_graph(
     um_n_clicks,
     um_user_func,
 ):
-
-    if rg_drop_val == "LS":
-        kwargs = {"weight": LS_weight}
-    elif rg_drop_val == "YR":
-        kwargs = {"text": rg_user_func}
     # um_info
     if um_drop_val == "TKU":
         um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
@@ -1291,6 +1286,14 @@ def update_cl_graph(
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
+    # rg params
+    if rg_drop_val == "LS":
+        rg_kwargs = {"weight": LS_weight}
+    elif rg_drop_val == "YR":
+        rg_kwargs = {
+            "text": rg_user_func,
+        }
+
     x_1_data = np.linspace(min_val, max_val, 10)
     y_1_data = np.linspace(min_val, max_val, 10)
     z_1_data = [
@@ -1298,9 +1301,9 @@ def update_cl_graph(
             fd.rg_func_dict[rg_drop_val][0](
                 x_1_data[i_inner],
                 y_1_data[i_outer],
-                weight=LS_weight,
                 um_function=fd.um_func_dict[um_drop_val][0],
                 um_kwargs=um_kwargs,
+                **rg_kwargs
             )
             for i_inner in range(len(x_1_data))
         ]

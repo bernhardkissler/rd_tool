@@ -42,7 +42,7 @@ um_func_dict = {
     "EXU": [um.exp_utility, "Exponential utiltiy function", "$U(x) = 1-e^{-ax}$"],
     "BEU": [um.bell_utility, "Bell utility function", "$U(x) = b\\cdot{x}-e^{-ax}$"],
     "HU": [um.hara_utility, "Hara utility function", "$U(x) = -(b+x)^{a}$"],
-    "YU": [um.user_utility, "Custom utilty function", ""],
+    "YU": [um.user_utility, "Custom utility function", ""],
 }
 
 mf_func_dict = {
@@ -58,4 +58,5 @@ rg_func_dict = {
         "Regret theory interaction",
         "$ Q(x,y) = u(x) + weight\\cdot(u(x) - u(y)) $",
     ],
+    "YR": [ce.user_regret, "Custom regret function", ""],
 }
