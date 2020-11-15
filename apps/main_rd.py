@@ -1318,7 +1318,7 @@ def update_rg_graph(
                 x=x_1_data,
                 y=y_1_data,
                 z=z_1_data,
-                colorscale=[[0, plot_color], [1, plot_color_sec]]
+                # colorscale=[[0, plot_color], [1, plot_color_sec]]
                 # line=dict(color=plot_color),
                 # marker=dict(color=plot_color),
             )

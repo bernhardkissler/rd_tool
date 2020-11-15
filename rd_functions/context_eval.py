@@ -4,6 +4,12 @@ import math
 from functools import partial
 
 
+def og_salience(x_1: float, x_2: float, theta: float = 0.1) -> float:
+    # TODO check what theta is really supposed to do; Is it only supposed to prevent Div by zero? --> Doesn't say in the text. It is simply a degree of freedom to fit data
+    """ basic salience function proposed as more tractable parametrization in original paper """
+    abs(x_1 - x_2) / (abs(x_1) + abs(x_2) + theta)
+
+
 def ls_regret(
     x_1, x_2, um_function=um.lin_utility, um_kwargs={}, weight=1,
 ):

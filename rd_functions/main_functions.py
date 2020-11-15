@@ -1,3 +1,9 @@
+"""Calculate the values and certainty equivalents calculated by the theory of choice under risk chosen by the user and call auxilliary functions
+
+Returns:
+    functions: salience theory, regret theory, expected utility theory, rank dependent utility, cumulative prospect theory
+"""
+
 import rd_functions.util_mod as um
 import rd_functions.prob_weighting as pw
 import rd_functions.helpers as he
@@ -5,17 +11,57 @@ import rd_functions.context_eval as ce
 from typing import List
 
 
+def salience_theory(
+    pays: List[List[float]],
+    probs: List[float],
+    delta: float = 0.7,
+    correl_bool: bool = True,
+) -> float:
+    """Smooth Salience theory as described in the original paper.
+
+    Args:
+        pays (List[List[float]]): 2 dim input of payoffs where the first element is the target lottery and the second element the context lottery
+        probs (List[float]): 1 or 2 dim input of probs belonging to the payoffs above
+        delta (float, optional): degree of local thinking in original model; should be between 0 and 1 where one represents non-local rational thinking. Defaults to 0.5.
+        correl_bool (bool, optional): are payoffs correlated i.e. do they share probs or don't they. Defaults to True.
+
+    Returns:
+        float: the unique value of the target lottery compared to the context lottery. Might be exteded to certainty equivalent ... later
+    """
+    if correl_bool:
+        pays_prim, pays_cont = pays[0], pays[1]
+        state_space = zip(pays_prim, pays_cont)
+    # TODO add vals for uncorrelated state spaces
+
+    sal_vals = [ce.og_salience(*state_elem) for state_elem in state_space]
+    pays_sorted = sorted(list(zip(pays_prim, sal_vals)), key=lambda x: x[1])
+    pays_prim_ranked = [[pays_sorted[i][0], i + 1] for i in range(len(pays_sorted))]
+    # TODO add vals for smooth st
+
+    pass
+
+
 def regret_theory(
     pays: List[List[float]],
     probs: List[float],
-    # MARK need to lookup what this weight parameter is actually supposed to do
-    weight: float = 1.0,
     um_function=um.lin_utility,
     um_kwargs={},
     rg_function=ce.ls_regret,
     rg_kwargs={},
 ) -> float:
-    """ Implementation of Regret theory according to Loomes and Sugden 1982; If several gambles are provided, every gamble is evaluated in relation to the weighted average of all other gambles"""
+    """Implementation of Regret theory according to Loomes and Sugden 1982, If several gambles are provided, every gamble is evaluated in relation to the weighted average of all other gambles
+
+    Args:
+        pays (List[List[float]]): [description]
+        probs (List[float]): [description]
+        um_function ([type], optional): utility function applied to individual values. Defaults to um.lin_utility.
+        um_kwargs (dict, optional): . Defaults to {}.
+        rg_function ([type], optional): regret function used. Defaults to ce.ls_regret.
+        rg_kwargs (dict, optional): . Defaults to {}.
+
+    Returns:
+        float: unique value of target lottery in relation to context
+    """
     pays_delta = []
     for i_outer, eval_pay in enumerate(pays):
         comp_pays = [
@@ -38,7 +84,7 @@ def regret_theory(
     # print("***********************************")
     ind_vals = [sum(pays) for pays in pays_delta]
 
-    return ind_vals
+    return ind_vals[0]
 
 
 def expected_utility(
