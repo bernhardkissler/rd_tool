@@ -7,7 +7,39 @@ from functools import partial
 def og_salience(x_1: float, x_2: float, theta: float = 0.1) -> float:
     # TODO check what theta is really supposed to do; Is it only supposed to prevent Div by zero? --> Doesn't say in the text. It is simply a degree of freedom to fit data
     """ basic salience function proposed as more tractable parametrization in original paper """
-    abs(x_1 - x_2) / (abs(x_1) + abs(x_2) + theta)
+    return abs(x_1 - x_2) / (abs(x_1) + abs(x_2) + theta)
+
+
+def user_salience(x_1: float, x_2: float, text: str = "") -> float:
+    """Allow user to enter custom salience function
+
+    Args:
+        x_1 (float): primary payoff
+        x_2 (float): context payoff
+        text (str, optional): user entered function in one line to be evalued. Defaults to "".
+
+    Returns:
+        float: the salience of the compared values
+    """
+    res = simple_eval(
+        text,
+        functions={
+            # "print": print,
+            "abs": abs,
+            "sin": math.sin,
+            "cos": math.cos,
+            "tan": math.tan,
+            "e": math.e,
+            "exp": math.exp,
+            "log": math.log,
+            "log10": math.log10,
+            "pi": math.pi,
+            "sqrt": math.sqrt,
+        },
+        names={"x_1": x_1, "x_2": x_2},
+    )
+
+    return res
 
 
 def ls_regret(

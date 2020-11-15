@@ -216,7 +216,7 @@ def add_row(n_clicks, rows, columns):
 )
 def hide_rt_input_column(drop_val):
     # Hide the rt_input column in which the user can write an alternative lottery to which the target lottery may be compared
-    if drop_val == "RT":
+    if drop_val in ["RT", "ST"]:
         return [[]]
     else:
         return [["comp_payoffs_tbl"]]

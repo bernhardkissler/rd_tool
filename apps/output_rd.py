@@ -76,7 +76,7 @@ output_segment = html.Div(
 def update_output_input(
     rows, theor_drop_val,
 ):
-    if theor_drop_val == "RT":
+    if theor_drop_val in ["RT", "ST"]:
         # CHECK changed to new std_table with hidden column, implement simple comp value
         pays = [
             [float(i["std_payoffs_tbl"]) for i in rows],
@@ -239,6 +239,11 @@ def update_output_pw_theor(
         Input("rg_LS_weight", "value"),
         Input("rg_text_runner", "n_clicks"),
         Input("rg_text", "value"),
+        # sl params
+        Input("sl_dropdown", "value"),
+        Input("sl_OG_theta", "value"),
+        Input("sl_text_runner", "n_clicks"),
+        Input("sl_text", "value"),
     ],
 )
 def update_output(
@@ -275,8 +280,13 @@ def update_output(
     LS_weight,
     rg_n_clicks,
     rg_user_func,
+    # sl params
+    sl_drop_val,
+    OG_theta,
+    sl_n_clicks,
+    sl_user_func,
 ):
-    if theor_drop_val == "RT":
+    if theor_drop_val in ["RT", "ST"]:
         # CHECK changed to new std_table with hidden column, implement simple comp value
         pays = [
             [float(i["std_payoffs_tbl"]) for i in rows],
@@ -330,12 +340,29 @@ def update_output(
             "text": rg_user_func,
         }
 
+    # sl params
+    if sl_drop_val == "OG":
+        sl_kwargs = {"theta": OG_theta}
+    elif sl_drop_val == "YS":
+        sl_kwargs = {
+            "text": sl_user_func,
+        }
+
     if theor_drop_val == "EU":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays,
             probs,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
+        )
+    elif theor_drop_val == "ST":
+        res = fd.mf_func_dict[theor_drop_val][0](
+            pays,
+            probs,
+            um_function=fd.um_func_dict[um_drop_val][0],
+            um_kwargs=um_kwargs,
+            sl_function=fd.sl_func_dict[sl_drop_val][0],
+            sl_kwargs=sl_kwargs,
         )
     elif theor_drop_val == "RT":
         res = fd.mf_func_dict[theor_drop_val][0](

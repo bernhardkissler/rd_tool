@@ -33,12 +33,13 @@ theor_segment = html.Div(
         dcc.Dropdown(
             id="theor_dropdown",
             options=[
-                {"label": "Cumulative prospect theory", "value": "CPT",},
-                {"label": "Rank dependent utility", "value": "RDU",},
                 {"label": "Expected utility", "value": "EU",},
+                {"label": "Rank dependent utility", "value": "RDU",},
+                {"label": "Cumulative prospect theory", "value": "CPT",},
                 {"label": "Regret theory", "value": "RT"},
+                {"label": "Salience theory", "value": "ST"},
             ],
-            value="CPT",
+            value="EU",
         ),
     ],
     className="container p-4 my-2",
@@ -47,16 +48,22 @@ theor_segment = html.Div(
 
 # MARK disable choice of pw for certain theories here
 @app.callback(
-    [Output("pw_panel_collapse", "is_open"), Output("rg_panel_collapse", "is_open")],
+    [
+        Output("pw_panel_collapse", "is_open"),
+        Output("rg_panel_collapse", "is_open"),
+        Output("sl_panel_collapse", "is_open"),
+    ],
     [Input("theor_dropdown", "value")],
 )
 def collapse_pw(drop_val):
     if drop_val == "EU":
-        return False, False
-    elif drop_val in ["RT"]:
-        return False, True
+        return False, False, False
+    elif drop_val == "RT":
+        return False, True, False
+    elif drop_val == "ST":
+        return False, False, True
     else:
-        return True, False
+        return True, False, False
 
 
 um_segment = html.Div(
@@ -642,11 +649,13 @@ def update_um_graph(
     return fig, danger_text, danger_bool
 
 
-pw_segment = html.Div(
+pw_segment = dbc.Collapse(
     [
-        html.H3("Probability weighting function", id="pw_link", className="py-2",),
-        dbc.Collapse(
+        html.Div(
             [
+                html.H3(
+                    "Probability weighting function", id="pw_link", className="py-2",
+                ),
                 html.Div(
                     [
                         html.Div(
@@ -910,11 +919,11 @@ pw_segment = html.Div(
                     className="row mt-2",
                 ),
             ],
-            id="pw_panel_collapse",
-        ),
+            className="container p-4 my-2",
+            style={"background-color": sub_bg_color},
+        )
     ],
-    className="container p-4 my-2",
-    style={"background-color": sub_bg_color},
+    id="pw_panel_collapse",
 )
 
 
@@ -1049,11 +1058,11 @@ def update_pw_graph(
     return fig
 
 
-rg_segment = html.Div(
+rg_segment = dbc.Collapse(
     [
-        html.H3("Context lottery function", id="rg_link", className="py-2",),
-        dbc.Collapse(
+        html.Div(
             [
+                html.H3("Regret function", id="rg_link", className="py-2",),
                 html.Div(
                     [
                         html.Div(
@@ -1178,11 +1187,11 @@ rg_segment = html.Div(
                     className="row mt-2",
                 ),
             ],
-            id="rg_panel_collapse",
-        ),
+            className="container p-4 my-2",
+            style={"background-color": sub_bg_color},
+        )
     ],
-    className="container p-4 my-2",
-    style={"background-color": sub_bg_color},
+    id="rg_panel_collapse",
 )
 
 
@@ -1336,6 +1345,228 @@ def update_rg_graph(
     )
     # fig.update_xaxes(showgrid=False, zeroline=False)
     # fig.update_yaxes(showgrid=False)
+    return fig
+
+
+sl_segment = dbc.Collapse(
+    [
+        html.Div(
+            [
+                html.H3("Salience function", id="sl_link", className="py-2",),
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    id="sl_dropdown",
+                                    options=[
+                                        {
+                                            "label": "Original Salience function",
+                                            "value": "OG",
+                                        },
+                                        {
+                                            "label": "Your salience function",
+                                            "value": "YS",
+                                        },
+                                    ],
+                                    value="OG",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Your Salience function:"),
+                                        # MARK Textarea for ASTEVAL
+                                        dbc.Input(
+                                            id="sl_text",
+                                            type="text",
+                                            placeholder="Input your own function",
+                                            debounce=True,
+                                        ),
+                                        dbc.Button(
+                                            "Run Function",
+                                            id="sl_text_runner",
+                                            className="mt-2",
+                                        ),
+                                    ],
+                                    id="sl_collapse_YS",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Formula:"),
+                                        html.Div(
+                                            fd.sl_func_dict["OG"][
+                                                2
+                                            ],  # TODO pull this into its own dict and add formula in latex
+                                            className="pb-2",
+                                        ),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "theta:", width=3, className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="sl_OG_theta",
+                                                        type="number",
+                                                        value=1,
+                                                        step=0.01,
+                                                        min=0,
+                                                        max=1,
+                                                    ),
+                                                    width=9,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    id="sl_collapse_OG",
+                                    className="py-2",
+                                ),
+                                dbc.Button(
+                                    "Reset all values",
+                                    id="sl_reset_btn",
+                                    className="my-3",
+                                ),
+                            ],
+                            className="col",
+                        ),
+                        html.Div(
+                            [
+                                dcc.Graph(id="sl_graph"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label(
+                                            "Minimum display value:",
+                                            width=4,
+                                            className="my-1",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="sl_min_value",
+                                                type="number",
+                                                value=0,
+                                                step=1,
+                                            ),
+                                            width=2,
+                                        ),
+                                        dbc.Label(
+                                            "Maximum display value:",
+                                            width=4,
+                                            className="my-1",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="sl_max_value",
+                                                type="number",
+                                                value=1,
+                                                step=1,
+                                            ),
+                                            width=2,
+                                        ),
+                                    ],
+                                    row=True,
+                                    className="my-2",
+                                ),
+                            ],
+                            className="col-8",
+                        ),
+                    ],
+                    className="row mt-2",
+                ),
+            ],
+            className="container p-4 my-2",
+            style={"background-color": sub_bg_color},
+        )
+    ],
+    id="sl_panel_collapse",
+)
+
+
+@app.callback(
+    [
+        Output("sl_OG_theta", "value"),
+        Output("sl_min_value", "value"),
+        Output("sl_max_value", "value"),
+    ],
+    [Input("sl_reset_btn", "n_clicks")],
+)
+def rg_reset(n_clicks):
+    #  Reset all parameters for the probability weighting function
+    return 0.1, 0, 1
+
+
+@app.callback(
+    [Output("sl_collapse_OG", "is_open"), Output("sl_collapse_YS", "is_open"),],
+    [Input("sl_dropdown", "value")],
+    [State("sl_collapse_OG", "is_open"), State("sl_collapse_YS", "is_open"),],
+)
+def toggle_rg_params(drop_val, OG_open, YS_open):
+    OG_open, YS_open = False, False
+    if drop_val == "OG":
+        OG_open = True
+    elif drop_val == "YS":
+        YS_open = True
+    return OG_open, YS_open
+
+
+@app.callback(
+    Output("sl_graph", "figure"),
+    [
+        Input("sl_dropdown", "value"),
+        Input("sl_min_value", "value"),
+        Input("sl_max_value", "value"),
+        Input("sl_OG_theta", "value"),
+        Input("sl_text_runner", "n_clicks"),
+        Input("sl_text", "value"),
+    ],
+)
+def update_sl_graph(
+    sl_drop_val, min_val, max_val, OG_theta, n_clicks, user_func,
+):
+    if sl_drop_val == "OG":
+        sl_kwargs = {"theta": OG_theta}
+    elif sl_drop_val == "YS":
+        sl_kwargs = {"text": user_func}
+
+    x_1_data = np.linspace(min_val, max_val, 10)
+    y_1_data = np.linspace(min_val, max_val, 10)
+    z_1_data = [
+        [
+            fd.sl_func_dict[sl_drop_val][0](
+                x_1_data[i_inner], y_1_data[i_outer], **sl_kwargs
+            )
+            for i_inner in range(len(x_1_data))
+        ]
+        for i_outer in range(len(y_1_data))
+    ]
+
+    # z_1_data = [[1] * 10] * 10
+
+    fig = go.Figure(
+        data=[
+            go.Heatmap(
+                x=x_1_data,
+                y=y_1_data,
+                z=z_1_data,
+                # colorscale=[[0, plot_color], [1, plot_color_sec]]
+                # line=dict(color=plot_color),
+                # marker=dict(color=plot_color),
+            )
+        ]
+    )
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        # title="Probability weighting function",
+        xaxis_title="Primary Lottery",
+        yaxis_title="Context Lottery",
+        height=300,
+    )
+    fig.update_xaxes(showgrid=False, zeroline=False)
+    fig.update_yaxes(showgrid=False)
     return fig
 
 

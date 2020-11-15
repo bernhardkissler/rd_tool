@@ -50,13 +50,23 @@ mf_func_dict = {
     "RDU": [mf.rank_dependent_utility, "Rank dependent utility"],
     "EU": [mf.expected_utility, "Expected utility"],
     "RT": [mf.regret_theory, "Regret theory"],
+    "ST": [mf.salience_theory, "Salience theory"],
 }
 
 rg_func_dict = {
     "LS": [
         ce.ls_regret,
-        "Regret theory interaction",
+        "Loomes and Sugden regret function",
         "$ Q(x,y) = u(x) + weight\\cdot(u(x) - u(y)) $",
     ],
     "YR": [ce.user_regret, "Custom regret function", ""],
+}
+
+sl_func_dict = {
+    "OG": [
+        ce.og_salience,
+        "Original Salience function",
+        "$ \\sigma(x_1, x_2) = \\frac{|x_1 - x_2|}{|x_1| + |x_2| + \\theta} $",
+    ],
+    "YS": [ce.user_salience, "Custom salience function", ""],
 }

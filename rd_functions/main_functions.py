@@ -14,6 +14,10 @@ from typing import List
 def salience_theory(
     pays: List[List[float]],
     probs: List[float],
+    sl_function=ce.og_salience,
+    sl_kwargs={},
+    um_function=um.lin_utility,
+    um_kwargs={},
     delta: float = 0.7,
     correl_bool: bool = True,
 ) -> float:
@@ -30,15 +34,26 @@ def salience_theory(
     """
     if correl_bool:
         pays_prim, pays_cont = pays[0], pays[1]
-        state_space = zip(pays_prim, pays_cont)
     # TODO add vals for uncorrelated state spaces
+    sal_vals = [
+        sl_function(pays_prim[i], pays_cont[i], **sl_kwargs)
+        for i in range(len(pays_prim))
+    ]
+    av_salience = sum(
+        [(delta ** (sal_vals[i])) * probs[i] for i in range(len(sal_vals))]
+    )
+    probs_weights = [
+        ((delta ** (-sal_vals[i])) / av_salience) * probs[i] for i in range(len(probs))
+    ]
+    return sum(
+        [
+            um_function(pays_prim[i], **um_kwargs) * probs_weights[i]
+            for i in range(len(pays_prim))
+        ]
+    )
 
-    sal_vals = [ce.og_salience(*state_elem) for state_elem in state_space]
-    pays_sorted = sorted(list(zip(pays_prim, sal_vals)), key=lambda x: x[1])
-    pays_prim_ranked = [[pays_sorted[i][0], i + 1] for i in range(len(pays_sorted))]
-    # TODO add vals for smooth st
 
-    pass
+# print(salience_theory([[1, 2, 3], [4, 5, 6]], [0.3, 0.4, 0.3]))
 
 
 def regret_theory(
@@ -74,7 +89,7 @@ def regret_theory(
                 comp_pays_avg[i],
                 um_function=um_function,
                 um_kwargs=um_kwargs,
-                **rg_kwargs
+                **rg_kwargs,
             )
             for i in range(len(eval_pay))
         ]
