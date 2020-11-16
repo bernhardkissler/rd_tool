@@ -19,7 +19,7 @@ import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
-plot_color = "#0F4C81"
+plot_color = "#0d0887"
 plot_color_sec = "#F26B5B"
 sub_bg_color = "rgba(255,255,255, 0.75)"
 

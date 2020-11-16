@@ -17,15 +17,15 @@ navbar = dbc.Navbar(
         dbc.Collapse(
             [
                 # FIXME Navbar verdeckt teilweise content, kann der Link offset geändert werden?
-                dbc.NavItem(
-                    html.A("Utility Link", href="#uf_link", className="text-white"),
-                ),
-                dbc.NavItem(
-                    html.A("Probability Link", href="#pw_link", className="text-white"),
-                ),
-                dbc.NavItem(
-                    html.A("Output Link", href="#output_link", className="text-white"),
-                ),
+                # dbc.NavItem(
+                #     html.A("Utility Link", href="#uf_link", className="text-white"),
+                # ),
+                # dbc.NavItem(
+                #     html.A("Probability Link", href="#pw_link", className="text-white"),
+                # ),
+                # dbc.NavItem(
+                #     html.A("Output Link", href="#output_link", className="text-white"),
+                # ),
             ],
             id="navbar-collapse",
             navbar=True,
