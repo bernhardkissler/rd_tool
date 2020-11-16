@@ -1357,6 +1357,33 @@ sl_segment = dbc.Collapse(
                     [
                         html.Div(
                             [
+                                # Salience parameter delta here
+                                dbc.Alert(
+                                    [
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Salience - Local thinking delta:",
+                                                    width=6,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="sl_delta",
+                                                        type="number",
+                                                        value=0.5,
+                                                        step=0.01,
+                                                        min=0,
+                                                        max=1,
+                                                    ),
+                                                    width=6,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    color="warning",
+                                ),
                                 dcc.Dropdown(
                                     id="sl_dropdown",
                                     options=[
@@ -1409,7 +1436,7 @@ sl_segment = dbc.Collapse(
                                                     dbc.Input(
                                                         id="sl_OG_theta",
                                                         type="number",
-                                                        value=1,
+                                                        value=0.1,
                                                         step=0.01,
                                                         min=0,
                                                         max=1,

@@ -244,6 +244,7 @@ def update_output_pw_theor(
         Input("sl_OG_theta", "value"),
         Input("sl_text_runner", "n_clicks"),
         Input("sl_text", "value"),
+        Input("sl_delta", "value"),
     ],
 )
 def update_output(
@@ -285,6 +286,7 @@ def update_output(
     OG_theta,
     sl_n_clicks,
     sl_user_func,
+    sl_delta,
 ):
     if theor_drop_val in ["RT", "ST"]:
         # CHECK changed to new std_table with hidden column, implement simple comp value
@@ -363,6 +365,7 @@ def update_output(
             um_kwargs=um_kwargs,
             sl_function=fd.sl_func_dict[sl_drop_val][0],
             sl_kwargs=sl_kwargs,
+            delta=sl_delta,
         )
     elif theor_drop_val == "RT":
         res = fd.mf_func_dict[theor_drop_val][0](
