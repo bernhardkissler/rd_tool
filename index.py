@@ -75,7 +75,7 @@ app.layout = html.Div(
                     className="col my-5",
                     style={"background-color": sub_bg_color},
                 ),
-                html.Div(className="col-2 d-sm-none d-md-block d-print-none"),
+                html.Div(className="col-2 d-none d-md-block d-print-none"),
             ],
             className="row justify-content-md-center",
         ),
