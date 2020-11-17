@@ -8,6 +8,8 @@ from app import app
 server = app.server
 from apps import input_rd, main_rd, output_rd
 
+sub_bg_color = "rgba(255,255,255,1)"
+prim_color = "#e3685f"
 
 navbar = dbc.Navbar(
     [
@@ -49,27 +51,36 @@ def toggle_navbar_collapse(n, is_open):
 
 app.layout = html.Div(
     [
-        html.Div(html.Div(navbar, className="col-12"), className="row",),
+        # html.Div(html.Div(navbar, className="col-12"), className="row",),
         html.Div(
-            html.Div(
-                [
-                    main_rd.theor_segment,
-                    input_rd.input_segment,
-                    main_rd.um_segment,
-                    main_rd.pw_segment,
-                    main_rd.rg_segment,
-                    main_rd.sl_segment,
-                    output_rd.output_segment,
-                    main_rd.toast_1,
-                    main_rd.toast_2,
-                ],
-                # FIXME nicht sehr elegantes padding, damit die Navbar nicht den COntent verdeckt
-                className="col pt-4 mt-5",
-            ),
-            className="row justify-content-md-center mt-2",
-            style={"background-color": "#F1EEE6"},  # Mamas Favorit #e1eb34
+            [
+                html.Div(className="col-2 d-sm-none d-md-block d-print-none"),
+                html.Div(
+                    html.Div(
+                        [
+                            main_rd.theor_segment,
+                            input_rd.input_segment,
+                            html.Hr(),
+                            main_rd.um_segment,
+                            main_rd.pw_segment,
+                            main_rd.rg_segment,
+                            main_rd.sl_segment,
+                            html.Hr(),
+                            output_rd.output_segment,
+                            main_rd.toast_1,
+                            main_rd.toast_2,
+                        ],
+                        className="mx-5 py-5",
+                    ),
+                    className="col my-5",
+                    style={"background-color": sub_bg_color},
+                ),
+                html.Div(className="col-2 d-sm-none d-md-block d-print-none"),
+            ],
+            className="row justify-content-md-center",
         ),
-    ]
+    ],
+    style={"background-color": prim_color},  # Mamas Favorit #e1eb34
 )
 
 if __name__ == "__main__":

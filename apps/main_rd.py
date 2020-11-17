@@ -19,9 +19,9 @@ import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
-plot_color = "#0d0887"
-plot_color_sec = "#F26B5B"
-sub_bg_color = "rgba(255,255,255, 0.75)"
+plot_color = "#3DB1F5"
+plot_color_sec = "#FFFFFF"
+heatscale = [[0, plot_color_sec], [0.5, "#a2a6ae"], [1, plot_color]]
 
 from math import isclose, nan
 
@@ -34,7 +34,7 @@ theor_segment = html.Div(
             id="theor_dropdown",
             options=[
                 {"label": "Expected utility", "value": "EU",},
-                {"label": "Rank dependent utility", "value": "RDU",},
+                # {"label": "Rank dependent utility", "value": "RDU",}, # Dont show rdu as it is a subset of CPT
                 {"label": "Cumulative prospect theory", "value": "CPT",},
                 {"label": "Regret theory", "value": "RT"},
                 {"label": "Salience theory", "value": "ST"},
@@ -42,8 +42,7 @@ theor_segment = html.Div(
             value="EU",
         ),
     ],
-    className="container p-4 my-2",
-    style={"background-color": sub_bg_color},
+    className="my-2",
 )
 
 # MARK disable choice of pw for certain theories here
@@ -393,25 +392,25 @@ um_segment = html.Div(
                                 [
                                     dbc.Label(
                                         "Minimum display value:",
-                                        width=4,
+                                        width=3,
                                         className="my-1",
                                     ),
                                     dbc.Col(
                                         dbc.Input(
                                             id="um_min_value", type="number", value=0,
                                         ),
-                                        width=2,
+                                        width=3,
                                     ),
                                     dbc.Label(
                                         "Maximum display value:",
-                                        width=4,
+                                        width=3,
                                         className="my-1",
                                     ),
                                     dbc.Col(
                                         dbc.Input(
                                             id="um_max_value", type="number", value=10,
                                         ),
-                                        width=2,
+                                        width=3,
                                     ),
                                 ],
                                 row=True,
@@ -424,8 +423,7 @@ um_segment = html.Div(
                 className="row mt-2",
             ),
         ],
-        className="container p-4 my-2",
-        style={"background-color": sub_bg_color},
+        className="my-2",
     ),
 )
 
@@ -628,7 +626,7 @@ def update_um_graph(
             go.Scatter(
                 x=x_1_data,
                 y=y_1_data,
-                line=dict(color=plot_color),
+                line=dict(color=plot_color, width=4,),
                 marker=dict(color=plot_color),
             )
         ]
@@ -643,7 +641,10 @@ def update_um_graph(
         yaxis_title="Utility",
         height=300,
     )
-    fig.update_xaxes(showgrid=False, zeroline=False)
+    fig.update_xaxes(
+        showgrid=False,
+        # zeroline=False
+    )
     fig.update_yaxes(showgrid=False)
 
     return fig, danger_text, danger_bool
@@ -878,7 +879,7 @@ pw_segment = dbc.Collapse(
                                     [
                                         dbc.Label(
                                             "Minimum display value:",
-                                            width=4,
+                                            width=3,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -890,11 +891,11 @@ pw_segment = dbc.Collapse(
                                                 max=1,
                                                 step=0.01,
                                             ),
-                                            width=2,
+                                            width=3,
                                         ),
                                         dbc.Label(
                                             "Maximum display value:",
-                                            width=4,
+                                            width=3,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -906,7 +907,7 @@ pw_segment = dbc.Collapse(
                                                 max=1,
                                                 step=0.01,
                                             ),
-                                            width=2,
+                                            width=3,
                                         ),
                                     ],
                                     row=True,
@@ -919,8 +920,7 @@ pw_segment = dbc.Collapse(
                     className="row mt-2",
                 ),
             ],
-            className="container p-4 my-2",
-            style={"background-color": sub_bg_color},
+            className="my-2",
         )
     ],
     id="pw_panel_collapse",
@@ -1038,7 +1038,7 @@ def update_pw_graph(
             go.Scatter(
                 x=x_1_data,
                 y=y_1_data,
-                line=dict(color=plot_color),
+                line=dict(color=plot_color, width=4),
                 marker=dict(color=plot_color),
             )
         ]
@@ -1052,8 +1052,13 @@ def update_pw_graph(
         xaxis_title="Probability",
         yaxis_title="Weighted Probability",
         height=300,
+        yaxis_tickformat="%",
+        xaxis_tickformat="%",
     )
-    fig.update_xaxes(showgrid=False, zeroline=False)
+    fig.update_xaxes(
+        showgrid=False,
+        # zeroline=False
+    )
     fig.update_yaxes(showgrid=False)
     return fig
 
@@ -1150,7 +1155,7 @@ rg_segment = dbc.Collapse(
                                     [
                                         dbc.Label(
                                             "Minimum display value:",
-                                            width=4,
+                                            width=3,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -1160,11 +1165,11 @@ rg_segment = dbc.Collapse(
                                                 value=0,
                                                 step=1,
                                             ),
-                                            width=2,
+                                            width=3,
                                         ),
                                         dbc.Label(
                                             "Maximum display value:",
-                                            width=4,
+                                            width=3,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -1174,7 +1179,7 @@ rg_segment = dbc.Collapse(
                                                 value=1,
                                                 step=1,
                                             ),
-                                            width=2,
+                                            width=3,
                                         ),
                                     ],
                                     row=True,
@@ -1187,8 +1192,7 @@ rg_segment = dbc.Collapse(
                     className="row mt-2",
                 ),
             ],
-            className="container p-4 my-2",
-            style={"background-color": sub_bg_color},
+            className="my-2",
         )
     ],
     id="rg_panel_collapse",
@@ -1327,9 +1331,7 @@ def update_rg_graph(
                 x=x_1_data,
                 y=y_1_data,
                 z=z_1_data,
-                # colorscale=[[0, plot_color], [1, plot_color_sec]]
-                # line=dict(color=plot_color),
-                # marker=dict(color=plot_color),
+                # colorscale=heatscale,
             )
         ]
     )
@@ -1465,7 +1467,7 @@ sl_segment = dbc.Collapse(
                                     [
                                         dbc.Label(
                                             "Minimum display value:",
-                                            width=4,
+                                            width=3,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -1475,11 +1477,11 @@ sl_segment = dbc.Collapse(
                                                 value=0,
                                                 step=1,
                                             ),
-                                            width=2,
+                                            width=3,
                                         ),
                                         dbc.Label(
                                             "Maximum display value:",
-                                            width=4,
+                                            width=3,
                                             className="my-1",
                                         ),
                                         dbc.Col(
@@ -1489,7 +1491,7 @@ sl_segment = dbc.Collapse(
                                                 value=1,
                                                 step=1,
                                             ),
-                                            width=2,
+                                            width=3,
                                         ),
                                     ],
                                     row=True,
@@ -1502,8 +1504,7 @@ sl_segment = dbc.Collapse(
                     className="row mt-2",
                 ),
             ],
-            className="container p-4 my-2",
-            style={"background-color": sub_bg_color},
+            className="my-2",
         )
     ],
     id="sl_panel_collapse",
@@ -1576,9 +1577,7 @@ def update_sl_graph(
                 x=x_1_data,
                 y=y_1_data,
                 z=z_1_data,
-                # colorscale=[[0, plot_color], [1, plot_color_sec]]
-                # line=dict(color=plot_color),
-                # marker=dict(color=plot_color),
+                # colorscale=heatscale,
             )
         ]
     )
@@ -1592,8 +1591,8 @@ def update_sl_graph(
         yaxis_title="Context Lottery",
         height=300,
     )
-    fig.update_xaxes(showgrid=False, zeroline=False)
-    fig.update_yaxes(showgrid=False)
+    # fig.update_xaxes(showgrid=False, zeroline=False)
+    # fig.update_yaxes(showgrid=False)
     return fig
 
 

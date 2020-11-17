@@ -16,8 +16,6 @@ import rd_functions.prob_weighting as pw
 
 import apps.func_dicts as fd
 
-sub_bg_color = "rgba(255,255,255, 0.75)"
-
 from math import isclose
 
 from app import app
@@ -64,8 +62,7 @@ output_segment = html.Div(
             ],
         ),
     ],
-    className="container p-4 my-2",
-    style={"background-color": sub_bg_color},
+    className="my-2",
 )
 
 

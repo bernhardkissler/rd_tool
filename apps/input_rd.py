@@ -10,8 +10,7 @@ import plotly.graph_objs as go
 import plotly.express as px
 from plotly.subplots import make_subplots
 
-plot_color = "#0d0887"
-sub_bg_color = "rgba(255,255,255, 0.75)"
+plot_color = "#3DB1F5"
 
 import numpy as np
 
@@ -28,7 +27,9 @@ from app import app
 
 stat_table = dbc.Table(
     [
-        html.Thead(html.Tr(html.Td("Summary Statistics"))),
+        html.Thead(
+            html.Tr([html.Td("Summary Statistics"), html.Td(), html.Td(), html.Td(),])
+        ),
         html.Tbody(
             [
                 html.Tr(
@@ -175,8 +176,7 @@ input_segment = html.Div(
         ),
         html.Div(stat_table, className="row mt-2"),
     ],
-    className="container p-4 my-2",
-    style={"background-color": sub_bg_color},
+    className="my-2",
 )
 
 
@@ -278,11 +278,12 @@ def gamble_figs(pays, probs):
             row=1,
             col=1,
         )
+    displ_probs = [f"{prob*100}%" for prob in probs]
     for i in range(len(probs)):
         fig.add_annotation(
             x=0.5,
             y=y_2[i],
-            text=list(reversed(probs))[i],
+            text=list(reversed(displ_probs))[i],
             ax=0,
             ay=-15,
             arrowcolor="rgba(0,0,0,0)",
@@ -319,7 +320,7 @@ def gamble_figs(pays, probs):
         col=2,
     )
     fig.update_yaxes(
-        showgrid=False, zeroline=True, row=1, col=2,
+        showgrid=False, zeroline=True, tickformat="%", row=1, col=2,
     )
 
     # Transformation for cdf
@@ -340,7 +341,7 @@ def gamble_figs(pays, probs):
                 x=pays_graph[i],
                 y=probs_graph[i],
                 mode="lines",
-                line=dict(color=plot_color),
+                line=dict(color=plot_color, width=4),
             ),
             row=2,
             col=2,
@@ -356,7 +357,7 @@ def gamble_figs(pays, probs):
         col=2,
     )
     fig.update_yaxes(
-        range=[0.0, 1.05], showgrid=False, zeroline=True, row=2, col=2,
+        range=[0.0, 1.05], showgrid=False, zeroline=True, tickformat="%", row=2, col=2,
     )
     return fig
 
