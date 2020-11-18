@@ -11,6 +11,60 @@ import rd_functions.context_eval as ce
 from typing import List
 
 
+def sav_dis_theory(
+    pays: List[float],
+    probs: List[List[float]],
+    bivu_function,
+    bivu_kwargs={},
+    um_function=um.lin_utility,
+    um_kwargs={},
+    k: float = 0.5,
+) -> float:
+    """Ex Ante Savoring and Ex Post Disappointment theory by Gollier and Muermann 2010
+
+    Args:
+        pays (List[float]): 
+        probs (List[List[float]]): 
+        bivu_function ([type]): bivariate utility function trading off expected payoff and actual payoff 
+        um_function ([type], optional): univariate utility function called in bivu to model deminishing returns... . Defaults to um.lin_utility.
+        k (float, optional): weight of Savoring in relation to Ex post disappointment. Typically bigger than zero
+
+    Returns:
+        float: The unique value assigned by the theory to a given target lottery in the context of the second theory
+    """
+    probs_obj, probs_subj = probs[0], probs[1]
+
+    ant_val = sum(
+        [
+            bivu_function(
+                pays[i],
+                pays[
+                    i
+                ],  # CHECK This is not obviously correct. Maybe talk to Ebert about it?
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                **bivu_kwargs,
+            )
+            * probs_subj[i]
+            for i in range(len(probs_subj))
+        ]
+    )
+    act_val = sum(
+        [
+            bivu_function(
+                pays[i],
+                ant_val,
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                **bivu_kwargs,
+            )
+            * probs_obj[i]
+            for i in range(len(probs_obj))
+        ]
+    )
+    return k * ant_val + act_val
+
+
 def salience_theory(
     pays: List[List[float]],
     probs: List[float],
@@ -94,9 +148,6 @@ def regret_theory(
             for i in range(len(eval_pay))
         ]
         pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
-    # print("***********************************")
-    # print(pays_delta)
-    # print("***********************************")
     ind_vals = [sum(pays) for pays in pays_delta]
 
     return ind_vals[0]
@@ -114,6 +165,7 @@ def expected_utility(
     return sum(ind_vals)
 
 
+# MARK Not utiltized in app
 def rank_dependent_utility(
     pays: List[float],
     probs: List[float],

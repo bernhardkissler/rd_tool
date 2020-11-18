@@ -2,6 +2,7 @@ import rd_functions.main_functions as mf
 import rd_functions.util_mod as um
 import rd_functions.prob_weighting as pw
 import rd_functions.context_eval as ce
+import rd_functions.bivu_functions as bu
 
 
 pw_func_dict = {
@@ -51,6 +52,7 @@ mf_func_dict = {
     "EU": [mf.expected_utility, "Expected utility"],
     "RT": [mf.regret_theory, "Regret theory"],
     "ST": [mf.salience_theory, "Salience theory"],
+    "SDT": [mf.sav_dis_theory, "Savoring and Disappointment theory"],
 }
 
 rg_func_dict = {
@@ -69,4 +71,9 @@ sl_func_dict = {
         "$ \\sigma(x_1, x_2) = \\frac{|x_1 - x_2|}{|x_1| + |x_2| + \\theta} $",
     ],
     "YS": [ce.user_salience, "Custom salience function", ""],
+}
+
+sdt_func_dict = {
+    "AH": [bu.additive_habits, "Additive Habits Utility", "$ U(c,y) = u(c-\\eta y) $",],
+    "YB": [bu.user_bivu, "Custom Bivariate Utility", ""],
 }

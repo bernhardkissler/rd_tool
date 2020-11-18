@@ -38,6 +38,7 @@ theor_segment = html.Div(
                 {"label": "Cumulative prospect theory", "value": "CPT",},
                 {"label": "Regret theory", "value": "RT"},
                 {"label": "Salience theory", "value": "ST"},
+                {"label": "Savoring and Disappointment theory", "value": "SDT"},
             ],
             value="EU",
         ),
@@ -51,18 +52,21 @@ theor_segment = html.Div(
         Output("pw_panel_collapse", "is_open"),
         Output("rg_panel_collapse", "is_open"),
         Output("sl_panel_collapse", "is_open"),
+        Output("sdt_panel_collapse", "is_open"),
     ],
     [Input("theor_dropdown", "value")],
 )
 def collapse_pw(drop_val):
     if drop_val == "EU":
-        return False, False, False
+        return False, False, False, False
     elif drop_val == "RT":
-        return False, True, False
+        return False, True, False, False
     elif drop_val == "ST":
-        return False, False, True
+        return False, False, True, False
+    elif drop_val == "SDT":
+        return False, False, False, True
     else:
-        return True, False, False
+        return True, False, False, False
 
 
 um_segment = html.Div(
@@ -1514,6 +1518,7 @@ sl_segment = dbc.Collapse(
 
 @app.callback(
     [
+        Output("sl_delta", "value"),
         Output("sl_OG_theta", "value"),
         Output("sl_min_value", "value"),
         Output("sl_max_value", "value"),
@@ -1522,7 +1527,7 @@ sl_segment = dbc.Collapse(
 )
 def rg_reset(n_clicks):
     #  Reset all parameters for the probability weighting function
-    return 0.1, 0, 1
+    return 0.5, 0.1, 0, 1
 
 
 @app.callback(
@@ -1588,6 +1593,317 @@ def update_sl_graph(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         # title="Probability weighting function",
+        xaxis_title="Primary Lottery",
+        yaxis_title="Context Lottery",
+        height=300,
+    )
+    # fig.update_xaxes(showgrid=False, zeroline=False)
+    # fig.update_yaxes(showgrid=False)
+    return fig
+
+
+sdt_segment = dbc.Collapse(
+    [
+        html.Div(
+            [
+                html.H3("Bivu function", id="sdt_link", className="py-2",),
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                # Salience parameter delta here
+                                dbc.Alert(
+                                    [
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Savoring and Disappointment theory - Savoring coefficient:",
+                                                    width=6,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="sdt_k",
+                                                        type="number",
+                                                        value=0.5,
+                                                        step=0.01,
+                                                        min=0,
+                                                    ),
+                                                    width=6,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    color="warning",
+                                ),
+                                dcc.Dropdown(
+                                    id="sdt_dropdown",
+                                    options=[
+                                        {
+                                            "label": "Additive Habits function",
+                                            "value": "AH",
+                                        },
+                                        {"label": "Your BIVU function", "value": "YB",},
+                                    ],
+                                    value="AH",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Your Bivu function:"),
+                                        # MARK Textarea for ASTEVAL
+                                        dbc.Input(
+                                            id="sdt_text",
+                                            type="text",
+                                            placeholder="Input your own function",
+                                            debounce=True,
+                                        ),
+                                        dbc.Button(
+                                            "Run Function",
+                                            id="sdt_text_runner",
+                                            className="mt-2",
+                                        ),
+                                    ],
+                                    id="sdt_collapse_YB",
+                                    className="py-2",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        dbc.Label("Formula:"),
+                                        html.Div(
+                                            fd.sdt_func_dict["AH"][
+                                                2
+                                            ],  # TODO pull this into its own dict and add formula in latex
+                                            className="pb-2",
+                                        ),
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "$\\eta$:",
+                                                    width=3,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="sdt_AH_eta",
+                                                        type="number",
+                                                        value=0.1,
+                                                        step=0.01,
+                                                        min=0,
+                                                        max=1,
+                                                    ),
+                                                    width=9,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    id="sdt_collapse_AH",
+                                    className="py-2",
+                                ),
+                                dbc.Button(
+                                    "Reset all values",
+                                    id="sdt_reset_btn",
+                                    className="my-3",
+                                ),
+                            ],
+                            className="col",
+                        ),
+                        html.Div(
+                            [
+                                dcc.Graph(id="sdt_graph"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label(
+                                            "Minimum display value:",
+                                            width=3,
+                                            className="my-1",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="sdt_min_value",
+                                                type="number",
+                                                value=0,
+                                                step=1,
+                                            ),
+                                            width=3,
+                                        ),
+                                        dbc.Label(
+                                            "Maximum display value:",
+                                            width=3,
+                                            className="my-1",
+                                        ),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="sdt_max_value",
+                                                type="number",
+                                                value=1,
+                                                step=1,
+                                            ),
+                                            width=3,
+                                        ),
+                                    ],
+                                    row=True,
+                                    className="my-2",
+                                ),
+                            ],
+                            className="col-8",
+                        ),
+                    ],
+                    className="row mt-2",
+                ),
+            ],
+            className="my-2",
+        )
+    ],
+    id="sdt_panel_collapse",
+)
+
+
+@app.callback(
+    [
+        Output("sdt_k", "value"),
+        Output("sdt_AH_eta", "value"),
+        Output("sdt_min_value", "value"),
+        Output("sdt_max_value", "value"),
+    ],
+    [Input("sdt_reset_btn", "n_clicks")],
+)
+def sdt_reset(n_clicks):
+    #  Reset all parameters for the probability weighting function
+    return 0.5, 0.1, 0, 1
+
+
+@app.callback(
+    [Output("sdt_collapse_AH", "is_open"), Output("sdt_collapse_YB", "is_open"),],
+    [Input("sdt_dropdown", "value")],
+    [State("sdt_collapse_AH", "is_open"), State("sdt_collapse_YB", "is_open"),],
+)
+def toggle_sdt_params(drop_val, AH_open, YB_open):
+    AH_open, YB_open = False, False
+    if drop_val == "AH":
+        AH_open = True
+    elif drop_val == "YB":
+        YB_open = True
+    return AH_open, YB_open
+
+
+@app.callback(
+    Output("sdt_graph", "figure"),
+    [
+        Input("sdt_dropdown", "value"),
+        Input("sdt_min_value", "value"),
+        Input("sdt_max_value", "value"),
+        Input("sdt_AH_eta", "value"),
+        Input("sdt_text_runner", "n_clicks"),
+        Input("sdt_text", "value"),
+        # um_info
+        Input("um_dropdown", "value"),
+        Input("um_TKU_a", "value"),
+        Input("um_TKU_l", "value"),
+        Input("um_TKU_r", "value"),
+        Input("um_RU_exp", "value"),
+        Input("um_BU_a", "value"),
+        Input("um_PU_exp", "value"),
+        Input("um_QU_a", "value"),
+        Input("um_EXU_a", "value"),
+        Input("um_BEU_a", "value"),
+        Input("um_BEU_b", "value"),
+        Input("um_HU_a", "value"),
+        Input("um_HU_b", "value"),
+        Input("um_text_runner", "n_clicks"),
+        Input("um_text", "value"),
+    ],
+)
+def update_sdt_graph(
+    sdt_drop_val,
+    min_val,
+    max_val,
+    AH_eta,
+    n_clicks,
+    rg_user_func,
+    # um_ingo
+    um_drop_val,
+    TKU_a,
+    TKU_l,
+    TKU_r,
+    RU_exp,
+    BU_a,
+    PU_exp,
+    QU_a,
+    EXU_a,
+    BEU_a,
+    BEU_b,
+    HU_a,
+    HU_b,
+    um_n_clicks,
+    um_user_func,
+):
+    # um_info
+    if um_drop_val == "TKU":
+        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+    elif um_drop_val == "RU":
+        um_kwargs = {"exp": RU_exp}
+    elif um_drop_val == "LU":
+        um_kwargs = {}
+    elif um_drop_val == "BU":
+        um_kwargs = {"a": BU_a}
+    elif um_drop_val == "PU":
+        um_kwargs = {"exp": PU_exp}
+    elif um_drop_val == "QU":
+        um_kwargs = {"a": QU_a}
+    elif um_drop_val == "EXU":
+        um_kwargs = {"a": EXU_a}
+    elif um_drop_val == "BEU":
+        um_kwargs = {"a": BEU_a, "b": BEU_b}
+    elif um_drop_val == "HU":
+        um_kwargs = {"a": HU_a, "b": HU_b}
+    elif um_drop_val == "YU":
+        um_kwargs = {"text": um_user_func}
+
+    # sdt params
+    if sdt_drop_val == "AH":
+        sdt_kwargs = {"eta": AH_eta}
+    elif sdt_drop_val == "YB":
+        sdt_kwargs = {
+            "text": rg_user_func,
+        }
+
+    x_1_data = np.linspace(min_val, max_val, 10)
+    y_1_data = np.linspace(min_val, max_val, 10)
+    z_1_data = [
+        [
+            fd.sdt_func_dict[sdt_drop_val][0](
+                x_1_data[i_inner],
+                y_1_data[i_outer],
+                um_function=fd.um_func_dict[um_drop_val][0],
+                um_kwargs=um_kwargs,
+                **sdt_kwargs
+            )
+            for i_inner in range(len(x_1_data))
+        ]
+        for i_outer in range(len(y_1_data))
+    ]
+
+    # z_1_data = [[1] * 10] * 10
+
+    fig = go.Figure(
+        data=[
+            go.Heatmap(
+                x=x_1_data,
+                y=y_1_data,
+                z=z_1_data,
+                # colorscale=heatscale,
+            )
+        ]
+    )
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        # title="Utility function",
         xaxis_title="Primary Lottery",
         yaxis_title="Context Lottery",
         height=300,

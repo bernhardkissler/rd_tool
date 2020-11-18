@@ -242,6 +242,12 @@ def update_output_pw_theor(
         Input("sl_text_runner", "n_clicks"),
         Input("sl_text", "value"),
         Input("sl_delta", "value"),
+        # sdt params
+        Input("sdt_dropdown", "value"),
+        Input("sdt_AH_eta", "value"),
+        Input("sdt_k", "value"),
+        Input("sdt_text_runner", "n_clicks"),
+        Input("sdt_text", "value"),
     ],
 )
 def update_output(
@@ -284,6 +290,12 @@ def update_output(
     sl_n_clicks,
     sl_user_func,
     sl_delta,
+    # sdt params
+    sdt_drop_val,
+    AH_eta,
+    sdt_k,
+    sdt_n_clicks,
+    sdt_user_func,
 ):
     if theor_drop_val in ["RT", "ST"]:
         # CHECK changed to new std_table with hidden column, implement simple comp value
@@ -292,6 +304,12 @@ def update_output(
             [float(i["comp_payoffs_tbl"]) for i in rows],
         ]
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    elif theor_drop_val == "SDT":
+        probs = [
+            [float(i["std_probabilities_tbl"]) for i in rows],
+            [float(i["comp_probabilities_tbl"]) for i in rows],
+        ]
+        pays = [float(i["std_payoffs_tbl"]) for i in rows]
     else:
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
         pays = [float(i["std_payoffs_tbl"]) for i in rows]
@@ -308,7 +326,6 @@ def update_output(
         pw_kwargs = {"r": POW_r}
     elif pw_drop_val == "YW":
         pw_kwargs = {"text": pw_user_func}
-
     # um params
     if um_drop_val == "TKU":
         um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
@@ -330,7 +347,6 @@ def update_output(
         um_kwargs = {"a": HU_a, "b": HU_b}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
-
     # rg params
     if rg_drop_val == "LS":
         rg_kwargs = {"weight": LS_weight}
@@ -338,13 +354,19 @@ def update_output(
         rg_kwargs = {
             "text": rg_user_func,
         }
-
     # sl params
     if sl_drop_val == "OG":
         sl_kwargs = {"theta": OG_theta}
     elif sl_drop_val == "YS":
         sl_kwargs = {
             "text": sl_user_func,
+        }
+    # sdt params
+    if sdt_drop_val == "AH":
+        sdt_kwargs = {"eta": AH_eta}
+    elif sdt_drop_val == "YB":
+        sdt_kwargs = {
+            "text": sdt_user_func,
         }
 
     if theor_drop_val == "EU":
@@ -372,6 +394,16 @@ def update_output(
             um_kwargs=um_kwargs,
             rg_function=fd.rg_func_dict[rg_drop_val][0],
             rg_kwargs=rg_kwargs,
+        )
+    elif theor_drop_val == "SDT":
+        res = fd.mf_func_dict[theor_drop_val][0](
+            pays,
+            probs,
+            bivu_function=fd.sdt_func_dict[sdt_drop_val][0],
+            bivu_kwargs=sdt_kwargs,
+            um_function=fd.um_func_dict[um_drop_val][0],
+            um_kwargs=um_kwargs,
+            k=sdt_k,
         )
     else:
         res = fd.mf_func_dict[theor_drop_val][0](

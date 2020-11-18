@@ -30,7 +30,7 @@ def ce_tversky_kahneman(
     if x >= r:
         outcome = x ** (1 / a) + r
     else:
-        outcome = -(x ** (1 / a)) / -l + r
+        outcome = -((-x / l) ** (1 / a)) + r
     return outcome
 
 

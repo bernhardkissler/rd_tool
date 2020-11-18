@@ -38,15 +38,15 @@ navbar = dbc.Navbar(
     fixed="top",
 )
 # add callback for toggling the collapse on small screens
-@app.callback(
-    Output("navbar-collapse", "is_open"),
-    [Input("navbar-toggler", "n_clicks")],
-    [State("navbar-collapse", "is_open")],
-)
-def toggle_navbar_collapse(n, is_open):
-    if n:
-        return not is_open
-    return is_open
+# @app.callback(
+#     Output("navbar-collapse", "is_open"),
+#     [Input("navbar-toggler", "n_clicks")],
+#     [State("navbar-collapse", "is_open")],
+# )
+# def toggle_navbar_collapse(n, is_open):
+#     if n:
+#         return not is_open
+#     return is_open
 
 
 app.layout = html.Div(
@@ -65,6 +65,7 @@ app.layout = html.Div(
                             main_rd.pw_segment,
                             main_rd.rg_segment,
                             main_rd.sl_segment,
+                            main_rd.sdt_segment,
                             html.Hr(),
                             output_rd.output_segment,
                             main_rd.toast_1,
@@ -72,7 +73,7 @@ app.layout = html.Div(
                         ],
                         className="mx-5 py-5",
                     ),
-                    className="col my-5",
+                    className="col my-5 rounded",
                     style={"background-color": sub_bg_color},
                 ),
                 html.Div(className="col-2 d-none d-md-block d-print-none"),
