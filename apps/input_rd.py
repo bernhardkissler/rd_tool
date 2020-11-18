@@ -95,21 +95,23 @@ input_segment = html.Div(
                                                 "name": "Probabilities",
                                                 "type": "numeric",
                                                 "format": FormatTemplate.percentage(1),
-                                            }
-                                        ]
-                                        + [
+                                            },
+                                            {
+                                                "id": "comp_probabilities_tbl",
+                                                "name": "Comp Probabilities",
+                                                "type": "numeric",
+                                                "format": FormatTemplate.percentage(1),
+                                            },
                                             {
                                                 "id": "std_payoffs_tbl",
                                                 "name": "Payoffs",
                                                 "type": "numeric",
-                                            }
-                                        ]
-                                        + [
+                                            },
                                             {
                                                 "id": "comp_payoffs_tbl",
                                                 "name": "Comp Payoffs",
                                                 "type": "numeric",
-                                            }
+                                            },
                                         ]
                                     ),
                                     css=[
@@ -119,7 +121,10 @@ input_segment = html.Div(
                                         }
                                     ],
                                     style_cell={"textAlign": "center"},
-                                    hidden_columns=["comp_payoffs_tbl"],
+                                    hidden_columns=[
+                                        "comp_probabilities_tbl",
+                                        "comp_payoffs_tbl",
+                                    ],
                                     # style_cell_conditional=[
                                     #     {
                                     #         "if": {
@@ -139,26 +144,31 @@ input_segment = html.Div(
                                     data=[
                                         dict(
                                             std_probabilities_tbl=0.1,
+                                            comp_probabilities_tbl=0.2,
                                             std_payoffs_tbl=-1,
                                             comp_payoffs_tbl=0,
                                         ),
                                         dict(
                                             std_probabilities_tbl=0.2,
+                                            comp_probabilities_tbl=0.1,
                                             std_payoffs_tbl=2,
                                             comp_payoffs_tbl=1,
                                         ),
                                         dict(
                                             std_probabilities_tbl=0.3,
+                                            comp_probabilities_tbl=0.1,
                                             std_payoffs_tbl=3,
                                             comp_payoffs_tbl=4,
                                         ),
                                         dict(
                                             std_probabilities_tbl=0.2,
+                                            comp_probabilities_tbl=0.2,
                                             std_payoffs_tbl=5,
                                             comp_payoffs_tbl=6,
                                         ),
                                         dict(
                                             std_probabilities_tbl=0.2,
+                                            comp_probabilities_tbl=0.4,
                                             std_payoffs_tbl=6,
                                             comp_payoffs_tbl=6,
                                         ),
@@ -203,6 +213,24 @@ def check_probs(rows):
 
 
 @app.callback(
+    [Output("danger_toast_3", "is_open"), Output("danger_toast_3", "children")],
+    [Input("std_input_tbl", "data")],
+)
+def check_probs(rows):
+    # Check whether probs in table approximately sum to 1
+    probs = [float(i["comp_probabilities_tbl"]) for i in rows]
+    if not isclose(sum(probs), 1):
+        return (
+            True,
+            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                sum(probs)
+            ),
+        )
+    else:
+        return False, ""
+
+
+@app.callback(
     Output("std_input_tbl", "data"),
     [Input("std_editing_rows_button", "n_clicks")],
     [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
@@ -220,9 +248,11 @@ def add_row(n_clicks, rows, columns):
 def hide_rt_input_column(drop_val):
     # Hide the rt_input column in which the user can write an alternative lottery to which the target lottery may be compared
     if drop_val in ["RT", "ST"]:
-        return [[]]
-    else:
+        return [["comp_probabilities_tbl"]]
+    if drop_val == "SDT":
         return [["comp_payoffs_tbl"]]
+    else:
+        return [["comp_probabilities_tbl", "comp_payoffs_tbl"]]
 
 
 # Manage gamble Figs
