@@ -81,24 +81,25 @@ um_segment = html.Div(
                                         "value": "TKU",
                                     },
                                     {
-                                        "label": "Bernoulli utility function",
-                                        "value": "BU",
-                                    },
-                                    {"label": "Root utility function", "value": "RU",},
-                                    {
                                         "label": "Linear Utility function",
                                         "value": "LU",
                                     },
-                                    {"label": "Power utility function", "value": "PU"},
-                                    {
-                                        "label": "Quadratic utility function",
-                                        "value": "QU",
-                                    },
+                                    {"label": "Root utility function", "value": "RU",},
                                     {
                                         "label": "Exponential utiltiy function",
                                         "value": "EXU",
                                     },
-                                    {"label": "Bell utility function", "value": "BEU"},
+                                    {
+                                        "label": "Bernoulli utility function",
+                                        "value": "BU",
+                                    },
+                                    # {"label": "Power utility function", "value": "PU"},
+                                    # {
+                                    #     "label": "Quadratic utility function",
+                                    #     "value": "QU",
+                                    # },
+                                    # Talk to Ebert about solving this for the certainty equivalent
+                                    # {"label": "Bell utility function", "value": "BEU"},
                                     # commented out until better understood also it is mainly a more general version of some of the functions above; See Stott 2006
                                     # {"label": "Hara utility function", "value": "HU"},
                                     {"label": "Your utility function", "value": "YU",},

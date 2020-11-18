@@ -5,6 +5,7 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import dash_table
+import dash_table.FormatTemplate as FormatTemplate
 
 import plotly.graph_objs as go
 import plotly.express as px
@@ -93,6 +94,7 @@ input_segment = html.Div(
                                                 "id": "std_probabilities_tbl",
                                                 "name": "Probabilities",
                                                 "type": "numeric",
+                                                "format": FormatTemplate.percentage(1),
                                             }
                                         ]
                                         + [
@@ -116,6 +118,7 @@ input_segment = html.Div(
                                             "rule": "display: none",
                                         }
                                     ],
+                                    style_cell={"textAlign": "center"},
                                     hidden_columns=["comp_payoffs_tbl"],
                                     # style_cell_conditional=[
                                     #     {
@@ -278,7 +281,7 @@ def gamble_figs(pays, probs):
             row=1,
             col=1,
         )
-    displ_probs = [f"{prob*100}%" for prob in probs]
+    displ_probs = [f"{round(prob*100, 1)}%" for prob in probs]
     for i in range(len(probs)):
         fig.add_annotation(
             x=0.5,
