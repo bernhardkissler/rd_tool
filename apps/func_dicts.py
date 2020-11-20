@@ -34,16 +34,32 @@ um_func_dict = {
                   (x-r)^{a}             & \\text{if }x \\geq r \\\\
                   -l \\cdot (-(x-r))^{a} & \\text{if }x < r
               \\end{cases}$$""",
+        um.ce_tversky_kahneman,
     ],
-    "BU": [um.bern_utility, "Bernoulli's utility funtion", "$U(x) = log(a + x)$"],
-    "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $"],
-    "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$"],
+    "BU": [
+        um.bern_utility,
+        "Bernoulli's utility funtion",
+        "$U(x) = log(a + x)$",
+        um.bern_ce,
+    ],
+    "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $", um.root_ce],
+    "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$", um.lin_ce],
     "PU": [um.pow_utility, "Power utility function", "$U(x) = x^{exp}$"],
     "QU": [um.quad_utility, "Quadratic utility function", "$U(x) = ax - x^{2}$"],
-    "EXU": [um.exp_utility, "Exponential utiltiy function", "$U(x) = 1-e^{-ax}$"],
+    "EXU": [
+        um.exp_utility,
+        "Exponential utiltiy function",
+        "$U(x) = 1-e^{-ax}$",
+        um.exp_ce,
+    ],
     "BEU": [um.bell_utility, "Bell utility function", "$U(x) = b\\cdot{x}-e^{-ax}$"],
     "HU": [um.hara_utility, "Hara utility function", "$U(x) = -(b+x)^{a}$"],
-    "YU": [um.user_utility, "Custom utility function", ""],
+    "YU": [
+        um.user_utility,
+        "Custom utility function",
+        "",
+        um.user_ce,
+    ],  # MARK use lin_ce until later
 }
 
 mf_func_dict = {

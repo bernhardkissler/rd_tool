@@ -68,6 +68,7 @@ app.layout = html.Div(
                             main_rd.sdt_segment,
                             html.Hr(),
                             output_rd.output_segment,
+                            output_rd.ce_toast,
                             main_rd.toast_1,
                             main_rd.toast_2,
                         ],

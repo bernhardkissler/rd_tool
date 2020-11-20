@@ -135,4 +135,9 @@ def user_utility(x: float, text: str) -> float:
     return res
 
 
+def user_ce(x: float, text: str) -> float:
+    """ placeholder """
+    return math.nan
+
+
 # TODO find out how to solve user supplied functions for certainty equivalents with simpy !!! This will probably not work with piecewise definitions

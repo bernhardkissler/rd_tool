@@ -18,6 +18,7 @@ def sav_dis_theory(
     bivu_kwargs={},
     um_function=um.lin_utility,
     um_kwargs={},
+    ce_function=um.lin_ce,
     k: float = 0.5,
 ) -> float:
     """Ex Ante Savoring and Ex Post Disappointment theory by Gollier and Muermann 2010
@@ -62,7 +63,9 @@ def sav_dis_theory(
             for i in range(len(probs_obj))
         ]
     )
-    return k * ant_val + act_val
+    utility = k * ant_val + act_val
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
 
 
 def salience_theory(
@@ -72,6 +75,7 @@ def salience_theory(
     sl_kwargs={},
     um_function=um.lin_utility,
     um_kwargs={},
+    ce_function=um.lin_ce,
     delta: float = 0.7,
     correl_bool: bool = True,
 ) -> float:
@@ -99,12 +103,14 @@ def salience_theory(
     probs_weights = [
         ((delta ** (-sal_vals[i])) / av_salience) * probs[i] for i in range(len(probs))
     ]
-    return sum(
+    utility = sum(
         [
             um_function(pays_prim[i], **um_kwargs) * probs_weights[i]
             for i in range(len(pays_prim))
         ]
     )
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
 
 
 # print(salience_theory([[1, 2, 3], [4, 5, 6]], [0.3, 0.4, 0.3]))
@@ -115,6 +121,7 @@ def regret_theory(
     probs: List[float],
     um_function=um.lin_utility,
     um_kwargs={},
+    ce_function=um.lin_ce,
     rg_function=ce.ls_regret,
     rg_kwargs={},
 ) -> float:
@@ -149,12 +156,17 @@ def regret_theory(
         ]
         pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
     ind_vals = [sum(pays) for pays in pays_delta]
-
-    return ind_vals[0]
+    utility = ind_vals[0]
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
 
 
 def expected_utility(
-    pays: List[float], probs: List[float], um_function=um.lin_utility, um_kwargs={}
+    pays: List[float],
+    probs: List[float],
+    um_function=um.lin_utility,
+    um_kwargs={},
+    ce_function=um.lin_ce,
 ) -> float:
     """
     Takes in two vectors (payoffs and their probability) of numbers of equal length and returns the sum of their product, which is the expected utility.
@@ -162,7 +174,10 @@ def expected_utility(
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     pays_ch_ut = [um_function(i, **um_kwargs) for i in pays_ch]
     ind_vals = [pays_ch_ut[i] * probs_ch[i] for i in range(len(pays_ch))]
-    return sum(ind_vals)
+    utility = sum(ind_vals)
+
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
 
 
 # MARK Not utiltized in app
@@ -172,6 +187,7 @@ def rank_dependent_utility(
     pw_function=pw.weigh_tversky_kahneman,
     um_function=um.root_utility,
     um_kwargs={},
+    ce_function=um.root_ce,
     pw_kwargs={},
 ) -> float:
     # Sort values by size of payoffs (descending)
@@ -194,7 +210,9 @@ def rank_dependent_utility(
     ind_vals = [
         pays_sorted_ut[i] * decision_weights[i] for i in range(len(pays_sorted_ut))
     ]
-    return sum(ind_vals)
+    utility = sum(ind_vals)
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
 
 
 def cumulative_prospect_theory(
@@ -204,6 +222,7 @@ def cumulative_prospect_theory(
     um_function=um.utility_tversky_kahneman,
     pw_kwargs={},
     um_kwargs={},
+    ce_function=um.ce_tversky_kahneman,
 ) -> float:
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     vals = list(zip(pays_ch, probs_ch))
@@ -249,4 +268,8 @@ def cumulative_prospect_theory(
         um_function(i, **um_kwargs) for i in pays_sorted_neg
     ]
     ind_vals = [pays_final[i] * probs_final[i] for i in range(len(pays_final))]
-    return sum(ind_vals)
+
+    utility = sum(ind_vals)
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
+

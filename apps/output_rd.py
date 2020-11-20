@@ -10,9 +10,10 @@ import plotly.graph_objs as go
 
 import numpy as np
 
-import rd_functions.main_functions as mf
+# import rd_functions.main_functions as mf
 import rd_functions.util_mod as um
-import rd_functions.prob_weighting as pw
+
+# import rd_functions.prob_weighting as pw
 
 import apps.func_dicts as fd
 
@@ -23,185 +24,14 @@ from app import app
 output_segment = html.Div(
     [
         html.H3("Output", id="output_link", className="py-2"),
-        dbc.CardGroup(
-            [
-                dbc.Card(
-                    dbc.CardBody(
-                        [html.H6("Inputs"), dbc.Container(id="output_input_params"),]
-                    ),
-                ),
-                dbc.Card(
-                    dbc.CardBody(
-                        [
-                            html.H6("Decision theory"),
-                            dbc.Container(id="output_theor_params"),
-                        ]
-                    ),
-                ),
-                dbc.Card(
-                    dbc.CardBody(
-                        [
-                            html.H6("Utility function"),
-                            dbc.Container(id="output_um_params"),
-                        ]
-                    ),
-                ),
-                dbc.Card(
-                    dbc.CardBody(
-                        [
-                            html.H6("Probability weighting function"),
-                            dbc.Container(id="output_pw_params"),
-                        ]
-                    ),
-                ),
-                dbc.Card(
-                    dbc.CardBody(
-                        [html.H6("Result"), dbc.Container(id="output_results_params"),]
-                    ),
-                ),
-            ],
-        ),
+        dbc.Card(dbc.CardBody(html.Div(id="output_results_params")),),
     ],
     className="my-2",
 )
 
 
 @app.callback(
-    Output("output_input_params", "children"),
-    [Input("std_input_tbl", "data"), Input("theor_dropdown", "value"),],
-)
-def update_output_input(
-    rows, theor_drop_val,
-):
-    if theor_drop_val in ["RT", "ST"]:
-        # CHECK changed to new std_table with hidden column, implement simple comp value
-        pays = [
-            [float(i["std_payoffs_tbl"]) for i in rows],
-            [float(i["comp_payoffs_tbl"]) for i in rows],
-        ]
-        probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    else:
-        probs = [float(i["std_probabilities_tbl"]) for i in rows]
-        pays = [float(i["std_payoffs_tbl"]) for i in rows]
-
-    return (
-        html.P("Payoffs: {}".format(pays)),
-        html.P("Probabilities: {}".format(probs)),
-    )
-
-
-@app.callback(
-    Output("output_theor_params", "children"), [Input("theor_dropdown", "value"),],
-)
-def update_output_theor(theor_drop_val):
-    return fd.mf_func_dict[theor_drop_val][1]
-
-
-@app.callback(
-    Output("output_um_params", "children"),
-    [
-        Input("um_dropdown", "value"),
-        Input("um_TKU_a", "value"),
-        Input("um_TKU_l", "value"),
-        Input("um_TKU_r", "value"),
-        Input("um_RU_exp", "value"),
-        Input("um_BU_a", "value"),
-        Input("um_PU_exp", "value"),
-        Input("um_QU_a", "value"),
-        Input("um_EXU_a", "value"),
-        Input("um_BEU_a", "value"),
-        Input("um_BEU_b", "value"),
-        Input("um_HU_a", "value"),
-        Input("um_HU_b", "value"),
-    ],
-)
-def update_output_um_theor(
-    um_drop_val,
-    TKU_a,
-    TKU_l,
-    TKU_r,
-    RU_exp,
-    BU_a,
-    PU_exp,
-    QU_a,
-    EXU_a,
-    BEU_a,
-    BEU_b,
-    HU_a,
-    HU_b,
-):
-    if um_drop_val == "TKU":
-        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
-    elif um_drop_val == "RU":
-        um_kwargs = {"exp": RU_exp}
-    elif um_drop_val == "LU":
-        um_kwargs = {}
-    elif um_drop_val == "BU":
-        um_kwargs = {"a": BU_a}
-    elif um_drop_val == "PU":
-        um_kwargs = {"exp": PU_exp}
-    elif um_drop_val == "QU":
-        um_kwargs = {"a": QU_a}
-    elif um_drop_val == "EXU":
-        um_kwargs = {"a": EXU_a}
-    elif um_drop_val == "BEU":
-        um_kwargs = {"a": BEU_a, "b": BEU_b}
-    elif um_drop_val == "HU":
-        um_kwargs = {"a": HU_a, "b": HU_b}
-    elif um_drop_val == "YU":
-        um_kwargs = {}
-    return (
-        html.P("Theory: {}".format(fd.um_func_dict[um_drop_val][1])),
-        html.P("Formula: {}".format(fd.um_func_dict[um_drop_val][2])),
-        html.P("Parameters: {}".format(um_kwargs)),
-    )
-
-
-@app.callback(
-    Output("output_pw_params", "children"),
-    [
-        Input("pw_dropdown", "value"),
-        Input("pw_TKW_d", "value"),
-        Input("pw_GEW_b", "value"),
-        Input("pw_GEW_a", "value"),
-        Input("pw_PW_b", "value"),
-        Input("pw_PW_a", "value"),
-        Input("pw_POW_r", "value"),
-        Input("theor_dropdown", "value"),
-    ],
-)
-def update_output_pw_theor(
-    pw_drop_val, TKW_d, GEW_b, GEW_a, PW_b, PW_a, POW_r, theor_drop_val
-):
-    if pw_drop_val == "TKW":
-        pw_kwargs = {"d": TKW_d}
-    elif pw_drop_val == "GEW":
-        pw_kwargs = {"b": GEW_b, "a": GEW_a}
-    elif pw_drop_val == "PW":
-        pw_kwargs = {"b": PW_b, "a": PW_a}
-    elif pw_drop_val == "LW":
-        pw_kwargs = {}
-    elif pw_drop_val == "POW":
-        pw_kwargs = {"r": POW_r}
-    elif pw_drop_val == "YW":
-        pw_kwargs = {}
-
-    if theor_drop_val == "EU" or theor_drop_val == "RT":
-        return html.P(
-            "{} doesn't allow for probability weighting.".format(
-                fd.mf_func_dict[theor_drop_val][1]
-            )
-        )
-    else:
-        return (
-            html.P("Theory: {}".format(fd.pw_func_dict[pw_drop_val][1])),
-            html.P("Formula: {}".format(fd.pw_func_dict[pw_drop_val][2])),
-            html.P("Parameters: {}".format(pw_kwargs)),
-        )
-
-
-@app.callback(
-    Output("output_results_params", "children"),
+    [Output("output_results_params", "children"), Output("danger_toast_ce", "is_open")],
     [
         Input("std_input_tbl", "data"),
         Input("theor_dropdown", "value"),
@@ -375,6 +205,7 @@ def update_output(
             probs,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
         )
     elif theor_drop_val == "ST":
         res = fd.mf_func_dict[theor_drop_val][0](
@@ -382,6 +213,7 @@ def update_output(
             probs,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
             sl_function=fd.sl_func_dict[sl_drop_val][0],
             sl_kwargs=sl_kwargs,
             delta=sl_delta,
@@ -392,6 +224,7 @@ def update_output(
             probs,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
             rg_function=fd.rg_func_dict[rg_drop_val][0],
             rg_kwargs=rg_kwargs,
         )
@@ -403,6 +236,7 @@ def update_output(
             bivu_kwargs=sdt_kwargs,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
             k=sdt_k,
         )
     else:
@@ -412,10 +246,84 @@ def update_output(
             um_function=fd.um_func_dict[um_drop_val][0],
             pw_function=fd.pw_func_dict[pw_drop_val][0],
             um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
             pw_kwargs=pw_kwargs,
         )
-    if type(res) == list:
-        res = [round(elem, 4) for elem in res]
+
+    if fd.um_func_dict[um_drop_val][0] == um.user_utility:
+        toast_bool = True
     else:
-        res = round(res, 4)
-    return html.P("{}".format(res))
+        toast_bool = False
+
+    if theor_drop_val == "EU":
+        intermed_output = None
+    elif theor_drop_val == "CPT":
+        intermed_output = html.Div(
+            [
+                html.P(
+                    f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}"
+                ),
+                html.P(f"Formula: {fd.pw_func_dict[pw_drop_val][2]}"),
+                html.P(f"Parameters: {pw_kwargs}"),
+            ]
+        )
+    elif theor_drop_val == "RT":
+        intermed_output = html.Div(
+            [
+                html.P(f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}"),
+                html.P(f"Formula: {fd.rg_func_dict[rg_drop_val][2]}"),
+                html.P(f"Parameters: {rg_kwargs}"),
+            ]
+        )
+    elif theor_drop_val == "ST":
+        intermed_output = html.Div(
+            [
+                html.P(f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}"),
+                html.P(f"Formula: {fd.sl_func_dict[sl_drop_val][2]}"),
+                html.P(f"Parameters: {sl_kwargs}"),
+            ]
+        )
+    elif theor_drop_val == "SDT":
+        intermed_output = html.Div(
+            [
+                html.P(
+                    f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}"
+                ),
+                html.P(f"Formula: {fd.sdt_func_dict[sdt_drop_val][2]}"),
+                html.P(f"Parameters: {sdt_kwargs}"),
+            ]
+        )
+
+    output_text = html.Div(
+        [
+            html.P(f"Payoffs: {pays}"),
+            html.P(f"Probs: {probs}"),
+            html.P(f"Chosen Theory: {fd.mf_func_dict[theor_drop_val][1]}"),
+            #
+            html.P(f"Utility function: {fd.um_func_dict[um_drop_val][1]}"),
+            html.P(f"Formula: {fd.um_func_dict[um_drop_val][2]}"),
+            html.P(f"Parameters: {um_kwargs}"),
+            intermed_output,
+            html.P(f"Utility: {round(res[0], 4)} "),
+            html.P(f"Certainty equivalent: {round(res[1], 4)}"),
+        ]
+    )
+
+    return output_text, toast_bool
+
+
+ce_toast = dbc.Toast(
+    dcc.Markdown(
+        """
+        You chose to use a custom utility function. For security reasons, I can't calculate the certainty equivalent and the Risk Premium.
+        
+        This behavior might be changed in the future.
+    """
+    ),
+    id="danger_toast_ce",
+    header="Certainty Equivalent not available.",
+    is_open=False,
+    dismissable=True,
+    icon="danger",
+    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+)
