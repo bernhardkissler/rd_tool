@@ -4,11 +4,9 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
-import dash_table
 
 import plotly.graph_objs as go
 
-import numpy as np
 
 # import rd_functions.main_functions as mf
 import rd_functions.util_mod as um
@@ -17,14 +15,18 @@ import rd_functions.util_mod as um
 
 import apps.func_dicts as fd
 
-from math import isclose
+plot_color = "#3DB1F5"
+prim_color = "#e3685f"
+
+header_style = {"background-color": prim_color}
+header_class = "my-2 p-2 text-white rounded"
 
 from app import app
 
 output_segment = html.Div(
     [
-        html.H3("Output", id="output_link", className="py-2"),
-        dbc.Card(dbc.CardBody(html.Div(id="output_results_params")),),
+        html.H3("Output", style=header_style, className=header_class),
+        html.Div(id="output_results_params"),
     ],
     className="my-2",
 )
@@ -261,51 +263,87 @@ def update_output(
         intermed_output = html.Div(
             [
                 html.P(
-                    f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}"
+                    [
+                        f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}",
+                        html.Br(),
+                        html.P(f"Formula: {fd.pw_func_dict[pw_drop_val][2]}"),
+                        html.Br(),
+                        html.P(f"Parameters: {pw_kwargs}"),
+                    ]
                 ),
-                html.P(f"Formula: {fd.pw_func_dict[pw_drop_val][2]}"),
-                html.P(f"Parameters: {pw_kwargs}"),
             ]
         )
     elif theor_drop_val == "RT":
         intermed_output = html.Div(
             [
-                html.P(f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}"),
-                html.P(f"Formula: {fd.rg_func_dict[rg_drop_val][2]}"),
-                html.P(f"Parameters: {rg_kwargs}"),
+                html.P(
+                    [
+                        f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}",
+                        html.Br(),
+                        f"Formula: {fd.rg_func_dict[rg_drop_val][2]}",
+                        html.Br(),
+                        f"Parameters: {rg_kwargs}",
+                    ]
+                ),
             ]
         )
     elif theor_drop_val == "ST":
         intermed_output = html.Div(
             [
-                html.P(f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}"),
-                html.P(f"Formula: {fd.sl_func_dict[sl_drop_val][2]}"),
-                html.P(f"Parameters: {sl_kwargs}"),
+                html.P(
+                    [
+                        f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}",
+                        html.Br(),
+                        f"Formula: {fd.sl_func_dict[sl_drop_val][2]}",
+                        html.Br(),
+                        f"Parameters: {sl_kwargs}",
+                    ]
+                ),
             ]
         )
     elif theor_drop_val == "SDT":
         intermed_output = html.Div(
             [
                 html.P(
-                    f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}"
+                    [
+                        f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}",
+                        html.Br(),
+                        f"Formula: {fd.sdt_func_dict[sdt_drop_val][2]}",
+                        html.Br(),
+                        f"Parameters: {sdt_kwargs}",
+                    ]
                 ),
-                html.P(f"Formula: {fd.sdt_func_dict[sdt_drop_val][2]}"),
-                html.P(f"Parameters: {sdt_kwargs}"),
             ]
         )
 
     output_text = html.Div(
         [
-            html.P(f"Payoffs: {pays}"),
-            html.P(f"Probs: {probs}"),
-            html.P(f"Chosen Theory: {fd.mf_func_dict[theor_drop_val][1]}"),
-            #
-            html.P(f"Utility function: {fd.um_func_dict[um_drop_val][1]}"),
-            html.P(f"Formula: {fd.um_func_dict[um_drop_val][2]}"),
-            html.P(f"Parameters: {um_kwargs}"),
+            html.P(
+                [
+                    f"Payoffs: {pays}",
+                    html.Br(),
+                    f"Probs: {probs}",
+                    html.Br(),
+                    f"Chosen Theory: {fd.mf_func_dict[theor_drop_val][1]}",
+                ]
+            ),
+            html.P(
+                [
+                    f"Utility function: {fd.um_func_dict[um_drop_val][1]}",
+                    html.Br(),
+                    f"Formula: {fd.um_func_dict[um_drop_val][2]}",
+                    html.Br(),
+                    f"Parameters: {um_kwargs}",
+                ]
+            ),
             intermed_output,
-            html.P(f"Utility: {round(res[0], 4)} "),
-            html.P(f"Certainty equivalent: {round(res[1], 4)}"),
+            html.P(
+                [
+                    f"Utility: {round(res[0], 4)}",
+                    html.Br(),
+                    f"Certainty equivalent: {round(res[1], 4)}",
+                ]
+            ),
         ]
     )
 

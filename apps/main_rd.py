@@ -20,416 +20,347 @@ import rd_functions.custom_exceptions as ce
 import apps.func_dicts as fd
 
 plot_color = "#3DB1F5"
-plot_color_sec = "#FFFFFF"
-heatscale = [[0, plot_color_sec], [0.5, "#a2a6ae"], [1, plot_color]]
+prim_color = "#e3685f"
+
+header_style = {"background-color": prim_color}
+header_class = "my-2 p-2 text-white rounded"
+
+# heatscale = [[0, plot_color_sec], [0.5, "#a2a6ae"], [1, plot_color]]
 
 from math import isclose, nan
 
 from app import app
 
-theor_segment = html.Div(
+um_segment = html.Div(
     [
-        html.H3("Choose a decision theory", className="py-2",),
-        dcc.Dropdown(
-            id="theor_dropdown",
-            options=[
-                {"label": "Expected utility", "value": "EU",},
-                # {"label": "Rank dependent utility", "value": "RDU",}, # Dont show rdu as it is a subset of CPT
-                {"label": "Cumulative prospect theory", "value": "CPT",},
-                {"label": "Regret theory", "value": "RT"},
-                {"label": "Salience theory", "value": "ST"},
-                {"label": "Savoring and Disappointment theory", "value": "SDT"},
+        html.H3(
+            "Utility function", id="uf_link", style=header_style, className=header_class
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="um_dropdown",
+                            options=[
+                                {
+                                    "label": "Tversky Kahneman utility function",
+                                    "value": "TKU",
+                                },
+                                {"label": "Linear Utility function", "value": "LU",},
+                                {"label": "Root utility function", "value": "RU",},
+                                {
+                                    "label": "Exponential utiltiy function",
+                                    "value": "EXU",
+                                },
+                                {"label": "Bernoulli utility function", "value": "BU",},
+                                # {"label": "Power utility function", "value": "PU"},
+                                # {
+                                #     "label": "Quadratic utility function",
+                                #     "value": "QU",
+                                # },
+                                # Talk to Ebert about solving this for the certainty equivalent
+                                # {"label": "Bell utility function", "value": "BEU"},
+                                # commented out until better understood also it is mainly a more general version of some of the functions above; See Stott 2006
+                                # {"label": "Hara utility function", "value": "HU"},
+                                {"label": "Your utility function", "value": "YU",},
+                            ],
+                            value="TKU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Your utility function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="um_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
+                                ),
+                                dbc.Button(
+                                    "Run Function",
+                                    id="um_text_runner",
+                                    className="mt-2",
+                                ),
+                            ],
+                            id="um_collapse_YU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["TKU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_TKU_a",
+                                                type="number",
+                                                value=0.88,
+                                                step=0.1,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("l:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_TKU_l",
+                                                type="number",
+                                                value=2.25,
+                                                step=0.1,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("r:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_TKU_r",
+                                                type="number",
+                                                value=0.0,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_TKU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["RU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("exp:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_RU_exp",
+                                                type="number",
+                                                value=2.0,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_RU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["PU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("exp:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_PU_exp",
+                                                type="number",
+                                                value=2.0,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_PU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["QU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_QU_a",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_QU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["EXU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_EXU_a",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_EXU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["BEU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_BEU_a",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("b:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_BEU_b",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_BEU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["HU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_HU_a",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("b:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_HU_b",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_HU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["BU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_BU_a",
+                                                type="number",
+                                                value=0.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="um_collapse_BU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["LU"][2], className="pb-2"),
+                            ],
+                            id="um_collapse_LU",
+                            className="py-2",
+                        ),
+                        dbc.Button(
+                            "Reset all values",
+                            id="um_reset_btn",
+                            className="my-3 d-print-none",
+                        ),
+                    ],
+                    className="col",
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id="um_graph"),
+                        dbc.FormGroup(
+                            [
+                                dbc.Label(
+                                    "Minimum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="um_min_value", type="number", value=0,
+                                    ),
+                                    width=3,
+                                ),
+                                dbc.Label(
+                                    "Maximum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="um_max_value", type="number", value=10,
+                                    ),
+                                    width=3,
+                                ),
+                            ],
+                            row=True,
+                            className="my-2 d-print-none",
+                        ),
+                    ],
+                    className="col-8",
+                ),
             ],
-            value="EU",
+            className="row mt-2",
         ),
     ],
-    className="my-2",
-)
-
-# MARK disable choice of pw for certain theories here
-@app.callback(
-    [
-        Output("pw_panel_collapse", "is_open"),
-        Output("rg_panel_collapse", "is_open"),
-        Output("sl_panel_collapse", "is_open"),
-        Output("sdt_panel_collapse", "is_open"),
-    ],
-    [Input("theor_dropdown", "value")],
-)
-def collapse_pw(drop_val):
-    if drop_val == "EU":
-        return False, False, False, False
-    elif drop_val == "RT":
-        return False, True, False, False
-    elif drop_val == "ST":
-        return False, False, True, False
-    elif drop_val == "SDT":
-        return False, False, False, True
-    else:
-        return True, False, False, False
-
-
-um_segment = html.Div(
-    html.Div(
-        [
-            html.H3("Utility function", id="uf_link", className="py-2",),
-            html.Div(
-                [
-                    html.Div(
-                        [
-                            dcc.Dropdown(
-                                id="um_dropdown",
-                                options=[
-                                    {
-                                        "label": "Tversky Kahneman utility function",
-                                        "value": "TKU",
-                                    },
-                                    {
-                                        "label": "Linear Utility function",
-                                        "value": "LU",
-                                    },
-                                    {"label": "Root utility function", "value": "RU",},
-                                    {
-                                        "label": "Exponential utiltiy function",
-                                        "value": "EXU",
-                                    },
-                                    {
-                                        "label": "Bernoulli utility function",
-                                        "value": "BU",
-                                    },
-                                    # {"label": "Power utility function", "value": "PU"},
-                                    # {
-                                    #     "label": "Quadratic utility function",
-                                    #     "value": "QU",
-                                    # },
-                                    # Talk to Ebert about solving this for the certainty equivalent
-                                    # {"label": "Bell utility function", "value": "BEU"},
-                                    # commented out until better understood also it is mainly a more general version of some of the functions above; See Stott 2006
-                                    # {"label": "Hara utility function", "value": "HU"},
-                                    {"label": "Your utility function", "value": "YU",},
-                                ],
-                                value="TKU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Your utility function:"),
-                                    # MARK Textarea for ASTEVAL
-                                    dbc.Input(
-                                        id="um_text",
-                                        type="text",
-                                        placeholder="Input your own function",
-                                        debounce=True,
-                                    ),
-                                    dbc.Button(
-                                        "Run Function",
-                                        id="um_text_runner",
-                                        className="mt-2",
-                                    ),
-                                ],
-                                id="um_collapse_YU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["TKU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("a:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_TKU_a",
-                                                    type="number",
-                                                    value=0.88,
-                                                    step=0.1,
-                                                ),
-                                                width=9,
-                                            ),
-                                            dbc.Label("l:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_TKU_l",
-                                                    type="number",
-                                                    value=2.25,
-                                                    step=0.1,
-                                                ),
-                                                width=9,
-                                            ),
-                                            dbc.Label("r:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_TKU_r",
-                                                    type="number",
-                                                    value=0.0,
-                                                    step=1,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_TKU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["RU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label(
-                                                "exp:", width=3, className="my-1",
-                                            ),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_RU_exp",
-                                                    type="number",
-                                                    value=2.0,
-                                                    step=1,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_RU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["PU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label(
-                                                "exp:", width=3, className="my-1",
-                                            ),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_PU_exp",
-                                                    type="number",
-                                                    value=2.0,
-                                                    step=1,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_PU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["QU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("a:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_QU_a",
-                                                    type="number",
-                                                    value=1.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_QU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["EXU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("a:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_EXU_a",
-                                                    type="number",
-                                                    value=1.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_EXU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["BEU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("a:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_BEU_a",
-                                                    type="number",
-                                                    value=1.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                            dbc.Label("b:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_BEU_b",
-                                                    type="number",
-                                                    value=1.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_BEU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["HU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("a:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_HU_a",
-                                                    type="number",
-                                                    value=1.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                            dbc.Label("b:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_HU_b",
-                                                    type="number",
-                                                    value=1.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_HU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["BU"][2], className="pb-2"
-                                    ),
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("a:", width=3, className="my-1",),
-                                            dbc.Col(
-                                                dbc.Input(
-                                                    id="um_BU_a",
-                                                    type="number",
-                                                    value=0.0,
-                                                    step=0.01,
-                                                ),
-                                                width=9,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                ],
-                                id="um_collapse_BU",
-                                className="py-2",
-                            ),
-                            dbc.Collapse(
-                                [
-                                    dbc.Label("Formula:"),
-                                    html.Div(
-                                        fd.um_func_dict["LU"][2], className="pb-2"
-                                    ),
-                                ],
-                                id="um_collapse_LU",
-                                className="py-2",
-                            ),
-                            dbc.Button(
-                                "Reset all values", id="um_reset_btn", className="my-3",
-                            ),
-                        ],
-                        className="col",
-                    ),
-                    html.Div(
-                        [
-                            dcc.Graph(id="um_graph"),
-                            dbc.FormGroup(
-                                [
-                                    dbc.Label(
-                                        "Minimum display value:",
-                                        width=3,
-                                        className="my-1",
-                                    ),
-                                    dbc.Col(
-                                        dbc.Input(
-                                            id="um_min_value", type="number", value=0,
-                                        ),
-                                        width=3,
-                                    ),
-                                    dbc.Label(
-                                        "Maximum display value:",
-                                        width=3,
-                                        className="my-1",
-                                    ),
-                                    dbc.Col(
-                                        dbc.Input(
-                                            id="um_max_value", type="number", value=10,
-                                        ),
-                                        width=3,
-                                    ),
-                                ],
-                                row=True,
-                                className="my-2",
-                            ),
-                        ],
-                        className="col-8",
-                    ),
-                ],
-                className="row mt-2",
-            ),
-        ],
-        className="my-2",
-    ),
 )
 
 
@@ -609,7 +540,7 @@ def update_um_graph(
     elif um_drop_val == "YU":
         kwargs = {"text": user_func}
 
-    x_1_data = np.linspace(min_val, max_val, 1000)
+    x_1_data = np.linspace(min_val, max_val, 100)
     # y_1_data = [fd.um_func_dict[um_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
     danger_text = ""
@@ -657,276 +588,234 @@ def update_um_graph(
 
 pw_segment = dbc.Collapse(
     [
+        html.H3(
+            "Probability weighting function",
+            id="pw_link",
+            style=header_style,
+            className=header_class,
+        ),
         html.Div(
             [
-                html.H3(
-                    "Probability weighting function", id="pw_link", className="py-2",
-                ),
                 html.Div(
                     [
-                        html.Div(
+                        dcc.Dropdown(
+                            id="pw_dropdown",
+                            options=[
+                                {
+                                    "label": "Tversky Kahneman weighting function",
+                                    "value": "TKW",
+                                },
+                                {
+                                    "label": "Goldstein Einhorn weigting function",
+                                    "value": "GEW",
+                                },
+                                {"label": "Prelec weighting function", "value": "PW",},
+                                {"label": "Linear weighting function", "value": "LW",},
+                                {"label": "Power weighting function", "value": "POW",},
+                                {"label": "Your weighting function", "value": "YW",},
+                            ],
+                            value="TKW",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
                             [
-                                dcc.Dropdown(
-                                    id="pw_dropdown",
-                                    options=[
-                                        {
-                                            "label": "Tversky Kahneman weighting function",
-                                            "value": "TKW",
-                                        },
-                                        {
-                                            "label": "Goldstein Einhorn weigting function",
-                                            "value": "GEW",
-                                        },
-                                        {
-                                            "label": "Prelec weighting function",
-                                            "value": "PW",
-                                        },
-                                        {
-                                            "label": "Linear weighting function",
-                                            "value": "LW",
-                                        },
-                                        {
-                                            "label": "Power weighting function",
-                                            "value": "POW",
-                                        },
-                                        {
-                                            "label": "Your weighting function",
-                                            "value": "YW",
-                                        },
-                                    ],
-                                    value="TKW",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label(
-                                            "Your probability weighting function:"
-                                        ),
-                                        # MARK Textarea for ASTEVAL
-                                        dbc.Input(
-                                            id="pw_text",
-                                            type="text",
-                                            placeholder="Input your own function",
-                                            debounce=True,
-                                        ),
-                                        dbc.Button(
-                                            "Run Function",
-                                            id="pw_text_runner",
-                                            className="mt-2",
-                                        ),
-                                    ],
-                                    id="pw_collapse_YW",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.pw_func_dict["TKW"][2], className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "d:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="pw_TKW_d",
-                                                        type="number",
-                                                        value=0.65,
-                                                        min=0,
-                                                        step=0.01,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="pw_collapse_TKW",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.pw_func_dict["GEW"][2], className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "b:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="pw_GEW_b",
-                                                        type="number",
-                                                        value=0.5,
-                                                        min=0,
-                                                        max=1,
-                                                        step=0.01,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                                dbc.Label(
-                                                    "a:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="pw_GEW_a",
-                                                        type="number",
-                                                        value=0.6,
-                                                        min=0,
-                                                        max=1,
-                                                        step=0.01,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="pw_collapse_GEW",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.pw_func_dict["PW"][2], className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "b:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="pw_PW_b",
-                                                        type="number",
-                                                        value=0.5,
-                                                        min=0,
-                                                        max=1,
-                                                        step=0.01,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                                dbc.Label(
-                                                    "a:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="pw_PW_a",
-                                                        type="number",
-                                                        value=0.6,
-                                                        min=0,
-                                                        max=1,
-                                                        step=0.01,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="pw_collapse_PW",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.pw_func_dict["LW"][2], className="pb-2",
-                                        ),
-                                    ],
-                                    id="pw_collapse_LW",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.pw_func_dict["POW"][2], className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "r:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="pw_POW_r",
-                                                        type="number",
-                                                        value=1,
-                                                        step=1,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="pw_collapse_POW",
-                                    className="py-2",
+                                dbc.Label("Your probability weighting function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="pw_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
                                 ),
                                 dbc.Button(
-                                    "Reset all values",
-                                    id="pw_reset_btn",
-                                    className="my-3",
+                                    "Run Function",
+                                    id="pw_text_runner",
+                                    className="mt-2",
                                 ),
                             ],
-                            className="col",
+                            id="pw_collapse_YW",
+                            className="py-2",
                         ),
-                        html.Div(
+                        dbc.Collapse(
                             [
-                                dcc.Graph(id="pw_graph"),
+                                dbc.Label("Formula:"),
+                                html.Div(fd.pw_func_dict["TKW"][2], className="pb-2",),
                                 dbc.FormGroup(
                                     [
-                                        dbc.Label(
-                                            "Minimum display value:",
-                                            width=3,
-                                            className="my-1",
-                                        ),
+                                        dbc.Label("d:", width=3, className="my-1",),
                                         dbc.Col(
                                             dbc.Input(
-                                                id="pw_min_value",
+                                                id="pw_TKW_d",
                                                 type="number",
-                                                value=0,
+                                                value=0.65,
                                                 min=0,
-                                                max=1,
                                                 step=0.01,
                                             ),
-                                            width=3,
-                                        ),
-                                        dbc.Label(
-                                            "Maximum display value:",
-                                            width=3,
-                                            className="my-1",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="pw_max_value",
-                                                type="number",
-                                                value=1,
-                                                min=0,
-                                                max=1,
-                                                step=0.01,
-                                            ),
-                                            width=3,
+                                            width=9,
                                         ),
                                     ],
                                     row=True,
-                                    className="my-2",
                                 ),
                             ],
-                            className="col-8",
+                            id="pw_collapse_TKW",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.pw_func_dict["GEW"][2], className="pb-2",),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("b:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="pw_GEW_b",
+                                                type="number",
+                                                value=0.5,
+                                                min=0,
+                                                max=1,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="pw_GEW_a",
+                                                type="number",
+                                                value=0.6,
+                                                min=0,
+                                                max=1,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="pw_collapse_GEW",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.pw_func_dict["PW"][2], className="pb-2",),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("b:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="pw_PW_b",
+                                                type="number",
+                                                value=0.5,
+                                                min=0,
+                                                max=1,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="pw_PW_a",
+                                                type="number",
+                                                value=0.6,
+                                                min=0,
+                                                max=1,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="pw_collapse_PW",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.pw_func_dict["LW"][2], className="pb-2",),
+                            ],
+                            id="pw_collapse_LW",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.pw_func_dict["POW"][2], className="pb-2",),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("r:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="pw_POW_r",
+                                                type="number",
+                                                value=1,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="pw_collapse_POW",
+                            className="py-2",
+                        ),
+                        dbc.Button(
+                            "Reset all values",
+                            id="pw_reset_btn",
+                            className="my-3 d-print-none",
                         ),
                     ],
-                    className="row mt-2",
+                    className="col",
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id="pw_graph"),
+                        dbc.FormGroup(
+                            [
+                                dbc.Label(
+                                    "Minimum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="pw_min_value",
+                                        type="number",
+                                        value=0,
+                                        min=0,
+                                        max=1,
+                                        step=0.01,
+                                    ),
+                                    width=3,
+                                ),
+                                dbc.Label(
+                                    "Maximum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="pw_max_value",
+                                        type="number",
+                                        value=1,
+                                        min=0,
+                                        max=1,
+                                        step=0.01,
+                                    ),
+                                    width=3,
+                                ),
+                            ],
+                            row=True,
+                            className="my-2 d-print-none",
+                        ),
+                    ],
+                    className="col-8",
                 ),
             ],
-            className="my-2",
-        )
+            className="row mt-2",
+        ),
     ],
     id="pw_panel_collapse",
 )
@@ -1035,7 +924,7 @@ def update_pw_graph(
     elif pw_drop_val == "YW":
         kwargs = {"text": user_func}
 
-    x_1_data = np.linspace(min_val, max_val, 1000)
+    x_1_data = np.linspace(min_val, max_val, 100)
     y_1_data = [fd.pw_func_dict[pw_drop_val][0](float(i), **kwargs) for i in x_1_data]
 
     fig = go.Figure(
@@ -1070,135 +959,120 @@ def update_pw_graph(
 
 rg_segment = dbc.Collapse(
     [
+        html.H3(
+            "Regret function", id="rg_link", style=header_style, className=header_class
+        ),
         html.Div(
             [
-                html.H3("Regret function", id="rg_link", className="py-2",),
                 html.Div(
                     [
-                        html.Div(
+                        dcc.Dropdown(
+                            id="rg_dropdown",
+                            options=[
+                                {"label": "Loomes and Sugden 1982", "value": "LS",},
+                                {"label": "Your regret function", "value": "YR",},
+                            ],
+                            value="LS",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
                             [
-                                dcc.Dropdown(
-                                    id="rg_dropdown",
-                                    options=[
-                                        {
-                                            "label": "Loomes and Sugden 1982",
-                                            "value": "LS",
-                                        },
-                                        {
-                                            "label": "Your regret function",
-                                            "value": "YR",
-                                        },
-                                    ],
-                                    value="LS",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Your Regret function:"),
-                                        # MARK Textarea for ASTEVAL
-                                        dbc.Input(
-                                            id="rg_text",
-                                            type="text",
-                                            placeholder="Input your own function",
-                                            debounce=True,
-                                        ),
-                                        dbc.Button(
-                                            "Run Function",
-                                            id="rg_text_runner",
-                                            className="mt-2",
-                                        ),
-                                    ],
-                                    id="rg_collapse_YR",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.rg_func_dict["LS"][
-                                                2
-                                            ],  # TODO pull this into its own dict and add formula in latex
-                                            className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "weight:",
-                                                    width=3,
-                                                    className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="rg_LS_weight",
-                                                        type="number",
-                                                        value=1,
-                                                        step=0.01,
-                                                        min=0,
-                                                        max=1,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="rg_collapse_LS",
-                                    className="py-2",
+                                dbc.Label("Your Regret function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="rg_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
                                 ),
                                 dbc.Button(
-                                    "Reset all values",
-                                    id="rg_reset_btn",
-                                    className="my-3",
+                                    "Run Function",
+                                    id="rg_text_runner",
+                                    className="mt-2",
                                 ),
                             ],
-                            className="col",
+                            id="rg_collapse_YR",
+                            className="py-2",
                         ),
-                        html.Div(
+                        dbc.Collapse(
                             [
-                                dcc.Graph(id="rg_graph"),
+                                dbc.Label("Formula:"),
+                                html.Div(
+                                    fd.rg_func_dict["LS"][
+                                        2
+                                    ],  # TODO pull this into its own dict and add formula in latex
+                                    className="pb-2",
+                                ),
                                 dbc.FormGroup(
                                     [
                                         dbc.Label(
-                                            "Minimum display value:",
-                                            width=3,
-                                            className="my-1",
+                                            "weight:", width=3, className="my-1",
                                         ),
                                         dbc.Col(
                                             dbc.Input(
-                                                id="rg_min_value",
-                                                type="number",
-                                                value=0,
-                                                step=1,
-                                            ),
-                                            width=3,
-                                        ),
-                                        dbc.Label(
-                                            "Maximum display value:",
-                                            width=3,
-                                            className="my-1",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="rg_max_value",
+                                                id="rg_LS_weight",
                                                 type="number",
                                                 value=1,
-                                                step=1,
+                                                step=0.01,
+                                                min=0,
+                                                max=1,
                                             ),
-                                            width=3,
+                                            width=9,
                                         ),
                                     ],
                                     row=True,
-                                    className="my-2",
                                 ),
                             ],
-                            className="col-8",
+                            id="rg_collapse_LS",
+                            className="py-2",
+                        ),
+                        dbc.Button(
+                            "Reset all values",
+                            id="rg_reset_btn",
+                            className="my-3 d-print-none",
                         ),
                     ],
-                    className="row mt-2",
+                    className="col",
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id="rg_graph"),
+                        dbc.FormGroup(
+                            [
+                                dbc.Label(
+                                    "Minimum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="rg_min_value",
+                                        type="number",
+                                        value=0,
+                                        step=1,
+                                    ),
+                                    width=3,
+                                ),
+                                dbc.Label(
+                                    "Maximum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="rg_max_value",
+                                        type="number",
+                                        value=1,
+                                        step=1,
+                                    ),
+                                    width=3,
+                                ),
+                            ],
+                            row=True,
+                            className="my-2 d-print-none",
+                        ),
+                    ],
+                    className="col-8",
                 ),
             ],
-            className="my-2",
-        )
+            className="row mt-2",
+        ),
     ],
     id="rg_panel_collapse",
 )
@@ -1357,160 +1231,121 @@ def update_rg_graph(
 
 sl_segment = dbc.Collapse(
     [
+        html.H3(
+            "Salience function",
+            id="sl_link",
+            style=header_style,
+            className=header_class,
+        ),
         html.Div(
             [
-                html.H3("Salience function", id="sl_link", className="py-2",),
                 html.Div(
                     [
-                        html.Div(
+                        dcc.Dropdown(
+                            id="sl_dropdown",
+                            options=[
+                                {"label": "Original Salience function", "value": "OG",},
+                                {"label": "Your salience function", "value": "YS",},
+                            ],
+                            value="OG",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
                             [
-                                # Salience parameter delta here
-                                dbc.Alert(
-                                    [
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "Salience - Local thinking delta:",
-                                                    width=6,
-                                                    className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="sl_delta",
-                                                        type="number",
-                                                        value=0.5,
-                                                        step=0.01,
-                                                        min=0,
-                                                        max=1,
-                                                    ),
-                                                    width=6,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    color="warning",
-                                ),
-                                dcc.Dropdown(
-                                    id="sl_dropdown",
-                                    options=[
-                                        {
-                                            "label": "Original Salience function",
-                                            "value": "OG",
-                                        },
-                                        {
-                                            "label": "Your salience function",
-                                            "value": "YS",
-                                        },
-                                    ],
-                                    value="OG",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Your Salience function:"),
-                                        # MARK Textarea for ASTEVAL
-                                        dbc.Input(
-                                            id="sl_text",
-                                            type="text",
-                                            placeholder="Input your own function",
-                                            debounce=True,
-                                        ),
-                                        dbc.Button(
-                                            "Run Function",
-                                            id="sl_text_runner",
-                                            className="mt-2",
-                                        ),
-                                    ],
-                                    id="sl_collapse_YS",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.sl_func_dict["OG"][
-                                                2
-                                            ],  # TODO pull this into its own dict and add formula in latex
-                                            className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "theta:", width=3, className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="sl_OG_theta",
-                                                        type="number",
-                                                        value=0.1,
-                                                        step=0.01,
-                                                        min=0,
-                                                        max=1,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="sl_collapse_OG",
-                                    className="py-2",
+                                dbc.Label("Your Salience function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="sl_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
                                 ),
                                 dbc.Button(
-                                    "Reset all values",
-                                    id="sl_reset_btn",
-                                    className="my-3",
+                                    "Run Function",
+                                    id="sl_text_runner",
+                                    className="mt-2",
                                 ),
                             ],
-                            className="col",
+                            id="sl_collapse_YS",
+                            className="py-2",
                         ),
-                        html.Div(
+                        dbc.Collapse(
                             [
-                                dcc.Graph(id="sl_graph"),
+                                dbc.Label("Formula:"),
+                                html.Div(
+                                    fd.sl_func_dict["OG"][
+                                        2
+                                    ],  # TODO pull this into its own dict and add formula in latex
+                                    className="pb-2",
+                                ),
                                 dbc.FormGroup(
                                     [
-                                        dbc.Label(
-                                            "Minimum display value:",
-                                            width=3,
-                                            className="my-1",
-                                        ),
+                                        dbc.Label("theta:", width=3, className="my-1",),
                                         dbc.Col(
                                             dbc.Input(
-                                                id="sl_min_value",
+                                                id="sl_OG_theta",
                                                 type="number",
-                                                value=0,
-                                                step=1,
+                                                value=0.1,
+                                                step=0.01,
+                                                min=0,
+                                                max=1,
                                             ),
-                                            width=3,
-                                        ),
-                                        dbc.Label(
-                                            "Maximum display value:",
-                                            width=3,
-                                            className="my-1",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="sl_max_value",
-                                                type="number",
-                                                value=1,
-                                                step=1,
-                                            ),
-                                            width=3,
+                                            width=9,
                                         ),
                                     ],
                                     row=True,
-                                    className="my-2",
                                 ),
                             ],
-                            className="col-8",
+                            id="sl_collapse_OG",
+                            className="py-2",
+                        ),
+                        dbc.Button(
+                            "Reset all values",
+                            id="sl_reset_btn",
+                            className="my-3 d-print-none",
                         ),
                     ],
-                    className="row mt-2",
+                    className="col",
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id="sl_graph"),
+                        dbc.FormGroup(
+                            [
+                                dbc.Label(
+                                    "Minimum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="sl_min_value",
+                                        type="number",
+                                        value=0,
+                                        step=1,
+                                    ),
+                                    width=3,
+                                ),
+                                dbc.Label(
+                                    "Maximum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="sl_max_value",
+                                        type="number",
+                                        value=1,
+                                        step=1,
+                                    ),
+                                    width=3,
+                                ),
+                            ],
+                            row=True,
+                            className="my-2 d-print-none",
+                        ),
+                    ],
+                    className="col-8",
                 ),
             ],
-            className="my-2",
-        )
+            className="row mt-2",
+        ),
     ],
     id="sl_panel_collapse",
 )
@@ -1604,158 +1439,120 @@ def update_sl_graph(
 
 sdt_segment = dbc.Collapse(
     [
+        html.H3(
+            "Bivu function", id="sdt_link", style=header_style, className=header_class
+        ),
         html.Div(
             [
-                html.H3("Bivu function", id="sdt_link", className="py-2",),
                 html.Div(
                     [
-                        html.Div(
+                        dcc.Dropdown(
+                            id="sdt_dropdown",
+                            options=[
+                                {"label": "Additive Habits function", "value": "AH",},
+                                {"label": "Your BIVU function", "value": "YB",},
+                            ],
+                            value="AH",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
                             [
-                                # Salience parameter delta here
-                                dbc.Alert(
-                                    [
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "Savoring and Disappointment theory - Savoring coefficient:",
-                                                    width=6,
-                                                    className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="sdt_k",
-                                                        type="number",
-                                                        value=0.5,
-                                                        step=0.01,
-                                                        min=0,
-                                                    ),
-                                                    width=6,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    color="warning",
-                                ),
-                                dcc.Dropdown(
-                                    id="sdt_dropdown",
-                                    options=[
-                                        {
-                                            "label": "Additive Habits function",
-                                            "value": "AH",
-                                        },
-                                        {"label": "Your BIVU function", "value": "YB",},
-                                    ],
-                                    value="AH",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Your Bivu function:"),
-                                        # MARK Textarea for ASTEVAL
-                                        dbc.Input(
-                                            id="sdt_text",
-                                            type="text",
-                                            placeholder="Input your own function",
-                                            debounce=True,
-                                        ),
-                                        dbc.Button(
-                                            "Run Function",
-                                            id="sdt_text_runner",
-                                            className="mt-2",
-                                        ),
-                                    ],
-                                    id="sdt_collapse_YB",
-                                    className="py-2",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        dbc.Label("Formula:"),
-                                        html.Div(
-                                            fd.sdt_func_dict["AH"][
-                                                2
-                                            ],  # TODO pull this into its own dict and add formula in latex
-                                            className="pb-2",
-                                        ),
-                                        dbc.FormGroup(
-                                            [
-                                                dbc.Label(
-                                                    "$\\eta$:",
-                                                    width=3,
-                                                    className="my-1",
-                                                ),
-                                                dbc.Col(
-                                                    dbc.Input(
-                                                        id="sdt_AH_eta",
-                                                        type="number",
-                                                        value=0.1,
-                                                        step=0.01,
-                                                        min=0,
-                                                        max=1,
-                                                    ),
-                                                    width=9,
-                                                ),
-                                            ],
-                                            row=True,
-                                        ),
-                                    ],
-                                    id="sdt_collapse_AH",
-                                    className="py-2",
+                                dbc.Label("Your Bivu function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="sdt_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
                                 ),
                                 dbc.Button(
-                                    "Reset all values",
-                                    id="sdt_reset_btn",
-                                    className="my-3",
+                                    "Run Function",
+                                    id="sdt_text_runner",
+                                    className="mt-2",
                                 ),
                             ],
-                            className="col",
+                            id="sdt_collapse_YB",
+                            className="py-2",
                         ),
-                        html.Div(
+                        dbc.Collapse(
                             [
-                                dcc.Graph(id="sdt_graph"),
+                                dbc.Label("Formula:"),
+                                html.Div(
+                                    fd.sdt_func_dict["AH"][
+                                        2
+                                    ],  # TODO pull this into its own dict and add formula in latex
+                                    className="pb-2",
+                                ),
                                 dbc.FormGroup(
                                     [
                                         dbc.Label(
-                                            "Minimum display value:",
-                                            width=3,
-                                            className="my-1",
+                                            "$\\eta$:", width=3, className="my-1",
                                         ),
                                         dbc.Col(
                                             dbc.Input(
-                                                id="sdt_min_value",
+                                                id="sdt_AH_eta",
                                                 type="number",
-                                                value=0,
-                                                step=1,
+                                                value=0.1,
+                                                step=0.01,
+                                                min=0,
+                                                max=1,
                                             ),
-                                            width=3,
-                                        ),
-                                        dbc.Label(
-                                            "Maximum display value:",
-                                            width=3,
-                                            className="my-1",
-                                        ),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="sdt_max_value",
-                                                type="number",
-                                                value=1,
-                                                step=1,
-                                            ),
-                                            width=3,
+                                            width=9,
                                         ),
                                     ],
                                     row=True,
-                                    className="my-2",
                                 ),
                             ],
-                            className="col-8",
+                            id="sdt_collapse_AH",
+                            className="py-2",
+                        ),
+                        dbc.Button(
+                            "Reset all values",
+                            id="sdt_reset_btn",
+                            className="my-3 d-print-none",
                         ),
                     ],
-                    className="row mt-2",
+                    className="col",
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id="sdt_graph"),
+                        dbc.FormGroup(
+                            [
+                                dbc.Label(
+                                    "Minimum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="sdt_min_value",
+                                        type="number",
+                                        value=0,
+                                        step=1,
+                                    ),
+                                    width=3,
+                                ),
+                                dbc.Label(
+                                    "Maximum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="sdt_max_value",
+                                        type="number",
+                                        value=1,
+                                        step=1,
+                                    ),
+                                    width=3,
+                                ),
+                            ],
+                            row=True,
+                            className="my-2 d-print-none",
+                        ),
+                    ],
+                    className="col-8",
                 ),
             ],
-            className="my-2",
-        )
+            className="row mt-2",
+        ),
     ],
     id="sdt_panel_collapse",
 )
