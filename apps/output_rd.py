@@ -15,7 +15,7 @@ import rd_functions.util_mod as um
 
 import apps.func_dicts as fd
 
-plot_color = "#3DB1F5"
+plot_color = "#360498"
 prim_color = "#e3685f"
 
 header_style = {"background-color": prim_color}
@@ -25,7 +25,7 @@ from app import app
 
 output_segment = html.Div(
     [
-        html.H3("Output", style=header_style, className=header_class),
+        html.H3(html.Strong("Output"), style=header_style, className=header_class),
         html.Div(id="output_results_params"),
     ],
     className="my-2",

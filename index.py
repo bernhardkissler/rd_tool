@@ -20,7 +20,10 @@ app.layout = html.Div(
                 html.Div(
                     html.Div(
                         [
-                            html.H1("Decisions under Uncertainty - Tool"),
+                            html.H1(
+                                html.Strong("Decisions under Uncertainty - Tool"),
+                                className="my-4",
+                            ),
                             input_rd.input_segment,
                             main_rd.um_segment,
                             main_rd.pw_segment,

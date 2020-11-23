@@ -12,7 +12,7 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import dash_daq as daq
 
-plot_color = "#3DB1F5"
+plot_color = "#360498"
 prim_color = "#e3685f"
 
 header_style = {"background-color": prim_color}
@@ -84,7 +84,7 @@ def update_stats_table(std_rows):
 
 input_segment = html.Div(
     [
-        html.H3("Input", style=header_style, className=header_class),
+        html.H3(html.Strong("Input"), style=header_style, className=header_class),
         html.Div(
             [
                 html.Div(

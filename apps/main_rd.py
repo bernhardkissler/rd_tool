@@ -19,7 +19,7 @@ import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
-plot_color = "#3DB1F5"
+plot_color = "#360498"
 prim_color = "#e3685f"
 
 header_style = {"background-color": prim_color}
@@ -34,7 +34,10 @@ from app import app
 um_segment = html.Div(
     [
         html.H3(
-            "Utility function", id="uf_link", style=header_style, className=header_class
+            html.Strong("Utility function"),
+            id="uf_link",
+            style=header_style,
+            className=header_class,
         ),
         html.Div(
             [
@@ -589,7 +592,7 @@ def update_um_graph(
 pw_segment = dbc.Collapse(
     [
         html.H3(
-            "Probability weighting function",
+            html.Strong("Probability weighting function"),
             id="pw_link",
             style=header_style,
             className=header_class,
@@ -960,7 +963,10 @@ def update_pw_graph(
 rg_segment = dbc.Collapse(
     [
         html.H3(
-            "Regret function", id="rg_link", style=header_style, className=header_class
+            html.Strong("Regret function"),
+            id="rg_link",
+            style=header_style,
+            className=header_class,
         ),
         html.Div(
             [
@@ -1232,7 +1238,7 @@ def update_rg_graph(
 sl_segment = dbc.Collapse(
     [
         html.H3(
-            "Salience function",
+            html.Strong("Salience function"),
             id="sl_link",
             style=header_style,
             className=header_class,
@@ -1440,7 +1446,10 @@ def update_sl_graph(
 sdt_segment = dbc.Collapse(
     [
         html.H3(
-            "Bivu function", id="sdt_link", style=header_style, className=header_class
+            html.Strong("Bivu function"),
+            id="sdt_link",
+            style=header_style,
+            className=header_class,
         ),
         html.Div(
             [
