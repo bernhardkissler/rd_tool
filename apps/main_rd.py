@@ -31,11 +31,399 @@ from math import isclose, nan
 
 from app import app
 
+
+gl_segment = dbc.Collapse(
+    [
+        html.H3(
+            html.Strong(
+                [html.Span("Gain Loss Utility function - "), html.Span(id="gl_heading")]
+            ),
+            style=header_style,
+            className=header_class,
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        dcc.Dropdown(
+                            id="gl_dropdown",
+                            options=[
+                                {
+                                    "label": "Tversky Kahneman utility function",
+                                    "value": "TKU",
+                                },
+                                {"label": "Linear Utility function", "value": "LU",},
+                                {"label": "Root utility function", "value": "RU",},
+                                {
+                                    "label": "Exponential utiltiy function",
+                                    "value": "EXU",
+                                },
+                                {"label": "Bernoulli utility function", "value": "BU",},
+                                {"label": "Your utility function", "value": "YU",},
+                            ],
+                            value="TKU",
+                            className="py-2 d-print-none",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Your utility function:"),
+                                # MARK Textarea for ASTEVAL
+                                dbc.Input(
+                                    id="gl_text",
+                                    type="text",
+                                    placeholder="Input your own function",
+                                    debounce=True,
+                                ),
+                                dbc.Button(
+                                    "Run Function",
+                                    id="gl_text_runner",
+                                    className="mt-2",
+                                ),
+                            ],
+                            id="gl_collapse_YU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["TKU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_TKU_a",
+                                                type="number",
+                                                value=0.88,
+                                                step=0.1,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("l:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_TKU_l",
+                                                type="number",
+                                                value=2.25,
+                                                step=0.1,
+                                            ),
+                                            width=9,
+                                        ),
+                                        dbc.Label("r:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_TKU_r",
+                                                type="number",
+                                                value=0.0,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="gl_collapse_TKU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["RU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("exp:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_RU_exp",
+                                                type="number",
+                                                value=2.0,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="gl_collapse_RU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["EXU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_EXU_a",
+                                                type="number",
+                                                value=1.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="gl_collapse_EXU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["BU"][2], className="pb-2"),
+                                dbc.FormGroup(
+                                    [
+                                        dbc.Label("a:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_BU_a",
+                                                type="number",
+                                                value=0.0,
+                                                step=0.01,
+                                            ),
+                                            width=9,
+                                        ),
+                                    ],
+                                    row=True,
+                                ),
+                            ],
+                            id="gl_collapse_BU",
+                            className="py-2",
+                        ),
+                        dbc.Collapse(
+                            [
+                                dbc.Label("Formula:"),
+                                html.Div(fd.um_func_dict["LU"][2], className="pb-2"),
+                            ],
+                            id="gl_collapse_LU",
+                            className="py-2",
+                        ),
+                        dbc.Button(
+                            "Reset all values",
+                            id="gl_reset_btn",
+                            className="my-3 d-print-none",
+                        ),
+                    ],
+                    className="col",
+                ),
+                html.Div(
+                    [
+                        dcc.Graph(id="gl_graph"),
+                        dbc.FormGroup(
+                            [
+                                dbc.Label(
+                                    "Minimum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="gl_min_value", type="number", value=0,
+                                    ),
+                                    width=3,
+                                ),
+                                dbc.Label(
+                                    "Maximum display value:", width=3, className="my-1",
+                                ),
+                                dbc.Col(
+                                    dbc.Input(
+                                        id="gl_max_value", type="number", value=10,
+                                    ),
+                                    width=3,
+                                ),
+                            ],
+                            row=True,
+                            className="my-2 d-print-none",
+                        ),
+                    ],
+                    className="col-8",
+                ),
+            ],
+            className="row mt-2",
+        ),
+    ],
+    id="gl_panel_collapse",
+)
+
+
+@app.callback(
+    [
+        Output("gl_TKU_a", "value"),
+        Output("gl_TKU_l", "value"),
+        Output("gl_TKU_r", "value"),
+        Output("gl_RU_exp", "value"),
+        Output("gl_EXU_a", "value"),
+        Output("gl_BU_a", "value"),
+        Output("gl_min_value", "value"),
+        Output("gl_max_value", "value"),
+    ],
+    [Input("gl_reset_btn", "n_clicks")],
+)
+def gl_reset(n_clicks):
+    # Reset all parameters for the utility function
+    return (
+        0.88,
+        2.25,
+        0,
+        2,
+        1,
+        0,
+        0,
+        10,
+    )
+
+
+@app.callback(
+    [
+        Output("gl_collapse_TKU", "is_open"),
+        Output("gl_collapse_RU", "is_open"),
+        Output("gl_collapse_LU", "is_open"),
+        Output("gl_collapse_BU", "is_open"),
+        Output("gl_collapse_EXU", "is_open"),
+        Output("gl_collapse_YU", "is_open"),
+    ],
+    [Input("gl_dropdown", "value")],
+    [
+        State("gl_collapse_TKU", "is_open"),
+        State("gl_collapse_RU", "is_open"),
+        State("gl_collapse_LU", "is_open"),
+        State("gl_collapse_BU", "is_open"),
+        State("gl_collapse_EXU", "is_open"),
+        State("gl_collapse_YU", "is_open"),
+    ],
+)
+def toggle_gl_params(
+    drop_val, TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,
+):
+    (TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,) = (
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    )
+    if drop_val == "TKU":
+        TKU_open = True
+    elif drop_val == "RU":
+        RU_open = True
+    elif drop_val == "LU":
+        LU_open = True
+    elif drop_val == "BU":
+        BU_open = True
+    elif drop_val == "EXU":
+        EXU_open = True
+    elif drop_val == "YU":
+        YU_open = True
+    return (
+        TKU_open,
+        RU_open,
+        LU_open,
+        BU_open,
+        EXU_open,
+        YU_open,
+    )
+
+
+@app.callback(
+    [
+        Output("gl_graph", "figure"),
+        Output("danger_toast_5", "children"),
+        Output("danger_toast_5", "is_open"),
+    ],
+    [
+        Input("gl_dropdown", "value"),
+        Input("gl_min_value", "value"),
+        Input("gl_max_value", "value"),
+        Input("gl_TKU_a", "value"),
+        Input("gl_TKU_l", "value"),
+        Input("gl_TKU_r", "value"),
+        Input("gl_RU_exp", "value"),
+        Input("gl_BU_a", "value"),
+        Input("gl_EXU_a", "value"),
+        Input("gl_text_runner", "n_clicks"),
+        Input("gl_text", "value"),
+    ],
+)
+def update_gl_graph(
+    gl_drop_val,
+    min_val,
+    max_val,
+    TKU_a,
+    TKU_l,
+    TKU_r,
+    RU_exp,
+    BU_a,
+    EXU_a,
+    n_clicks,
+    user_func,
+):
+    if gl_drop_val == "TKU":
+        kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+    elif gl_drop_val == "RU":
+        kwargs = {"exp": RU_exp}
+    elif gl_drop_val == "LU":
+        kwargs = {}
+    elif gl_drop_val == "BU":
+        kwargs = {"a": BU_a}
+    elif gl_drop_val == "EXU":
+        kwargs = {"a": EXU_a}
+    elif gl_drop_val == "YU":
+        kwargs = {"text": user_func}
+
+    x_1_data = np.linspace(min_val, max_val, 100)
+    # y_1_data = [fd.gl_func_dict[gl_drop_val][0](float(i), **kwargs) for i in x_1_data]
+
+    danger_text = ""
+    danger_bool = False
+    y_1_data = []
+
+    for i in x_1_data:
+        try:
+            y_1_data.append(fd.um_func_dict[gl_drop_val][0](float(i), **kwargs))
+        except ce.PositiveValuesOnlyError:
+            y_1_data.append(nan)
+            danger_text = (
+                "The utility function you chose doesn't process negative values"
+            )
+            danger_bool = True
+
+    fig = go.Figure(
+        data=[
+            go.Scatter(
+                x=x_1_data,
+                y=y_1_data,
+                line=dict(color=plot_color, width=4,),
+                marker=dict(color=plot_color),
+            )
+        ]
+    )
+    fig.update_layout(
+        template="plotly_white",
+        margin=dict(l=25, r=25, b=25, t=25, pad=0),
+        paper_bgcolor="rgba(0,0,0,0)",
+        plot_bgcolor="rgba(0,0,0,0)",
+        # title="Utility function",
+        xaxis_title="Payoff",
+        yaxis_title="Utility",
+        height=300,
+    )
+    fig.update_xaxes(
+        showgrid=False,
+        # zeroline=False
+    )
+    fig.update_yaxes(showgrid=False)
+
+    return fig, danger_text, danger_bool
+
+
 um_segment = html.Div(
     [
         html.H3(
             html.Strong([html.Span("Utility function - "), html.Span(id="um_heading")]),
-            id="uf_link",
             style=header_style,
             className=header_class,
         ),
@@ -261,7 +649,16 @@ um_segment = html.Div(
 )
 def um_reset(n_clicks):
     # Reset all parameters for the utility function
-    return ( 0.88, 2.25, 0, 2, 1, 0, 0, 10, )
+    return (
+        0.88,
+        2.25,
+        0,
+        2,
+        1,
+        0,
+        0,
+        10,
+    )
 
 
 @app.callback(
@@ -286,7 +683,14 @@ def um_reset(n_clicks):
 def toggle_um_params(
     drop_val, TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,
 ):
-    (TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,) = ( False, False, False, False, False, False, )
+    (TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,) = (
+        False,
+        False,
+        False,
+        False,
+        False,
+        False,
+    )
     if drop_val == "TKU":
         TKU_open = True
     elif drop_val == "RU":
@@ -410,7 +814,6 @@ pw_segment = dbc.Collapse(
                     html.Span(id="pw_heading"),
                 ]
             ),
-            id="pw_link",
             style=header_style,
             className=header_class,
         ),
@@ -1506,6 +1909,7 @@ def update_sdt_graph(
         Output("rg_heading", "children"),
         Output("sl_heading", "children"),
         Output("sdt_heading", "children"),
+        Output("gl_heading", "children"),
     ],
     [
         Input("um_dropdown", "value"),
@@ -1513,15 +1917,19 @@ def update_sdt_graph(
         Input("rg_dropdown", "value"),
         Input("sl_dropdown", "value"),
         Input("sdt_dropdown", "value"),
+        Input("gl_dropdown", "value"),
     ],
 )
-def set_headings(um_drop_val, pw_drop_val, rg_drop_val, sl_drop_val, sdt_drop_val):
+def set_headings(
+    um_drop_val, pw_drop_val, rg_drop_val, sl_drop_val, sdt_drop_val, gl_drop_val
+):
     um_title = fd.um_func_dict[um_drop_val][1]
     pw_title = fd.pw_func_dict[pw_drop_val][1]
     rg_title = fd.rg_func_dict[rg_drop_val][1]
     sl_title = fd.sl_func_dict[sl_drop_val][1]
     sdt_title = fd.sdt_func_dict[sdt_drop_val][1]
-    return um_title, pw_title, rg_title, sl_title, sdt_title
+    gl_title = fd.um_func_dict[gl_drop_val][1]
+    return um_title, pw_title, rg_title, sl_title, sdt_title, gl_title
 
 
 # Initiate warning banners
@@ -1555,6 +1963,15 @@ toast_3 = dbc.Toast(
 toast_4 = dbc.Toast(
     "",
     id="danger_toast_4",
+    header="Warning - Something isn't right",
+    is_open=False,
+    dismissable=True,
+    icon="danger",
+    # style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+)
+toast_5 = dbc.Toast(
+    "",
+    id="danger_toast_5",
     header="Warning - Something isn't right",
     is_open=False,
     dismissable=True,

@@ -36,6 +36,7 @@ output_segment = html.Div(
     [Output("output_results_params", "children"), Output("danger_toast_ce", "is_open")],
     [
         Input("std_input_tbl", "data"),
+        Input("add_input_tbl", "data"),
         Input("theor_dropdown", "value"),
         # pw params
         Input("pw_dropdown", "value"),
@@ -57,6 +58,16 @@ output_segment = html.Div(
         Input("um_EXU_a", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
+        # gl params
+        Input("gl_dropdown", "value"),
+        Input("gl_TKU_a", "value"),
+        Input("gl_TKU_l", "value"),
+        Input("gl_TKU_r", "value"),
+        Input("gl_RU_exp", "value"),
+        Input("gl_BU_a", "value"),
+        Input("gl_EXU_a", "value"),
+        Input("gl_text_runner", "n_clicks"),
+        Input("gl_text", "value"),
         # rg params
         Input("rg_dropdown", "value"),
         Input("rg_LS_weight", "value"),
@@ -78,6 +89,7 @@ output_segment = html.Div(
 )
 def update_output(
     rows,
+    add_rows,
     theor_drop_val,
     # pw params
     pw_drop_val,
@@ -91,14 +103,24 @@ def update_output(
     pw_user_func,
     # um params
     um_drop_val,
-    TKU_a,
-    TKU_l,
-    TKU_r,
-    RU_exp,
-    BU_a,
-    EXU_a,
+    um_TKU_a,
+    um_TKU_l,
+    um_TKU_r,
+    um_RU_exp,
+    um_BU_a,
+    um_EXU_a,
     um_n_clicks,
     um_user_func,
+    # gl params
+    gl_drop_val,
+    gl_TKU_a,
+    gl_TKU_l,
+    gl_TKU_r,
+    gl_RU_exp,
+    gl_BU_a,
+    gl_EXU_a,
+    gl_n_clicks,
+    gl_user_func,
     # rg params
     rg_drop_val,
     LS_weight,
@@ -130,6 +152,15 @@ def update_output(
             [float(i["comp_probabilities_tbl"]) for i in rows],
         ]
         pays = [float(i["std_payoffs_tbl"]) for i in rows]
+    elif theor_drop_val == "RDRA":
+        probs = [
+            [float(i["std_probabilities_tbl"]) for i in rows],
+            [float(i["std_probabilities_tbl"]) for i in add_rows],
+        ]
+        pays = [
+            [float(i["std_payoffs_tbl"]) for i in rows],
+            [float(i["std_payoffs_tbl"]) for i in add_rows],
+        ]
     else:
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
         pays = [float(i["std_payoffs_tbl"]) for i in rows]
@@ -148,17 +179,30 @@ def update_output(
         pw_kwargs = {"text": pw_user_func}
     # um params
     if um_drop_val == "TKU":
-        um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
+        um_kwargs = {"a": um_TKU_a, "l": um_TKU_l, "r": um_TKU_r}
     elif um_drop_val == "RU":
-        um_kwargs = {"exp": RU_exp}
+        um_kwargs = {"exp": um_RU_exp}
     elif um_drop_val == "LU":
         um_kwargs = {}
     elif um_drop_val == "BU":
-        um_kwargs = {"a": BU_a}
+        um_kwargs = {"a": um_BU_a}
     elif um_drop_val == "EXU":
-        um_kwargs = {"a": EXU_a}
+        um_kwargs = {"a": um_EXU_a}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
+    # gl params
+    if gl_drop_val == "TKU":
+        gl_kwargs = {"a": gl_TKU_a, "l": gl_TKU_l, "r": gl_TKU_r}
+    elif gl_drop_val == "RU":
+        gl_kwargs = {"exp": gl_RU_exp}
+    elif gl_drop_val == "LU":
+        gl_kwargs = {}
+    elif gl_drop_val == "BU":
+        gl_kwargs = {"a": gl_BU_a}
+    elif gl_drop_val == "EXU":
+        gl_kwargs = {"a": gl_EXU_a}
+    elif gl_drop_val == "YU":
+        gl_kwargs = {"text": gl_user_func}
     # rg params
     if rg_drop_val == "LS":
         rg_kwargs = {"weight": LS_weight}
@@ -199,6 +243,16 @@ def update_output(
             sl_function=fd.sl_func_dict[sl_drop_val][0],
             sl_kwargs=sl_kwargs,
             delta=sl_delta,
+        )
+    elif theor_drop_val == "RDRA":
+        res = fd.mf_func_dict[theor_drop_val][0](
+            pays,
+            probs,
+            um_function=fd.um_func_dict[um_drop_val][0],
+            um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
+            gl_function=fd.um_func_dict[gl_drop_val][0],
+            gl_kwargs=gl_kwargs,
         )
     elif theor_drop_val == "RT":
         res = fd.mf_func_dict[theor_drop_val][0](
@@ -291,6 +345,20 @@ def update_output(
                         f"Formula: {fd.sdt_func_dict[sdt_drop_val][2]}",
                         html.Br(),
                         f"Parameters: {sdt_kwargs}",
+                    ]
+                ),
+            ]
+        )
+    elif theor_drop_val == "RDRA":
+        intermed_output = html.Div(
+            [
+                html.P(
+                    [
+                        f"Gain Loss Utility function: {fd.um_func_dict[gl_drop_val][1]}",
+                        html.Br(),
+                        f"Formula: {fd.um_func_dict[gl_drop_val][2]}",
+                        html.Br(),
+                        f"Parameters: {gl_kwargs}",
                     ]
                 ),
             ]

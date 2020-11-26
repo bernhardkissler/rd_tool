@@ -37,9 +37,9 @@ from app import app
 
 stat_table = dbc.Table(
     [
-        html.Thead(
-            html.Tr([html.Td("Summary Statistics"), html.Td(), html.Td(), html.Td(),])
-        ),
+        # html.Thead(
+        #     html.Tr([html.Td("Summary Statistics"), html.Td(), html.Td(), html.Td(),])
+        # ),
         html.Tbody(
             [
                 html.Tr(
@@ -362,7 +362,8 @@ input_segment = html.Div(
                             className="col-4",
                         ),
                         html.Div(
-                            [dcc.Graph(id="gamble_figs"), stat_table], className="col",
+                            [dcc.Graph(id="gamble_figs", className="pb-2"), stat_table],
+                            className="col",
                         ),
                     ],
                     className="row mt-2",
@@ -390,21 +391,24 @@ def set_heading(drop_val):
         Output("sdt_panel_collapse", "is_open"),
         Output("input_sl_collapse", "is_open"),
         Output("input_sdt_collapse", "is_open"),
+        Output("gl_panel_collapse", "is_open"),
         Output("input_sure_context_collapse", "is_open"),
     ],
     [Input("theor_dropdown", "value")],
 )
 def collapse_pw(drop_val):
     if drop_val == "EU":
-        return False, False, False, False, False, False, False
+        return False, False, False, False, False, False, False, False
+    elif drop_val == "RDRA":
+        return False, False, False, False, False, False, True, False
     elif drop_val == "RT":
-        return False, True, False, False, False, False, True
+        return False, True, False, False, False, False, False, True
     elif drop_val == "ST":
-        return False, False, True, False, True, False, True
+        return False, False, True, False, True, False, False, True
     elif drop_val == "SDT":
-        return False, False, False, True, False, True, False
+        return False, False, False, True, False, True, False, False
     elif drop_val == "CPT":
-        return True, False, False, False, False, False, False
+        return True, False, False, False, False, False, False, False
 
 
 # Callbacks for Table
@@ -507,6 +511,9 @@ def hide_rt_input_column(drop_val, add_context):
     else:
         add_table_bool = True
         col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
+
+    if drop_val == "RDRA":
+        add_table_bool = True
 
     return col_list, add_table_bool
 

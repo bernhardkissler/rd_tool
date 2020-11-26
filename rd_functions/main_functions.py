@@ -17,8 +17,8 @@ def RDRA_theory(
     um_function=um.lin_utility,
     um_kwargs={},
     ce_function=um.lin_ce,
-    gain_loss_util_function=um.lin_utility,
-    gain_loss_util_kwargs={},
+    gl_function=um.lin_utility,
+    gl_kwargs={},
 ) -> float:
     """
     Calculates reference dependend risk attitude - expected utility for a given target lottery and reference lottery of any size
@@ -36,10 +36,10 @@ def RDRA_theory(
         consumption_utility = um_function(pay_outer, **um_kwargs)
         gain_loss_utility = [
             ref_probs[i]
-            * gain_loss_util_function(
+            * gl_function(
                 um_function(pay_outer, **um_kwargs)
                 - um_function(pay_inner, **um_kwargs),
-                **gain_loss_util_kwargs,
+                **gl_kwargs,
             )
             for i, pay_inner in enumerate(ref_pays)
         ]
