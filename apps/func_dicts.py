@@ -4,6 +4,12 @@ import rd_functions.prob_weighting as pw
 import rd_functions.context_eval as ce
 import rd_functions.bivu_functions as bu
 
+# plot_color = "#03bb8a"
+# plot_color = "#360498"
+plot_color = "#f7e224"
+prim_color = "#e3685f"
+sub_bg_color = "rgba(255,255,255,1)"
+
 
 pw_func_dict = {
     "TKW": [
@@ -69,6 +75,7 @@ mf_func_dict = {
     "RT": [mf.regret_theory, "Regret theory"],
     "ST": [mf.salience_theory, "Salience theory"],
     "SDT": [mf.sav_dis_theory, "Savoring and Disappointment theory"],
+    "RDRA": [mf.RDRA_theory, "Reference dependent risk attitudes"],
 }
 
 rg_func_dict = {

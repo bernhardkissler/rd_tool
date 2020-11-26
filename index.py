@@ -1,3 +1,4 @@
+from typing import Container
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output, State
@@ -7,9 +8,11 @@ from app import app
 
 server = app.server
 from apps import input_rd, main_rd, output_rd
+import apps.func_dicts as fd
 
-sub_bg_color = "rgba(255,255,255,1)"
-prim_color = "#e3685f"
+
+sub_bg_color = fd.sub_bg_color
+prim_color = fd.prim_color
 
 
 app.layout = html.Div(
@@ -31,9 +34,6 @@ app.layout = html.Div(
                             main_rd.sl_segment,
                             main_rd.sdt_segment,
                             output_rd.output_segment,
-                            output_rd.ce_toast,
-                            main_rd.toast_1,
-                            main_rd.toast_2,
                         ],
                         className="mx-5 py-5",
                     ),
@@ -43,6 +43,16 @@ app.layout = html.Div(
                 html.Div(className="col-2 d-none d-md-block d-print-none"),
             ],
             className="row justify-content-md-center",
+        ),
+        dbc.Container(
+            [
+                output_rd.ce_toast,
+                main_rd.toast_1,
+                main_rd.toast_2,
+                main_rd.toast_3,
+                main_rd.toast_4,
+            ],
+            style={"position": "fixed", "top": 66, "right": 10, "width": 350,},
         ),
     ],
     style={"background-color": prim_color},  # Mamas Favorit #e1eb34

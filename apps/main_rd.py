@@ -19,8 +19,8 @@ import rd_functions.custom_exceptions as ce
 
 import apps.func_dicts as fd
 
-plot_color = "#360498"
-prim_color = "#e3685f"
+plot_color = fd.plot_color
+prim_color = fd.prim_color
 
 header_style = {"background-color": prim_color}
 header_class = "my-2 p-2 text-white rounded"
@@ -34,7 +34,7 @@ from app import app
 um_segment = html.Div(
     [
         html.H3(
-            html.Strong("Utility function"),
+            html.Strong([html.Span("Utility function - "), html.Span(id="um_heading")]),
             id="uf_link",
             style=header_style,
             className=header_class,
@@ -69,7 +69,7 @@ um_segment = html.Div(
                                 {"label": "Your utility function", "value": "YU",},
                             ],
                             value="TKU",
-                            className="py-2",
+                            className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
                             [
@@ -556,7 +556,7 @@ def update_um_graph(
         except ce.PositiveValuesOnlyError:
             y_1_data.append(nan)
             danger_text = (
-                "The utility function you chose does only process positive values"
+                "The utility function you chose doesn't process negative values"
             )
             danger_bool = True
 
@@ -592,7 +592,12 @@ def update_um_graph(
 pw_segment = dbc.Collapse(
     [
         html.H3(
-            html.Strong("Probability weighting function"),
+            html.Strong(
+                [
+                    html.Span("Probability weighting function - "),
+                    html.Span(id="pw_heading"),
+                ]
+            ),
             id="pw_link",
             style=header_style,
             className=header_class,
@@ -618,7 +623,7 @@ pw_segment = dbc.Collapse(
                                 {"label": "Your weighting function", "value": "YW",},
                             ],
                             value="TKW",
-                            className="py-2",
+                            className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
                             [
@@ -963,7 +968,7 @@ def update_pw_graph(
 rg_segment = dbc.Collapse(
     [
         html.H3(
-            html.Strong("Regret function"),
+            html.Strong([html.Span("Regret function - "), html.Span(id="rg_heading")]),
             id="rg_link",
             style=header_style,
             className=header_class,
@@ -979,7 +984,7 @@ rg_segment = dbc.Collapse(
                                 {"label": "Your regret function", "value": "YR",},
                             ],
                             value="LS",
-                            className="py-2",
+                            className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
                             [
@@ -1238,7 +1243,9 @@ def update_rg_graph(
 sl_segment = dbc.Collapse(
     [
         html.H3(
-            html.Strong("Salience function"),
+            html.Strong(
+                [html.Span("Salience function - "), html.Span(id="sl_heading")]
+            ),
             id="sl_link",
             style=header_style,
             className=header_class,
@@ -1254,7 +1261,7 @@ sl_segment = dbc.Collapse(
                                 {"label": "Your salience function", "value": "YS",},
                             ],
                             value="OG",
-                            className="py-2",
+                            className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
                             [
@@ -1446,7 +1453,7 @@ def update_sl_graph(
 sdt_segment = dbc.Collapse(
     [
         html.H3(
-            html.Strong("Bivu function"),
+            html.Strong([html.Span("Bivu function - "), html.Span(id="sdt_heading")]),
             id="sdt_link",
             style=header_style,
             className=header_class,
@@ -1462,7 +1469,7 @@ sdt_segment = dbc.Collapse(
                                 {"label": "Your BIVU function", "value": "YB",},
                             ],
                             value="AH",
-                            className="py-2",
+                            className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
                             [
@@ -1719,6 +1726,32 @@ def update_sdt_graph(
     return fig
 
 
+# set dynamic headings
+@app.callback(
+    [
+        Output("um_heading", "children"),
+        Output("pw_heading", "children"),
+        Output("rg_heading", "children"),
+        Output("sl_heading", "children"),
+        Output("sdt_heading", "children"),
+    ],
+    [
+        Input("um_dropdown", "value"),
+        Input("pw_dropdown", "value"),
+        Input("rg_dropdown", "value"),
+        Input("sl_dropdown", "value"),
+        Input("sdt_dropdown", "value"),
+    ],
+)
+def set_headings(um_drop_val, pw_drop_val, rg_drop_val, sl_drop_val, sdt_drop_val):
+    um_title = fd.um_func_dict[um_drop_val][1]
+    pw_title = fd.pw_func_dict[pw_drop_val][1]
+    rg_title = fd.rg_func_dict[rg_drop_val][1]
+    sl_title = fd.sl_func_dict[sl_drop_val][1]
+    sdt_title = fd.sdt_func_dict[sdt_drop_val][1]
+    return um_title, pw_title, rg_title, sl_title, sdt_title
+
+
 # Initiate warning banners
 toast_1 = dbc.Toast(
     "",
@@ -1727,7 +1760,7 @@ toast_1 = dbc.Toast(
     is_open=False,
     dismissable=True,
     icon="danger",
-    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+    # style={"position": "fixed", "top": 66, "right": 10, "width": 350},
 )
 toast_2 = dbc.Toast(
     "",
@@ -1736,7 +1769,7 @@ toast_2 = dbc.Toast(
     is_open=False,
     dismissable=True,
     icon="danger",
-    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+    # style={"position": "fixed", "top": 66, "right": 10, "width": 350},
 )
 toast_3 = dbc.Toast(
     "",
@@ -1745,6 +1778,15 @@ toast_3 = dbc.Toast(
     is_open=False,
     dismissable=True,
     icon="danger",
-    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+    # style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+)
+toast_4 = dbc.Toast(
+    "",
+    id="danger_toast_4",
+    header="Warning - Something isn't right",
+    is_open=False,
+    dismissable=True,
+    icon="danger",
+    # style={"position": "fixed", "top": 66, "right": 10, "width": 350},
 )
 

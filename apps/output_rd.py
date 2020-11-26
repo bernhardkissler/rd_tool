@@ -15,8 +15,8 @@ import rd_functions.util_mod as um
 
 import apps.func_dicts as fd
 
-plot_color = "#360498"
-prim_color = "#e3685f"
+plot_color = fd.plot_color
+prim_color = fd.prim_color
 
 header_style = {"background-color": prim_color}
 header_class = "my-2 p-2 text-white rounded"
@@ -363,5 +363,5 @@ ce_toast = dbc.Toast(
     is_open=False,
     dismissable=True,
     icon="danger",
-    style={"position": "fixed", "top": 66, "right": 10, "width": 350},
+    # style={"position": "fixed", "top": 66, "right": 10, "width": 350},
 )
