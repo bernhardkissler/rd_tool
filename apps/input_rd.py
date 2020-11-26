@@ -114,6 +114,10 @@ input_segment = html.Div(
                                             "label": "Savoring and Disappointment theory",
                                             "value": "SDT",
                                         },
+                                        {
+                                            "label": "Reference Dependent Risk Attitudes",
+                                            "value": "RDRA",
+                                        },
                                     ],
                                     value="EU",
                                     className="pb-2 d-print-none",

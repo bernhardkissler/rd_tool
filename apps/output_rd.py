@@ -54,13 +54,7 @@ output_segment = html.Div(
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
         Input("um_BU_a", "value"),
-        Input("um_PU_exp", "value"),
-        Input("um_QU_a", "value"),
         Input("um_EXU_a", "value"),
-        Input("um_BEU_a", "value"),
-        Input("um_BEU_b", "value"),
-        Input("um_HU_a", "value"),
-        Input("um_HU_b", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
         # rg params
@@ -102,13 +96,7 @@ def update_output(
     TKU_r,
     RU_exp,
     BU_a,
-    PU_exp,
-    QU_a,
     EXU_a,
-    BEU_a,
-    BEU_b,
-    HU_a,
-    HU_b,
     um_n_clicks,
     um_user_func,
     # rg params
@@ -167,16 +155,8 @@ def update_output(
         um_kwargs = {}
     elif um_drop_val == "BU":
         um_kwargs = {"a": BU_a}
-    elif um_drop_val == "PU":
-        um_kwargs = {"exp": PU_exp}
-    elif um_drop_val == "QU":
-        um_kwargs = {"a": QU_a}
     elif um_drop_val == "EXU":
         um_kwargs = {"a": EXU_a}
-    elif um_drop_val == "BEU":
-        um_kwargs = {"a": BEU_a, "b": BEU_b}
-    elif um_drop_val == "HU":
-        um_kwargs = {"a": HU_a, "b": HU_b}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
     # rg params

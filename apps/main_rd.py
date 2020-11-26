@@ -57,15 +57,6 @@ um_segment = html.Div(
                                     "value": "EXU",
                                 },
                                 {"label": "Bernoulli utility function", "value": "BU",},
-                                # {"label": "Power utility function", "value": "PU"},
-                                # {
-                                #     "label": "Quadratic utility function",
-                                #     "value": "QU",
-                                # },
-                                # Talk to Ebert about solving this for the certainty equivalent
-                                # {"label": "Bell utility function", "value": "BEU"},
-                                # commented out until better understood also it is mainly a more general version of some of the functions above; See Stott 2006
-                                # {"label": "Hara utility function", "value": "HU"},
                                 {"label": "Your utility function", "value": "YU",},
                             ],
                             value="TKU",
@@ -159,52 +150,6 @@ um_segment = html.Div(
                         dbc.Collapse(
                             [
                                 dbc.Label("Formula:"),
-                                html.Div(fd.um_func_dict["PU"][2], className="pb-2"),
-                                dbc.FormGroup(
-                                    [
-                                        dbc.Label("exp:", width=3, className="my-1",),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="um_PU_exp",
-                                                type="number",
-                                                value=2.0,
-                                                step=1,
-                                            ),
-                                            width=9,
-                                        ),
-                                    ],
-                                    row=True,
-                                ),
-                            ],
-                            id="um_collapse_PU",
-                            className="py-2",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("Formula:"),
-                                html.Div(fd.um_func_dict["QU"][2], className="pb-2"),
-                                dbc.FormGroup(
-                                    [
-                                        dbc.Label("a:", width=3, className="my-1",),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="um_QU_a",
-                                                type="number",
-                                                value=1.0,
-                                                step=0.01,
-                                            ),
-                                            width=9,
-                                        ),
-                                    ],
-                                    row=True,
-                                ),
-                            ],
-                            id="um_collapse_QU",
-                            className="py-2",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("Formula:"),
                                 html.Div(fd.um_func_dict["EXU"][2], className="pb-2"),
                                 dbc.FormGroup(
                                     [
@@ -223,72 +168,6 @@ um_segment = html.Div(
                                 ),
                             ],
                             id="um_collapse_EXU",
-                            className="py-2",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("Formula:"),
-                                html.Div(fd.um_func_dict["BEU"][2], className="pb-2"),
-                                dbc.FormGroup(
-                                    [
-                                        dbc.Label("a:", width=3, className="my-1",),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="um_BEU_a",
-                                                type="number",
-                                                value=1.0,
-                                                step=0.01,
-                                            ),
-                                            width=9,
-                                        ),
-                                        dbc.Label("b:", width=3, className="my-1",),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="um_BEU_b",
-                                                type="number",
-                                                value=1.0,
-                                                step=0.01,
-                                            ),
-                                            width=9,
-                                        ),
-                                    ],
-                                    row=True,
-                                ),
-                            ],
-                            id="um_collapse_BEU",
-                            className="py-2",
-                        ),
-                        dbc.Collapse(
-                            [
-                                dbc.Label("Formula:"),
-                                html.Div(fd.um_func_dict["HU"][2], className="pb-2"),
-                                dbc.FormGroup(
-                                    [
-                                        dbc.Label("a:", width=3, className="my-1",),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="um_HU_a",
-                                                type="number",
-                                                value=1.0,
-                                                step=0.01,
-                                            ),
-                                            width=9,
-                                        ),
-                                        dbc.Label("b:", width=3, className="my-1",),
-                                        dbc.Col(
-                                            dbc.Input(
-                                                id="um_HU_b",
-                                                type="number",
-                                                value=1.0,
-                                                step=0.01,
-                                            ),
-                                            width=9,
-                                        ),
-                                    ],
-                                    row=True,
-                                ),
-                            ],
-                            id="um_collapse_HU",
                             className="py-2",
                         ),
                         dbc.Collapse(
@@ -373,13 +252,7 @@ um_segment = html.Div(
         Output("um_TKU_l", "value"),
         Output("um_TKU_r", "value"),
         Output("um_RU_exp", "value"),
-        Output("um_PU_exp", "value"),
-        Output("um_QU_a", "value"),
         Output("um_EXU_a", "value"),
-        Output("um_BEU_a", "value"),
-        Output("um_BEU_b", "value"),
-        Output("um_HU_a", "value"),
-        Output("um_HU_b", "value"),
         Output("um_BU_a", "value"),
         Output("um_min_value", "value"),
         Output("um_max_value", "value"),
@@ -388,7 +261,7 @@ um_segment = html.Div(
 )
 def um_reset(n_clicks):
     # Reset all parameters for the utility function
-    return 0.88, 2.25, 0, 2, 2, 1, 1, 1, 1, 1, 1, 0, 0, 10
+    return ( 0.88, 2.25, 0, 2, 1, 0, 0, 10, )
 
 
 @app.callback(
@@ -397,11 +270,7 @@ def um_reset(n_clicks):
         Output("um_collapse_RU", "is_open"),
         Output("um_collapse_LU", "is_open"),
         Output("um_collapse_BU", "is_open"),
-        Output("um_collapse_PU", "is_open"),
-        Output("um_collapse_QU", "is_open"),
         Output("um_collapse_EXU", "is_open"),
-        Output("um_collapse_BEU", "is_open"),
-        Output("um_collapse_HU", "is_open"),
         Output("um_collapse_YU", "is_open"),
     ],
     [Input("um_dropdown", "value")],
@@ -410,39 +279,14 @@ def um_reset(n_clicks):
         State("um_collapse_RU", "is_open"),
         State("um_collapse_LU", "is_open"),
         State("um_collapse_BU", "is_open"),
-        State("um_collapse_PU", "is_open"),
-        State("um_collapse_QU", "is_open"),
         State("um_collapse_EXU", "is_open"),
-        State("um_collapse_BEU", "is_open"),
-        State("um_collapse_HU", "is_open"),
         State("um_collapse_YU", "is_open"),
     ],
 )
 def toggle_um_params(
-    drop_val,
-    TKU_open,
-    RU_open,
-    LU_open,
-    BU_open,
-    PU_open,
-    QU_open,
-    EXU_open,
-    BEU_open,
-    HU_open,
-    YU_open,
+    drop_val, TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,
 ):
-    (
-        TKU_open,
-        RU_open,
-        LU_open,
-        BU_open,
-        PU_open,
-        QU_open,
-        EXU_open,
-        BEU_open,
-        HU_open,
-        YU_open,
-    ) = (False, False, False, False, False, False, False, False, False, False)
+    (TKU_open, RU_open, LU_open, BU_open, EXU_open, YU_open,) = ( False, False, False, False, False, False, )
     if drop_val == "TKU":
         TKU_open = True
     elif drop_val == "RU":
@@ -451,16 +295,8 @@ def toggle_um_params(
         LU_open = True
     elif drop_val == "BU":
         BU_open = True
-    elif drop_val == "PU":
-        PU_open = True
-    elif drop_val == "QU":
-        QU_open = True
     elif drop_val == "EXU":
         EXU_open = True
-    elif drop_val == "BEU":
-        BEU_open = True
-    elif drop_val == "HU":
-        HU_open = True
     elif drop_val == "YU":
         YU_open = True
     return (
@@ -468,11 +304,7 @@ def toggle_um_params(
         RU_open,
         LU_open,
         BU_open,
-        PU_open,
-        QU_open,
         EXU_open,
-        BEU_open,
-        HU_open,
         YU_open,
     )
 
@@ -492,13 +324,7 @@ def toggle_um_params(
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
         Input("um_BU_a", "value"),
-        Input("um_PU_exp", "value"),
-        Input("um_QU_a", "value"),
         Input("um_EXU_a", "value"),
-        Input("um_BEU_a", "value"),
-        Input("um_BEU_b", "value"),
-        Input("um_HU_a", "value"),
-        Input("um_HU_b", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
     ],
@@ -512,13 +338,7 @@ def update_um_graph(
     TKU_r,
     RU_exp,
     BU_a,
-    PU_exp,
-    QU_a,
     EXU_a,
-    BEU_a,
-    BEU_b,
-    HU_a,
-    HU_b,
     n_clicks,
     user_func,
 ):
@@ -530,16 +350,8 @@ def update_um_graph(
         kwargs = {}
     elif um_drop_val == "BU":
         kwargs = {"a": BU_a}
-    elif um_drop_val == "PU":
-        kwargs = {"exp": PU_exp}
-    elif um_drop_val == "QU":
-        kwargs = {"a": QU_a}
     elif um_drop_val == "EXU":
         kwargs = {"a": EXU_a}
-    elif um_drop_val == "BEU":
-        kwargs = {"a": BEU_a, "b": BEU_b}
-    elif um_drop_val == "HU":
-        kwargs = {"a": HU_a, "b": HU_b}
     elif um_drop_val == "YU":
         kwargs = {"text": user_func}
 
@@ -1132,13 +944,7 @@ def toggle_rg_params(drop_val, LS_open, YR_open):
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
         Input("um_BU_a", "value"),
-        Input("um_PU_exp", "value"),
-        Input("um_QU_a", "value"),
         Input("um_EXU_a", "value"),
-        Input("um_BEU_a", "value"),
-        Input("um_BEU_b", "value"),
-        Input("um_HU_a", "value"),
-        Input("um_HU_b", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
     ],
@@ -1157,13 +963,7 @@ def update_rg_graph(
     TKU_r,
     RU_exp,
     BU_a,
-    PU_exp,
-    QU_a,
     EXU_a,
-    BEU_a,
-    BEU_b,
-    HU_a,
-    HU_b,
     um_n_clicks,
     um_user_func,
 ):
@@ -1176,16 +976,8 @@ def update_rg_graph(
         um_kwargs = {}
     elif um_drop_val == "BU":
         um_kwargs = {"a": BU_a}
-    elif um_drop_val == "PU":
-        um_kwargs = {"exp": PU_exp}
-    elif um_drop_val == "QU":
-        um_kwargs = {"a": QU_a}
     elif um_drop_val == "EXU":
         um_kwargs = {"a": EXU_a}
-    elif um_drop_val == "BEU":
-        um_kwargs = {"a": BEU_a, "b": BEU_b}
-    elif um_drop_val == "HU":
-        um_kwargs = {"a": HU_a, "b": HU_b}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
@@ -1618,13 +1410,7 @@ def toggle_sdt_params(drop_val, AH_open, YB_open):
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
         Input("um_BU_a", "value"),
-        Input("um_PU_exp", "value"),
-        Input("um_QU_a", "value"),
         Input("um_EXU_a", "value"),
-        Input("um_BEU_a", "value"),
-        Input("um_BEU_b", "value"),
-        Input("um_HU_a", "value"),
-        Input("um_HU_b", "value"),
         Input("um_text_runner", "n_clicks"),
         Input("um_text", "value"),
     ],
@@ -1643,13 +1429,7 @@ def update_sdt_graph(
     TKU_r,
     RU_exp,
     BU_a,
-    PU_exp,
-    QU_a,
     EXU_a,
-    BEU_a,
-    BEU_b,
-    HU_a,
-    HU_b,
     um_n_clicks,
     um_user_func,
 ):
@@ -1662,16 +1442,8 @@ def update_sdt_graph(
         um_kwargs = {}
     elif um_drop_val == "BU":
         um_kwargs = {"a": BU_a}
-    elif um_drop_val == "PU":
-        um_kwargs = {"exp": PU_exp}
-    elif um_drop_val == "QU":
-        um_kwargs = {"a": QU_a}
     elif um_drop_val == "EXU":
         um_kwargs = {"a": EXU_a}
-    elif um_drop_val == "BEU":
-        um_kwargs = {"a": BEU_a, "b": BEU_b}
-    elif um_drop_val == "HU":
-        um_kwargs = {"a": HU_a, "b": HU_b}
     elif um_drop_val == "YU":
         um_kwargs = {"text": um_user_func}
 
