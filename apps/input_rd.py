@@ -15,6 +15,7 @@ import dash_daq as daq
 import apps.func_dicts as fd
 
 plot_color = fd.plot_color
+plot_color_sec = fd.plot_color_sec
 prim_color = fd.prim_color
 
 header_style = {"background-color": prim_color}
@@ -518,30 +519,24 @@ def hide_rt_input_column(drop_val, add_context):
     return col_list, add_table_bool
 
 
-# @app.callback(
-#     Output("add_table_collapse", "is_open"), [Input("sure_context_bool", "on")]
-# )
-# def toggle_add_table(add_context):
-#     if add_context == True:
-#         return True
-#     else:
-#         return False
-
-
 # Manage gamble Figs
 @app.callback(
-    Output("gamble_figs", "figure"), [Input("std_input_tbl", "data")],
+    Output("gamble_figs", "figure"),
+    [
+        Input("std_input_tbl", "data"),
+        Input("add_input_tbl", "data"),
+        Input("theor_dropdown", "value"),
+        Input("sure_context_bool", "on"),
+    ],
 )
-def update_gamble_figs(std_rows):
+def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
     # Update plots illustrating the lottery entered by the user
     # TODO add logic to display second figs when RT or Salience?
     probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
     pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
-    fig = gamble_figs(pays, probs)
-    return fig
+    probs_comp = [float(i["comp_probabilities_tbl"]) for i in std_rows]
+    pays_comp = [float(i["comp_payoffs_tbl"]) for i in std_rows]
 
-
-def gamble_figs(pays, probs):
     # Prepare plots to illustrate the lottery entered by the user
     fig = make_subplots(
         rows=2,
@@ -584,44 +579,85 @@ def gamble_figs(pays, probs):
             row=1,
             col=1,
         )
-    displ_probs = [f"{round(prob*100, 1)}%" for prob in probs]
+
+    if theor_drop_val == "SDT":
+        displ_probs = [
+            f"{round(probs[i]*100, 1)}% | {round(probs_comp[i]*100, 1)}%"
+            for i, _ in enumerate(probs)
+        ]
+    else:
+        displ_probs = [f"{round(probs[i]*100, 1)}%" for i, _ in enumerate(probs)]
+
+    textangle = [(y - 0.5) * -90 if y > 0.5 else (0.5 - y) * 90 for y in y_2]
+
     for i in range(len(probs)):
         fig.add_annotation(
             x=0.5,
             y=y_2[i],
             text=list(reversed(displ_probs))[i],
             ax=0,
-            ay=-15,
+            ay=-7.5,
             arrowcolor="rgba(0,0,0,0)",
             row=1,
             col=1,
+            textangle=textangle[i],
         )
+
+    if theor_drop_val in ["ST", "RT"]:
+        displ_pays = [f"{pays[i]} | {pays_comp[i]}" for i, _ in enumerate(pays)]
+    else:
+        displ_pays = [f"{pays[i]}" for i, _ in enumerate(pays)]
     for i in range(len(probs)):
         fig.add_annotation(
             x=1,
             y=y_1[i + 1],
-            text=list(reversed(pays))[i],
-            ax=20,
+            text=list(reversed(displ_pays))[i],
+            ax=30,
             ay=0,
             arrowcolor="rgba(0,0,0,0)",
             row=1,
             col=1,
         )
     fig.update_xaxes(
-        range=[-0.4, 1.4], showgrid=False, zeroline=False, visible=False, row=1, col=1
+        # range=[-0.4, 1.4],
+        showgrid=False,
+        zeroline=False,
+        visible=False,
+        row=1,
+        col=1,
     )
     fig.update_yaxes(
-        range=[-0.1, 1.1], showgrid=False, zeroline=False, visible=False, row=1, col=1
+        # range=[-0.1, 1.1],
+        showgrid=False,
+        zeroline=False,
+        visible=False,
+        scaleanchor="x",
+        scaleratio=1,
+        row=1,
+        col=1,
     )
 
     # PDF Figure Trace
     fig.add_trace(go.Bar(x=pays, y=probs, marker_color=plot_color), row=1, col=2)
+    if theor_drop_val in ["RT", "ST"]:
+        fig.add_trace(
+            go.Bar(x=pays_comp, y=probs, marker_color=plot_color_sec), row=1, col=2
+        )
+    if theor_drop_val in ["SDT"]:
+        fig.add_trace(
+            go.Bar(x=pays, y=probs_comp, marker_color=plot_color_sec), row=1, col=2
+        )
+
+    if theor_drop_val in ["ST", "RT"]:
+        tick_pays = pays + pays_comp
+    else:
+        tick_pays = pays
     fig.update_xaxes(
         showgrid=False,
         zeroline=False,
         visible=True,
         tickmode="array",
-        tickvals=pays,
+        tickvals=tick_pays,
         row=1,
         col=2,
     )
@@ -630,6 +666,7 @@ def gamble_figs(pays, probs):
     )
 
     # Transformation for cdf
+    # prim lottery
     pays_ord, probs_ord = sorted(pays), [x for _, x in sorted(zip(pays, probs))]
     pays_graph = [
         [pays_ord[i], pays_ord[i + 1]]
@@ -652,6 +689,48 @@ def gamble_figs(pays, probs):
             row=2,
             col=2,
         )
+
+    # comp_lottery
+    if theor_drop_val in ["RT", "ST"]:
+        pays_comp_ord = sorted(pays_comp)
+        pays_comp_graph = [
+            [pays_comp_ord[i], pays_comp_ord[i + 1]]
+            if i < len(pays_comp_ord) - 1
+            else [
+                pays_comp_ord[i],
+                pays_comp_ord[i] + (pays_comp_ord[i] - pays_comp_ord[0]) * 0.1,
+            ]
+            for i in range(len(pays_comp_ord))
+        ]
+
+        for i, _ in enumerate(pays_comp_graph):
+            fig.add_trace(
+                go.Scatter(
+                    x=pays_comp_graph[i],
+                    y=probs_graph[i],
+                    mode="lines",
+                    line=dict(color=plot_color_sec, width=4, dash="dot"),
+                ),
+                row=2,
+                col=2,
+            )
+    elif theor_drop_val == "SDT":
+        probs_comp_ord = [x for _, x in sorted(zip(pays_comp, probs_comp))]
+        probs_comp_graph = [
+            2 * [sum(probs_comp_ord[: i + 1])] if i < len(probs_comp_ord) else 2 * []
+            for i in range(len(probs_comp_ord))
+        ]
+        for i, _ in enumerate(pays_graph):
+            fig.add_trace(
+                go.Scatter(
+                    x=pays_graph[i],
+                    y=probs_comp_graph[i],
+                    mode="lines",
+                    line=dict(color=plot_color_sec, width=4, dash="dot"),
+                ),
+                row=2,
+                col=2,
+            )
 
     fig.update_xaxes(
         showgrid=False,
