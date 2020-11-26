@@ -11,6 +11,60 @@ import rd_functions.context_eval as ce
 from typing import List
 
 
+def RDRA_theory(
+    pays: List[List[float]],
+    probs: List[List[float]],
+    um_function=um.lin_utility,
+    um_kwargs={},
+    ce_function=um.lin_ce,
+    gain_loss_util_function=um.lin_utility,
+    gain_loss_util_kwargs={},
+) -> float:
+    """
+    Calculates reference dependend risk attitude - expected utility for a given target lottery and reference lottery of any size
+    Use repeatdly to find PPE/CPE in line with RK2007 
+    tested against KR 2007
+    https://www.experimentalforschung.econ.uni-muenchen.de/studium/veranstaltungsarchiv/b_e_economics/ind_decision_2.pdf
+
+    """
+
+    prim_pays, ref_pays = pays[0], pays[1]
+    prim_probs, ref_probs = probs[0], probs[1]
+
+    partial_result = []
+    for pay_outer in prim_pays:
+        consumption_utility = um_function(pay_outer, **um_kwargs)
+        gain_loss_utility = [
+            ref_probs[i]
+            * gain_loss_util_function(
+                um_function(pay_outer, **um_kwargs)
+                - um_function(pay_inner, **um_kwargs),
+                **gain_loss_util_kwargs,
+            )
+            for i, pay_inner in enumerate(ref_pays)
+        ]
+        gain_loss_utility = sum(gain_loss_utility)
+        partial_result.append(consumption_utility + gain_loss_utility)
+    utility = sum(
+        [prim_probs[i] * partial_result[i] for i, _ in enumerate(partial_result)]
+    )
+    # avg_pay_prim = sum([prim_pays[i] * prim_probs[i] for i, _ in enumerate(prim_pays)])
+    ce = ce_function(utility, **um_kwargs)
+    return utility, ce
+
+
+def RDRA_wrapper(pays, probs):
+    if RDRA_theory([pays[0], pays[0]], [probs[0], probs[0]]) >= RDRA_theory(
+        [pays[1], pays[1]], [probs[1], probs[1]]
+    ):
+        is_CPE = True
+    if RDRA_theory([pays[0], pays[0]], [probs[0], probs[0]]) >= RDRA_theory(
+        [pays[1], pays[0]], [probs[1], probs[0]]
+    ):
+        is_PPE = True
+    return is_CPE, is_PPE
+
+
 def sav_dis_theory(
     pays: List[float],
     probs: List[List[float]],

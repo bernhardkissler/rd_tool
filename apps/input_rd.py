@@ -12,8 +12,10 @@ import plotly.express as px
 from plotly.subplots import make_subplots
 import dash_daq as daq
 
-plot_color = "#360498"
-prim_color = "#e3685f"
+import apps.func_dicts as fd
+
+plot_color = fd.plot_color
+prim_color = fd.prim_color
 
 header_style = {"background-color": prim_color}
 header_class = "my-2 p-2 text-white rounded"
@@ -24,6 +26,8 @@ import numpy as np
 # import rd_functions.util_mod as um
 # import rd_functions.prob_weighting as pw
 import rd_functions.summary_statistics as sm
+import apps.func_dicts as fd
+
 
 # import apps.func_dicts as fd
 
@@ -84,7 +88,11 @@ def update_stats_table(std_rows):
 
 input_segment = html.Div(
     [
-        html.H3(html.Strong("Input"), style=header_style, className=header_class),
+        html.H3(
+            html.Strong([html.Span("Input - "), html.Span(id="input_heading")]),
+            style=header_style,
+            className=header_class,
+        ),
         html.Div(
             [
                 html.Div(
@@ -108,7 +116,7 @@ input_segment = html.Div(
                                         },
                                     ],
                                     value="EU",
-                                    className="pb-2",
+                                    className="pb-2 d-print-none",
                                 ),
                                 dbc.Collapse(
                                     # Salience parameter delta here
@@ -177,7 +185,9 @@ input_segment = html.Div(
                                             dbc.Label("Use a single input:", width=6),
                                             dbc.Col(
                                                 daq.BooleanSwitch(
-                                                    id="sure_context_bool", on=False
+                                                    id="sure_context_bool",
+                                                    on=False,
+                                                    color=prim_color,
                                                 ),
                                                 width=6,
                                             ),
@@ -290,7 +300,59 @@ input_segment = html.Div(
                                     "Add Row",
                                     id="std_editing_rows_button",
                                     n_clicks=0,
-                                    className=" d-print-none",
+                                    className="mb-2 d-print-none",
+                                ),
+                                # MARK second datatable
+                                dbc.Collapse(
+                                    [
+                                        html.Div(
+                                            [
+                                                dash_table.DataTable(
+                                                    id="add_input_tbl",
+                                                    columns=(
+                                                        [
+                                                            {
+                                                                "id": "std_probabilities_tbl",
+                                                                "name": "Probabilities",
+                                                                "type": "numeric",
+                                                                "format": FormatTemplate.percentage(
+                                                                    1
+                                                                ),
+                                                            },
+                                                            {
+                                                                "id": "std_payoffs_tbl",
+                                                                "name": "Payoffs",
+                                                                "type": "numeric",
+                                                            },
+                                                        ]
+                                                    ),
+                                                    css=[
+                                                        {
+                                                            "selector": ".show-hide",
+                                                            "rule": "display: none",
+                                                        }
+                                                    ],
+                                                    style_cell={"textAlign": "center"},
+                                                    data=[
+                                                        dict(
+                                                            std_probabilities_tbl=1,
+                                                            std_payoffs_tbl=-1,
+                                                        ),
+                                                    ],
+                                                    editable=True,
+                                                    row_deletable=True,
+                                                )
+                                            ],
+                                            className="pb-2 px-2 mx-2",
+                                        ),
+                                        dbc.Button(
+                                            "Add Row",
+                                            id="add_editing_rows_button",
+                                            n_clicks=0,
+                                            className="mb-2 d-print-none",
+                                        ),
+                                    ],
+                                    id="add_table_collapse",
                                 ),
                             ],
                             className="col-4",
@@ -307,6 +369,13 @@ input_segment = html.Div(
     ],
     className="p-0 m-0",
 )
+
+
+@app.callback(Output("input_heading", "children"), [Input("theor_dropdown", "value")])
+def set_heading(drop_val):
+    title = fd.mf_func_dict[drop_val][1]
+    return title
+
 
 # MARK disable choice of pw for certain theories here
 @app.callback(
@@ -372,6 +441,24 @@ def check_probs(rows):
 
 
 @app.callback(
+    [Output("danger_toast_4", "is_open"), Output("danger_toast_4", "children")],
+    [Input("add_input_tbl", "data")],
+)
+def check_probs(rows):
+    # Check whether probs in table approximately sum to 1
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    if not isclose(sum(probs), 1):
+        return (
+            True,
+            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                sum(probs)
+            ),
+        )
+    else:
+        return False, ""
+
+
+@app.callback(
     Output("std_input_tbl", "data"),
     [Input("std_editing_rows_button", "n_clicks")],
     [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
@@ -384,16 +471,50 @@ def add_row(n_clicks, rows, columns):
 
 
 @app.callback(
-    [Output("std_input_tbl", "hidden_columns"),], [Input("theor_dropdown", "value")],
+    Output("add_input_tbl", "data"),
+    [Input("add_editing_rows_button", "n_clicks")],
+    [State("add_input_tbl", "data"), State("add_input_tbl", "columns")],
 )
-def hide_rt_input_column(drop_val):
+def add_row_add_table(n_clicks, rows, columns):
+    # extend the input table by one empty row per click
+    if n_clicks > 0:
+        rows.append({c["id"]: "" for c in columns})
+    return rows
+
+
+@app.callback(
+    [
+        Output("std_input_tbl", "hidden_columns"),
+        Output("add_table_collapse", "is_open"),
+    ],
+    [Input("theor_dropdown", "value"), Input("sure_context_bool", "on")],
+)
+def hide_rt_input_column(drop_val, add_context):
     # Hide the rt_input column in which the user can write an alternative lottery to which the target lottery may be compared
     if drop_val in ["RT", "ST"]:
-        return [["comp_probabilities_tbl"]]
-    if drop_val == "SDT":
-        return [["comp_payoffs_tbl"]]
+        col_list = ["comp_probabilities_tbl"]
+    elif drop_val == "SDT":
+        col_list = ["comp_payoffs_tbl"]
     else:
-        return [["comp_probabilities_tbl", "comp_payoffs_tbl"]]
+        col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
+
+    if add_context == False:
+        add_table_bool = False
+    else:
+        add_table_bool = True
+        col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
+
+    return col_list, add_table_bool
+
+
+# @app.callback(
+#     Output("add_table_collapse", "is_open"), [Input("sure_context_bool", "on")]
+# )
+# def toggle_add_table(add_context):
+#     if add_context == True:
+#         return True
+#     else:
+#         return False
 
 
 # Manage gamble Figs
