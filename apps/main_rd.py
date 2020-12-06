@@ -25,8 +25,7 @@ prim_color = fd.prim_color
 header_style = {"background-color": prim_color}
 header_class = "my-2 p-2 text-white rounded"
 
-# heatscale = [[0, plot_color_sec], [0.5, "#a2a6ae"], [1, plot_color]]
-
+heat_scale = fd.heat_scale
 from math import isclose, nan
 
 from app import app
@@ -1411,14 +1410,7 @@ def update_rg_graph(
     # z_1_data = [[1] * 10] * 10
 
     fig = go.Figure(
-        data=[
-            go.Heatmap(
-                x=x_1_data,
-                y=y_1_data,
-                z=z_1_data,
-                # colorscale=heatscale,
-            )
-        ]
+        data=[go.Heatmap(x=x_1_data, y=y_1_data, z=z_1_data, colorscale=heat_scale,)]
     )
     fig.update_layout(
         template="plotly_white",
@@ -1621,14 +1613,7 @@ def update_sl_graph(
     # z_1_data = [[1] * 10] * 10
 
     fig = go.Figure(
-        data=[
-            go.Heatmap(
-                x=x_1_data,
-                y=y_1_data,
-                z=z_1_data,
-                # colorscale=heatscale,
-            )
-        ]
+        data=[go.Heatmap(x=x_1_data, y=y_1_data, z=z_1_data, colorscale=heat_scale,)]
     )
     fig.update_layout(
         template="plotly_white",
@@ -1877,14 +1862,7 @@ def update_sdt_graph(
     # z_1_data = [[1] * 10] * 10
 
     fig = go.Figure(
-        data=[
-            go.Heatmap(
-                x=x_1_data,
-                y=y_1_data,
-                z=z_1_data,
-                # colorscale=heatscale,
-            )
-        ]
+        data=[go.Heatmap(x=x_1_data, y=y_1_data, z=z_1_data, colorscale=heat_scale,)]
     )
     fig.update_layout(
         template="plotly_white",

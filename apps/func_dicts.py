@@ -9,6 +9,9 @@ plot_color = "#360498"
 # plot_color = "#f7e224"
 prim_color = "#e3685f"
 sub_bg_color = "rgba(255,255,255,1)"
+# heatscale = [[0, plot_color_sec], [0.5, "#a2a6ae"], [1, plot_color]]
+
+heat_scale = [[0, "rgb(255,255,255)"], [0.33, plot_color_sec], [1, plot_color]]
 
 
 pw_func_dict = {

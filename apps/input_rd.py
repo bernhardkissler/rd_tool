@@ -377,6 +377,19 @@ input_segment = html.Div(
 )
 
 
+@app.callback(
+    Output("sure_context_bool", "on"),
+    [Input("theor_dropdown", "value")],
+    [State("sure_context_bool", "on")],
+)
+def reset_add_table_bool(drop_val, sure_context_bool_cur):
+    if drop_val in ["EU", "CPT", "SDT", "RDRA"]:
+        sure_context_bool = False
+    else:
+        sure_context_bool = sure_context_bool_cur
+    return sure_context_bool
+
+
 @app.callback(Output("input_heading", "children"), [Input("theor_dropdown", "value")])
 def set_heading(drop_val):
     title = fd.mf_func_dict[drop_val][1]
@@ -536,6 +549,8 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
     pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
     probs_comp = [float(i["comp_probabilities_tbl"]) for i in std_rows]
     pays_comp = [float(i["comp_payoffs_tbl"]) for i in std_rows]
+    probs_add = [float(i["std_probabilities_tbl"]) for i in add_rows]
+    pays_add = [float(i["std_payoffs_tbl"]) for i in add_rows]
 
     # Prepare plots to illustrate the lottery entered by the user
     fig = make_subplots(
@@ -563,8 +578,15 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
     )
 
     # Decision Tree Figure
-    y_1 = [0.5] + list(np.linspace(0, 1, len(list(reversed(probs)))))
-    y_2 = [0.25 + 0.5 * i for i in list(np.linspace(0, 1, len(list(reversed(probs)))))]
+    # prim_lottery
+    if len(probs) > 1:
+        y_1 = [0.5] + list(np.linspace(0, 1, len(list(reversed(probs)))))
+    else:
+        y_1 = [0.5, 0.5]
+    y_2 = [
+        0.25 + 0.5 * i if len(probs) > 1 else 0.5
+        for i in list(np.linspace(0, 1, len(list(reversed(probs)))))
+    ]
 
     for i in range(len(probs)):
         fig.add_trace(
@@ -596,14 +618,14 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
             y=y_2[i],
             text=list(reversed(displ_probs))[i],
             ax=0,
-            ay=-7.5,
+            ay=-10,
             arrowcolor="rgba(0,0,0,0)",
             row=1,
             col=1,
             textangle=textangle[i],
         )
 
-    if theor_drop_val in ["ST", "RT"]:
+    if (theor_drop_val in ["ST", "RT"]) and (sure_context_bool == False):
         displ_pays = [f"{pays[i]} | {pays_comp[i]}" for i, _ in enumerate(pays)]
     else:
         displ_pays = [f"{pays[i]}" for i, _ in enumerate(pays)]
@@ -612,12 +634,17 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
             x=1,
             y=y_1[i + 1],
             text=list(reversed(displ_pays))[i],
-            ax=30,
+            xanchor="left",
+            ax=5,
             ay=0,
             arrowcolor="rgba(0,0,0,0)",
             row=1,
             col=1,
         )
+    # draw Name
+    # fig.add_annotation(
+    #     x=0, y=0.5, xanchor="right", text="L", ax=-5, ay=0, arrowcolor="rgba(0,0,0,0)",
+    # )
     fig.update_xaxes(
         # range=[-0.4, 1.4],
         showgrid=False,
@@ -640,18 +667,42 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
     # PDF Figure Trace
     fig.add_trace(go.Bar(x=pays, y=probs, marker_color=plot_color), row=1, col=2)
     if theor_drop_val in ["RT", "ST"]:
+        if sure_context_bool == False:
+            fig.add_trace(
+                go.Bar(x=pays_comp, y=probs, marker_color=plot_color_sec), row=1, col=2
+            )
+        else:
+            fig.add_trace(
+                go.Bar(x=pays_add, y=probs_add, marker_color=plot_color_sec),
+                row=1,
+                col=2,
+            )
+    elif theor_drop_val in ["SDT"]:
+        if sure_context_bool == False:
+            fig.add_trace(
+                go.Bar(x=pays, y=probs_comp, marker_color=plot_color_sec), row=1, col=2
+            )
+        else:
+            fig.add_trace(
+                go.Bar(x=pays_add, y=probs_add, marker_color=plot_color_sec),
+                row=1,
+                col=2,
+            )
+    elif theor_drop_val in ["RDRA"]:
         fig.add_trace(
-            go.Bar(x=pays_comp, y=probs, marker_color=plot_color_sec), row=1, col=2
-        )
-    if theor_drop_val in ["SDT"]:
-        fig.add_trace(
-            go.Bar(x=pays, y=probs_comp, marker_color=plot_color_sec), row=1, col=2
+            go.Bar(x=pays_add, y=probs_add, marker_color=plot_color_sec), row=1, col=2
         )
 
     if theor_drop_val in ["ST", "RT"]:
-        tick_pays = pays + pays_comp
+        if sure_context_bool == False:
+            tick_pays = pays + pays_comp
+        else:
+            tick_pays = pays + pays_add
     else:
-        tick_pays = pays
+        if theor_drop_val == "RDRA":
+            tick_pays = pays + pays_add
+        else:
+            tick_pays = pays
     fig.update_xaxes(
         showgrid=False,
         zeroline=False,
@@ -691,7 +742,38 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
         )
 
     # comp_lottery
-    if theor_drop_val in ["RT", "ST"]:
+    if (theor_drop_val == "RDRA") or (
+        (theor_drop_val in ["RT", "ST"]) and (sure_context_bool == True)
+    ):
+        pays_add_ord, probs_add_ord = (
+            sorted(pays_add),
+            [x for _, x in sorted(zip(pays_add, probs_add))],
+        )
+        pays_graph_add = [
+            [pays_add_ord[i], pays_add_ord[i + 1]]
+            if i < len(pays_add_ord) - 1
+            else [
+                pays_add_ord[i],
+                pays_add_ord[i] + (pays_add_ord[i] - pays_add_ord[0]) * 0.1,
+            ]
+            for i in range(len(pays_add_ord))
+        ]
+        probs_add_graph = [
+            2 * [sum(probs_add_ord[: i + 1])] if i < len(probs_add_ord) else 2 * []
+            for i in range(len(probs_add_ord))
+        ]
+        for i, _ in enumerate(pays_graph_add):
+            fig.add_trace(
+                go.Scatter(
+                    x=pays_graph_add[i],
+                    y=probs_add_graph[i],
+                    mode="lines",
+                    line=dict(color=plot_color_sec, width=4, dash="dot"),
+                ),
+                row=2,
+                col=2,
+            )
+    elif theor_drop_val in ["RT", "ST"]:
         pays_comp_ord = sorted(pays_comp)
         pays_comp_graph = [
             [pays_comp_ord[i], pays_comp_ord[i + 1]]
@@ -737,7 +819,7 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
         zeroline=False,
         visible=True,
         tickmode="array",
-        tickvals=pays,
+        tickvals=tick_pays,
         row=2,
         col=2,
     )
