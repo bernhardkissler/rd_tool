@@ -152,7 +152,7 @@ def salience_theory(
         for i in range(len(pays_prim))
     ]
     av_salience = sum(
-        [(delta ** (sal_vals[i])) * probs[i] for i in range(len(sal_vals))]
+        [(delta ** (-sal_vals[i])) * probs[i] for i in range(len(sal_vals))]
     )
     probs_weights = [
         ((delta ** (-sal_vals[i])) / av_salience) * probs[i] for i in range(len(probs))
