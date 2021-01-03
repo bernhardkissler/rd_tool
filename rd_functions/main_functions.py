@@ -139,18 +139,23 @@ def salience_theory(
         pays (List[List[float]]): 2 dim input of payoffs where the first element is the target lottery and the second element the context lottery
         probs (List[float]): 1 or 2 dim input of probs belonging to the payoffs above
         delta (float, optional): degree of local thinking in original model; should be between 0 and 1 where one represents non-local rational thinking. Defaults to 0.5.
-        correl_bool (bool, optional): are payoffs correlated i.e. do they share probs or don't they. Defaults to True.
+        correl_bool (bool, optional): are payoffs correlated i.e. do they share probs or don't they. Defaults to True !!! depreciated, correlation is now evaluated based on the length of context_payoffs (i.e., are there more than 1).
 
     Returns:
         float: the unique value of the target lottery compared to the context lottery. Might be exteded to certainty equivalent ... later
     """
-    if correl_bool:
-        pays_prim, pays_cont = pays[0], pays[1]
-    # TODO add vals for uncorrelated state spaces
-    sal_vals = [
-        sl_function(pays_prim[i], pays_cont[i], **sl_kwargs)
-        for i in range(len(pays_prim))
-    ]
+    pays_prim, pays_cont = pays[0], pays[1]
+
+    if len(pays_cont) == 1:
+        sal_vals = [
+            sl_function(pays_prim[i], pays_cont[0], **sl_kwargs)
+            for i in range(len(pays_prim))
+        ]
+    else:
+        sal_vals = [
+            sl_function(pays_prim[i], pays_cont[i], **sl_kwargs)
+            for i in range(len(pays_prim))
+        ]
     av_salience = sum(
         [(delta ** (-sal_vals[i])) * probs[i] for i in range(len(sal_vals))]
     )
@@ -179,7 +184,7 @@ def regret_theory(
     rg_function=ce.ls_regret,
     rg_kwargs={},
 ) -> float:
-    """Implementation of Regret theory according to Loomes and Sugden 1982, If several gambles are provided, every gamble is evaluated in relation to the weighted average of all other gambles
+    """Implementation of Regret theory according to Loomes and Sugden 1982.
 
     Args:
         pays (List[List[float]]): [description]
@@ -194,16 +199,28 @@ def regret_theory(
     """
     target_pay, context_pay = pays[0], pays[1]
 
-    pays_delta = [
-        rg_function(
-            target_pay[i],
-            context_pay[i],
-            um_function=um_function,
-            um_kwargs=um_kwargs,
-            **rg_kwargs,
-        )
-        for i, _ in enumerate(target_pay)
-    ]
+    if len(context_pay) == 1:
+        pays_delta = [
+            rg_function(
+                target_pay[i],
+                context_pay[0],
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                **rg_kwargs,
+            )
+            for i, _ in enumerate(target_pay)
+        ]
+    else:
+        pays_delta = [
+            rg_function(
+                target_pay[i],
+                context_pay[i],
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                **rg_kwargs,
+            )
+            for i, _ in enumerate(target_pay)
+        ]
     wavg_pays = sum([pays_delta[i] * probs[i] for i, _ in enumerate(pays_delta)])
     utility = wavg_pays
     ce = ce_function(utility, **um_kwargs)

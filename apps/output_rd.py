@@ -38,6 +38,7 @@ output_segment = html.Div(
         Input("std_input_tbl", "data"),
         Input("add_input_tbl", "data"),
         Input("theor_dropdown", "value"),
+        Input("sure_context_bool", "on"),
         # pw params
         Input("pw_dropdown", "value"),
         Input("pw_TKW_d", "value"),
@@ -91,6 +92,7 @@ def update_output(
     rows,
     add_rows,
     theor_drop_val,
+    sure_context_bool,
     # pw params
     pw_drop_val,
     TKW_d,
@@ -141,11 +143,18 @@ def update_output(
 ):
     if theor_drop_val in ["RT", "ST"]:
         # CHECK changed to new std_table with hidden column, implement simple comp value
-        pays = [
-            [float(i["std_payoffs_tbl"]) for i in rows],
-            [float(i["comp_payoffs_tbl"]) for i in rows],
-        ]
-        probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        if sure_context_bool:
+            pays = [
+                [float(i["std_payoffs_tbl"]) for i in rows],
+                [float(i["std_payoffs_tbl"]) for i in add_rows],
+            ]
+            probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        else:
+            pays = [
+                [float(i["std_payoffs_tbl"]) for i in rows],
+                [float(i["comp_payoffs_tbl"]) for i in rows],
+            ]
+            probs = [float(i["std_probabilities_tbl"]) for i in rows]
     elif theor_drop_val == "SDT":
         probs = [
             [float(i["std_probabilities_tbl"]) for i in rows],
