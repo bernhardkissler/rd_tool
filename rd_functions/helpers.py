@@ -23,7 +23,6 @@ def list_cleaning(
         except:
             print("Please provide two lists of numbers as inputs")
             sys.exit(1)
-        # TODO research how to properly round things like [0.33,0.33,0.33] to 1
         if not isclose(sum(probs), 1):
             print("Your list of probabilities has to add up to 1")
             print("The sum is currently {}.".format(sum(probs_fl)))

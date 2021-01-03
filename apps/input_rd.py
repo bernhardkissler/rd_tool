@@ -307,7 +307,6 @@ input_segment = html.Div(
                                     n_clicks=0,
                                     className="mb-2 d-print-none",
                                 ),
-                                # MARK second datatable
                                 dbc.Collapse(
                                     [
                                         html.Div(
@@ -396,7 +395,6 @@ def set_heading(drop_val):
     return title
 
 
-# MARK disable choice of pw for certain theories here
 @app.callback(
     [
         Output("pw_panel_collapse", "is_open"),
@@ -544,7 +542,6 @@ def hide_rt_input_column(drop_val, add_context):
 )
 def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
     # Update plots illustrating the lottery entered by the user
-    # TODO add logic to display second figs when RT or Salience?
     probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
     pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
     probs_comp = [float(i["comp_probabilities_tbl"]) for i in std_rows]

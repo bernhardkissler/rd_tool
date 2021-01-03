@@ -66,7 +66,6 @@ gl_segment = dbc.Collapse(
                         dbc.Collapse(
                             [
                                 dbc.Label("Your utility function:"),
-                                # MARK Textarea for ASTEVAL
                                 dbc.Input(
                                     id="gl_text",
                                     type="text",
@@ -452,7 +451,6 @@ um_segment = html.Div(
                         dbc.Collapse(
                             [
                                 dbc.Label("Your utility function:"),
-                                # MARK Textarea for ASTEVAL
                                 dbc.Input(
                                     id="um_text",
                                     type="text",
@@ -842,7 +840,6 @@ pw_segment = dbc.Collapse(
                         dbc.Collapse(
                             [
                                 dbc.Label("Your probability weighting function:"),
-                                # MARK Textarea for ASTEVAL
                                 dbc.Input(
                                     id="pw_text",
                                     type="text",
@@ -1203,7 +1200,6 @@ rg_segment = dbc.Collapse(
                         dbc.Collapse(
                             [
                                 dbc.Label("Your Regret function:"),
-                                # MARK Textarea for ASTEVAL
                                 dbc.Input(
                                     id="rg_text",
                                     type="text",
@@ -1453,7 +1449,6 @@ sl_segment = dbc.Collapse(
                         dbc.Collapse(
                             [
                                 dbc.Label("Your Salience function:"),
-                                # MARK Textarea for ASTEVAL
                                 dbc.Input(
                                     id="sl_text",
                                     type="text",
@@ -1654,7 +1649,6 @@ sdt_segment = dbc.Collapse(
                         dbc.Collapse(
                             [
                                 dbc.Label("Your Bivu function:"),
-                                # MARK Textarea for ASTEVAL
                                 dbc.Input(
                                     id="sdt_text",
                                     type="text",

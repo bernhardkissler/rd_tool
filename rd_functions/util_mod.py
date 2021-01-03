@@ -6,9 +6,6 @@ from simpleeval import simple_eval
 import math
 import rd_functions.custom_exceptions as ce
 
-# TODO check https://en.wikipedia.org/wiki/Expected_utility_hypothesis for more interesing utility functions
-# https://en.wikipedia.org/wiki/Isoelastic_utility
-
 
 def utility_tversky_kahneman(
     x: float, r: float = 0, a: float = 0.88, l: float = 2.25

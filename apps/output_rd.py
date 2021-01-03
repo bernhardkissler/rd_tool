@@ -142,7 +142,6 @@ def update_output(
     sdt_user_func,
 ):
     if theor_drop_val in ["RT", "ST"]:
-        # CHECK changed to new std_table with hidden column, implement simple comp value
         if sure_context_bool:
             pays = [
                 [float(i["std_payoffs_tbl"]) for i in rows],
