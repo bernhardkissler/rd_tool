@@ -192,25 +192,20 @@ def regret_theory(
     Returns:
         float: unique value of target lottery in relation to context
     """
-    pays_delta = []
-    for i_outer, eval_pay in enumerate(pays):
-        comp_pays = [
-            pays[i_inner] for i_inner in range(len(pays)) if i_outer != i_inner
-        ]
-        comp_pays_avg = [sum(x) / len(comp_pays) for x in zip(*comp_pays)]
-        pay_delta = [
-            rg_function(
-                eval_pay[i],
-                comp_pays_avg[i],
-                um_function=um_function,
-                um_kwargs=um_kwargs,
-                **rg_kwargs,
-            )
-            for i in range(len(eval_pay))
-        ]
-        pays_delta.append([pay_delta[i] * probs[i] for i in range(len(pay_delta))])
-    ind_vals = [sum(pays) for pays in pays_delta]
-    utility = ind_vals[0]
+    target_pay, context_pay = pays[0], pays[1]
+
+    pays_delta = [
+        rg_function(
+            target_pay[i],
+            context_pay[i],
+            um_function=um_function,
+            um_kwargs=um_kwargs,
+            **rg_kwargs,
+        )
+        for i, _ in enumerate(target_pay)
+    ]
+    wavg_pays = sum([pays_delta[i] * probs[i] for i, _ in enumerate(pays_delta)])
+    utility = wavg_pays
     ce = ce_function(utility, **um_kwargs)
     return utility, ce
 
