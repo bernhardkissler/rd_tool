@@ -89,21 +89,23 @@ def sav_dis_theory(
     """
     probs_obj, probs_subj = probs[0], probs[1]
 
-    ant_val = sum(
-        [
-            bivu_function(
-                pays[i],
-                pays[
-                    i
-                ],  # CHECK This is not obviously correct. Maybe talk to Ebert about it?
-                um_function=um_function,
-                um_kwargs=um_kwargs,
-                **bivu_kwargs,
-            )
-            * probs_subj[i]
-            for i in range(len(probs_subj))
-        ]
-    )
+    ant_val = sum([pays[i] * probs_subj[i] for i, _ in enumerate(probs_subj)])
+    # [
+    #     bivu_function(
+    #         pays[i],
+    #         pays[
+    #             i
+    #         ],
+    # # CHECK This is not obviously correct. Maybe talk to Ebert about it?
+    # --> EBERT writes that the certainty equivalent of the subjective distribution should be taken.
+    #         um_function=um_function,
+    #         um_kwargs=um_kwargs,
+    #         **bivu_kwargs,
+    #     )
+    #     * probs_subj[i]
+    #     for i in range(len(probs_subj))
+    # ]
+
     act_val = sum(
         [
             bivu_function(
@@ -117,7 +119,7 @@ def sav_dis_theory(
             for i in range(len(probs_obj))
         ]
     )
-    utility = k * ant_val + act_val
+    utility = k * um_function(ant_val, **um_kwargs) + act_val
     ce = ce_function(utility, **um_kwargs)
     return utility, ce
 
