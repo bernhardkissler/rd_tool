@@ -10,6 +10,7 @@ import plotly.graph_objs as go
 
 # import rd_functions.main_functions as mf
 import rd_functions.util_mod as um
+import rd_functions.summary_statistics as sm
 
 # import rd_functions.prob_weighting as pw
 
@@ -172,6 +173,13 @@ def update_output(
     else:
         probs = [float(i["std_probabilities_tbl"]) for i in rows]
         pays = [float(i["std_payoffs_tbl"]) for i in rows]
+
+    # calc mean for risk premium
+    mean_val = sm.mean(
+        [float(i["std_payoffs_tbl"]) for i in rows],
+        [float(i["std_probabilities_tbl"]) for i in rows],
+    )
+
     # pw params
     if pw_drop_val == "TKW":
         pw_kwargs = {"d": TKW_d}
@@ -398,6 +406,8 @@ def update_output(
                     f"Utility: {round(res[0], 4)}",
                     html.Br(),
                     f"Certainty equivalent: {round(res[1], 4)}",
+                    html.Br(),
+                    f"Risk Premium: {round(mean_val - res[1], 4)}",
                 ]
             ),
         ]

@@ -444,15 +444,15 @@ def check_probs(rows):
 
 @app.callback(
     [Output("danger_toast_3", "is_open"), Output("danger_toast_3", "children")],
-    [Input("std_input_tbl", "data")],
+    [Input("std_input_tbl", "data"), Input("theor_dropdown", "value"),],
 )
-def check_probs(rows):
+def check_probs(rows, drop_val):
     # Check whether probs in table approximately sum to 1
     probs = [float(i["comp_probabilities_tbl"]) for i in rows]
-    if not isclose(sum(probs), 1):
+    if not isclose(sum(probs), 1) and drop_val in ["SDT"]:
         return (
             True,
-            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+            "Please make sure that the anticipated probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
                 sum(probs)
             ),
         )
@@ -462,15 +462,21 @@ def check_probs(rows):
 
 @app.callback(
     [Output("danger_toast_4", "is_open"), Output("danger_toast_4", "children")],
-    [Input("add_input_tbl", "data")],
+    [
+        Input("add_input_tbl", "data"),
+        Input("theor_dropdown", "value"),
+        Input("sure_context_bool", "on"),
+    ],
 )
-def check_probs(rows):
+def check_probs(rows, drop_val, add_context):
     # Check whether probs in table approximately sum to 1
     probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    if not isclose(sum(probs), 1):
+    if not isclose(sum(probs), 1) and (
+        (drop_val in ["RT", "ST"] and add_context == True) or drop_val in ["RDRA"]
+    ):
         return (
             True,
-            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+            "Please make sure that the probabilities of the different payoffs in the bottom table add to 1. In the moment their sum is {}.".format(
                 sum(probs)
             ),
         )
