@@ -51,7 +51,15 @@ um_func_dict = {
         "$U(x) = log(a + x)$",
         um.bern_ce,
     ],
-    "RU": [um.root_utility, "Root utility function", "$U(x) = \\sqrt{x} $", um.root_ce],
+    "RU": [
+        um.root_utility,
+        "Root utility function",
+        """$$U(x)=\\begin{cases}
+                  \\sqrt{x}             & \\text{if }x > 0 \\\\
+                  -lm \\cdot \\sqrt{{-x}} & \\text{if }x \\leq 0
+              \\end{cases}$$""",
+        um.root_ce,
+    ],
     "LU": [um.lin_utility, "Linear utility function", "$U(x) = x$", um.lin_ce],
     "PU": [um.pow_utility, "Power utility function", "$U(x) = x^{exp}$"],
     "QU": [um.quad_utility, "Quadratic utility function", "$U(x) = ax - x^{2}$"],
