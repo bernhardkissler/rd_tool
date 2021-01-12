@@ -56,6 +56,7 @@ output_segment = html.Div(
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_RU_lm", "value"),
         Input("um_BU_a", "value"),
         Input("um_EXU_a", "value"),
         Input("um_text_runner", "n_clicks"),
@@ -66,6 +67,7 @@ output_segment = html.Div(
         Input("gl_TKU_l", "value"),
         Input("gl_TKU_r", "value"),
         Input("gl_RU_exp", "value"),
+        Input("gl_RU_lm", "value"),
         Input("gl_BU_a", "value"),
         Input("gl_EXU_a", "value"),
         Input("gl_text_runner", "n_clicks"),
@@ -110,6 +112,7 @@ def update_output(
     um_TKU_l,
     um_TKU_r,
     um_RU_exp,
+    um_RU_lm,
     um_BU_a,
     um_EXU_a,
     um_n_clicks,
@@ -120,6 +123,7 @@ def update_output(
     gl_TKU_l,
     gl_TKU_r,
     gl_RU_exp,
+    gl_RU_lm,
     gl_BU_a,
     gl_EXU_a,
     gl_n_clicks,
@@ -197,7 +201,7 @@ def update_output(
     if um_drop_val == "TKU":
         um_kwargs = {"a": um_TKU_a, "l": um_TKU_l, "r": um_TKU_r}
     elif um_drop_val == "RU":
-        um_kwargs = {"exp": um_RU_exp}
+        um_kwargs = {"exp": um_RU_exp, "mult": um_RU_lm}
     elif um_drop_val == "LU":
         um_kwargs = {}
     elif um_drop_val == "BU":
@@ -210,7 +214,7 @@ def update_output(
     if gl_drop_val == "TKU":
         gl_kwargs = {"a": gl_TKU_a, "l": gl_TKU_l, "r": gl_TKU_r}
     elif gl_drop_val == "RU":
-        gl_kwargs = {"exp": gl_RU_exp}
+        gl_kwargs = {"exp": gl_RU_exp, "mult": gl_RU_lm}
     elif gl_drop_val == "LU":
         gl_kwargs = {}
     elif gl_drop_val == "BU":

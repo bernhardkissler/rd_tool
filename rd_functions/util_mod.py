@@ -31,21 +31,16 @@ def ce_tversky_kahneman(
     return outcome
 
 
-def root_utility(x: float, exp: float = 2.0) -> float:
+def root_utility(x: float, exp: float = 2.0, mult: float = 3) -> float:
     """
-    A simple root utility function with u(x) = x**1/exp; by default the quadratic root is used
+    A simple root utility function with u(x) = x**1/exp; by default the quadratic root is used and loss aversion
     """
-    if x <= 0:
-        res = nan
-        raise ce.PositiveValuesOnlyError
-    else:
-        res = x ** (1 / exp)
-    return res
+    return x ** (1 / exp) if x > 0 else -mult * (-x) ** (1 / exp)
 
 
-def root_ce(x: float, exp: float = 2.0) -> float:
+def root_ce(x: float, exp: float = 2.0, mult: float = 3) -> float:
     """ inverse of root utility """
-    return x ** exp
+    return x ** exp if x > 0 else -((x / (-mult)) ** exp)
 
 
 def lin_utility(x: float) -> float:
@@ -53,24 +48,30 @@ def lin_utility(x: float) -> float:
     return x
 
 
+# MARK NOt utilized in app
+def kr_utility(x: float, mult: float = 10000) -> float:
+    """ A logarithmic utilitly function based on köszegi rabin 2006 """
+    return mult * math.log(x)
+
+
 def lin_ce(x: float) -> float:
     """ Inverse of lin utility """
     return x
 
 
-def bern_utility(x: float, a: float = 0) -> float:
-    """ A simple utility function based on bernoulli's initial formulation of EU """
+def bern_utility(x: float, a: float = 0, mult: float = 1) -> float:
+    """ A simple utility function based on bernoulli's initial formulation of EU with an additional multiplier like KR 2006"""
     try:
-        res = math.log(a + x)
+        res = mult * math.log(a + x)
     except ValueError:
         res = nan
         raise ce.PositiveValuesOnlyError
     return res
 
 
-def bern_ce(x: float, a: float = 0) -> float:
+def bern_ce(x: float, a: float = 0, mult: float = 1) -> float:
     """ Inverse of bernoulli utility """
-    return math.exp(a + x)
+    return math.exp(x / mult) - a
 
 
 # MARK Not utiltized in app

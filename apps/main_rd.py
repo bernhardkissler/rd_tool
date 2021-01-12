@@ -140,6 +140,16 @@ gl_segment = dbc.Collapse(
                                             ),
                                             width=9,
                                         ),
+                                        dbc.Label("lm:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="gl_RU_lm",
+                                                type="number",
+                                                value=3.0,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
                                     ],
                                     row=True,
                                 ),
@@ -253,6 +263,7 @@ gl_segment = dbc.Collapse(
         Output("gl_TKU_l", "value"),
         Output("gl_TKU_r", "value"),
         Output("gl_RU_exp", "value"),
+        Output("gl_RU_lm", "value"),
         Output("gl_EXU_a", "value"),
         Output("gl_BU_a", "value"),
         Output("gl_min_value", "value"),
@@ -267,6 +278,7 @@ def gl_reset(n_clicks):
         2.25,
         0,
         2,
+        3,
         1,
         0,
         0,
@@ -340,6 +352,7 @@ def toggle_gl_params(
         Input("gl_TKU_l", "value"),
         Input("gl_TKU_r", "value"),
         Input("gl_RU_exp", "value"),
+        Input("gl_RU_lm", "value"),
         Input("gl_BU_a", "value"),
         Input("gl_EXU_a", "value"),
         Input("gl_text_runner", "n_clicks"),
@@ -354,6 +367,7 @@ def update_gl_graph(
     TKU_l,
     TKU_r,
     RU_exp,
+    RU_lm,
     BU_a,
     EXU_a,
     n_clicks,
@@ -362,7 +376,7 @@ def update_gl_graph(
     if gl_drop_val == "TKU":
         kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
     elif gl_drop_val == "RU":
-        kwargs = {"exp": RU_exp}
+        kwargs = {"exp": RU_exp, "mult": RU_lm}
     elif gl_drop_val == "LU":
         kwargs = {}
     elif gl_drop_val == "BU":
@@ -525,6 +539,16 @@ um_segment = html.Div(
                                             ),
                                             width=9,
                                         ),
+                                        dbc.Label("lm:", width=3, className="my-1",),
+                                        dbc.Col(
+                                            dbc.Input(
+                                                id="um_RU_lm",
+                                                type="number",
+                                                value=3,
+                                                step=1,
+                                            ),
+                                            width=9,
+                                        ),
                                     ],
                                     row=True,
                                 ),
@@ -637,6 +661,7 @@ um_segment = html.Div(
         Output("um_TKU_l", "value"),
         Output("um_TKU_r", "value"),
         Output("um_RU_exp", "value"),
+        Output("um_RU_lm", "value"),
         Output("um_EXU_a", "value"),
         Output("um_BU_a", "value"),
         Output("um_min_value", "value"),
@@ -651,6 +676,7 @@ def um_reset(n_clicks):
         2.25,
         0,
         2,
+        3,
         1,
         0,
         0,
@@ -724,6 +750,7 @@ def toggle_um_params(
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_RU_lm", "value"),
         Input("um_BU_a", "value"),
         Input("um_EXU_a", "value"),
         Input("um_text_runner", "n_clicks"),
@@ -738,6 +765,7 @@ def update_um_graph(
     TKU_l,
     TKU_r,
     RU_exp,
+    RU_lm,
     BU_a,
     EXU_a,
     n_clicks,
@@ -746,7 +774,7 @@ def update_um_graph(
     if um_drop_val == "TKU":
         kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
     elif um_drop_val == "RU":
-        kwargs = {"exp": RU_exp}
+        kwargs = {"exp": RU_exp, "mult": RU_lm}
     elif um_drop_val == "LU":
         kwargs = {}
     elif um_drop_val == "BU":
@@ -1341,6 +1369,7 @@ def toggle_rg_params(drop_val, LS_open, YR_open):
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_RU_lm", "value"),
         Input("um_BU_a", "value"),
         Input("um_EXU_a", "value"),
         Input("um_text_runner", "n_clicks"),
@@ -1360,6 +1389,7 @@ def update_rg_graph(
     TKU_l,
     TKU_r,
     RU_exp,
+    RU_lm,
     BU_a,
     EXU_a,
     um_n_clicks,
@@ -1369,7 +1399,7 @@ def update_rg_graph(
     if um_drop_val == "TKU":
         um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
     elif um_drop_val == "RU":
-        um_kwargs = {"exp": RU_exp}
+        um_kwargs = {"exp": RU_exp, "mult": RU_lm}
     elif um_drop_val == "LU":
         um_kwargs = {}
     elif um_drop_val == "BU":
@@ -1791,6 +1821,7 @@ def toggle_sdt_params(drop_val, AH_open, YB_open):
         Input("um_TKU_l", "value"),
         Input("um_TKU_r", "value"),
         Input("um_RU_exp", "value"),
+        Input("um_RU_lm", "value"),
         Input("um_BU_a", "value"),
         Input("um_EXU_a", "value"),
         Input("um_text_runner", "n_clicks"),
@@ -1810,6 +1841,7 @@ def update_sdt_graph(
     TKU_l,
     TKU_r,
     RU_exp,
+    RU_lm,
     BU_a,
     EXU_a,
     um_n_clicks,
@@ -1819,7 +1851,7 @@ def update_sdt_graph(
     if um_drop_val == "TKU":
         um_kwargs = {"a": TKU_a, "l": TKU_l, "r": TKU_r}
     elif um_drop_val == "RU":
-        um_kwargs = {"exp": RU_exp}
+        um_kwargs = {"exp": RU_exp, "mult": RU_lm}
     elif um_drop_val == "LU":
         um_kwargs = {}
     elif um_drop_val == "BU":
