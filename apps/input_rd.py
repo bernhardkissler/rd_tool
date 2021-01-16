@@ -6,6 +6,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 import dash_table
 import dash_table.FormatTemplate as FormatTemplate
+import dash
 
 import plotly.graph_objs as go
 import plotly.express as px
@@ -349,11 +350,14 @@ input_segment = html.Div(
                                             ],
                                             className="pb-2 px-2 mx-2",
                                         ),
-                                        dbc.Button(
-                                            "Add Row",
-                                            id="add_editing_rows_button",
-                                            n_clicks=0,
-                                            className="mb-2 d-print-none",
+                                        html.Div(
+                                            dbc.Button(
+                                                "Add Row",
+                                                id="add_editing_rows_button",
+                                                n_clicks=0,
+                                                className="mb-2 d-print-none",
+                                            ),
+                                            id="add_table_add_row_button",
                                         ),
                                     ],
                                     id="add_table_collapse",
@@ -497,15 +501,28 @@ def add_row(n_clicks, rows, columns):
 
 
 @app.callback(
-    Output("add_input_tbl", "data"),
-    [Input("add_editing_rows_button", "n_clicks")],
+    [Output("add_input_tbl", "data"), Output("add_table_add_row_button", "style")],
+    [
+        Input("add_editing_rows_button", "n_clicks"),
+        Input("sure_context_bool", "on"),
+        Input("theor_dropdown", "value"),
+    ],
     [State("add_input_tbl", "data"), State("add_input_tbl", "columns")],
 )
-def add_row_add_table(n_clicks, rows, columns):
+def add_row_add_table(n_clicks, sure_context, theor_dropdown, rows, columns):
     # extend the input table by one empty row per click
-    if n_clicks > 0:
-        rows.append({c["id"]: "" for c in columns})
-    return rows
+    if theor_dropdown in ["RT", "ST"] and sure_context == True:
+        rows = [{"std_probabilities_tbl": 1, "std_payoffs_tbl": -1}]
+        button_diplay = {"display": "none"}
+    else:
+        ctx = dash.callback_context
+        if (
+            ctx.triggered[0]["prop_id"] == "add_editing_rows_button.n_clicks"
+            and n_clicks > 0
+        ):
+            rows.append({c["id"]: "" for c in columns})
+        button_diplay = {"diplay": "inline"}
+    return rows, button_diplay
 
 
 @app.callback(
