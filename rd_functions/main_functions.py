@@ -229,13 +229,13 @@ def expected_utility(
     ce_function=um.lin_ce,
 ) -> float:
     """
-    Takes in two vectors (payoffs and their probability) of numbers of equal length and returns the sum of their product, which is the expected utility.
+    Takes in two vectors (payoffs and their probability) of numbers of equal length 
+    and returns the sum of their product, which is the expected utility.
     """
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     pays_ch_ut = [um_function(i, **um_kwargs) for i in pays_ch]
     ind_vals = [pays_ch_ut[i] * probs_ch[i] for i in range(len(pays_ch))]
     utility = sum(ind_vals)
-
     ce = ce_function(utility, **um_kwargs)
     return utility, ce
 

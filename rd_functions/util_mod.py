@@ -33,7 +33,9 @@ def ce_tversky_kahneman(
 
 def root_utility(x: float, exp: float = 2.0, mult: float = 3) -> float:
     """
-    A simple root utility function with u(x) = x**1/exp; by default the quadratic root is used and loss aversion
+    A simple root utility function with u(x) = x**1/exp; 
+    by default the quadratic root is used and loss aversion means 
+    that losses are evaluated as 3 times as high as wins.
     """
     return x ** (1 / exp) if x > 0 else -mult * (-x) ** (1 / exp)
 
