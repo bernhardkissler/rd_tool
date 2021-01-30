@@ -181,15 +181,16 @@ def regret_theory(
     """Implementation of Regret theory according to Loomes and Sugden 1982.
 
     Args:
-        pays (List[List[float]]): [description]
-        probs (List[float]): [description]
-        um_function ([type], optional): utility function applied to individual values. Defaults to um.lin_utility.
-        um_kwargs (dict, optional): . Defaults to {}.
-        rg_function ([type], optional): regret function used. Defaults to ce.ls_regret.
-        rg_kwargs (dict, optional): . Defaults to {}.
+        pays (List[List[float]]): Nested list of target and context pays of equal length, where the first sublist are the target pays and the second the context pays.
+        probs (List[float]): List of probabilities. Has to be the same length as the target and context pays and sum to 1
+        um_function ([type], optional): The utility function applied to individual values. Defaults to um.lin_utility.
+        um_kwargs (dict, optional): . Defaults to {}. The arguments used by the utility function
+        rg_function ([type], optional): The regret function used. Defaults to ce.ls_regret.
+        rg_kwargs (dict, optional): . Defaults to {}. The arguments used by the regret function
 
     Returns:
-        float: unique value of target lottery in relation to context
+            utility: unique value of target lottery in relation to context
+            ce: certainty equivalent of the lottery value
     """
     target_pay, context_pay = pays[0], pays[1]
 

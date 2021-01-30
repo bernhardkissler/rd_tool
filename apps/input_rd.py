@@ -452,14 +452,17 @@ def check_probs(rows):
 )
 def check_probs(rows, drop_val):
     # Check whether probs in table approximately sum to 1
-    probs = [float(i["comp_probabilities_tbl"]) for i in rows]
-    if not isclose(sum(probs), 1) and drop_val in ["SDT"]:
-        return (
-            True,
-            "Please make sure that the anticipated probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
-                sum(probs)
-            ),
-        )
+    if drop_val in ["SDT"]:
+        probs = [float(i["comp_probabilities_tbl"]) for i in rows]
+        if not isclose(sum(probs), 1):
+            return (
+                True,
+                "Please make sure that the anticipated probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                    sum(probs)
+                ),
+            )
+        else:
+            return False, ""
     else:
         return False, ""
 
@@ -567,10 +570,15 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
     # Update plots illustrating the lottery entered by the user
     probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
     pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
-    probs_comp = [float(i["comp_probabilities_tbl"]) for i in std_rows]
-    pays_comp = [float(i["comp_payoffs_tbl"]) for i in std_rows]
-    probs_add = [float(i["std_probabilities_tbl"]) for i in add_rows]
-    pays_add = [float(i["std_payoffs_tbl"]) for i in add_rows]
+    if theor_drop_val in ["SDT"]:
+        probs_comp = [float(i["comp_probabilities_tbl"]) for i in std_rows]
+    elif theor_drop_val in ["RT", "ST"] and sure_context_bool == False:
+        pays_comp = [float(i["comp_payoffs_tbl"]) for i in std_rows]
+    elif (theor_drop_val in ["RT", "ST"] and sure_context_bool == True) or (
+        theor_drop_val in ["RDRA"]
+    ):
+        probs_add = [float(i["std_probabilities_tbl"]) for i in add_rows]
+        pays_add = [float(i["std_payoffs_tbl"]) for i in add_rows]
 
     # Prepare plots to illustrate the lottery entered by the user
     fig = make_subplots(
@@ -698,16 +706,17 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
                 col=2,
             )
     elif theor_drop_val in ["SDT"]:
-        if sure_context_bool == False:
-            fig.add_trace(
-                go.Bar(x=pays, y=probs_comp, marker_color=plot_color_sec), row=1, col=2
-            )
-        else:
-            fig.add_trace(
-                go.Bar(x=pays_add, y=probs_add, marker_color=plot_color_sec),
-                row=1,
-                col=2,
-            )
+        # if sure_context_bool == False:
+        fig.add_trace(
+            go.Bar(x=pays, y=probs_comp, marker_color=plot_color_sec), row=1, col=2
+        )
+        # CHECK, kann das hier eigentlich eintreten?
+        # else:
+        #     fig.add_trace(
+        #         go.Bar(x=pays_add, y=probs_add, marker_color=plot_color_sec),
+        #         row=1,
+        #         col=2,
+        #     )
     elif theor_drop_val in ["RDRA"]:
         fig.add_trace(
             go.Bar(x=pays_add, y=probs_add, marker_color=plot_color_sec), row=1, col=2
@@ -817,7 +826,7 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
                 col=2,
             )
     elif theor_drop_val == "SDT":
-        probs_comp_ord = [x for _, x in sorted(zip(pays_comp, probs_comp))]
+        probs_comp_ord = [x for _, x in sorted(zip(pays, probs_comp))]
         probs_comp_graph = [
             2 * [sum(probs_comp_ord[: i + 1])] if i < len(probs_comp_ord) else 2 * []
             for i in range(len(probs_comp_ord))
