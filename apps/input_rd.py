@@ -110,8 +110,6 @@ input_segment = html.Div(
                                             "label": "Cumulative prospect theory",
                                             "value": "CPT",
                                         },
-                                        {"label": "Regret theory", "value": "RT"},
-                                        {"label": "Salience theory", "value": "ST"},
                                         {
                                             "label": "Savoring and Disappointment theory",
                                             "value": "SDT",
@@ -120,6 +118,8 @@ input_segment = html.Div(
                                             "label": "Reference Dependent Risk Attitudes",
                                             "value": "RDRA",
                                         },
+                                        {"label": "Regret theory", "value": "RT"},
+                                        {"label": "Salience theory", "value": "ST"},
                                     ],
                                     value="EU",
                                     className="pb-2 d-print-none",
