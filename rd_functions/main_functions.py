@@ -176,6 +176,7 @@ def regret_theory(
     um_kwargs={},
     ce_function=um.lin_ce,
     rg_function=ce.ls_regret,
+    rg_function_ce=ce.ls_regret_ce,
     rg_kwargs={},
 ) -> float:
     """Implementation of Regret theory according to Loomes and Sugden 1982.
@@ -218,7 +219,32 @@ def regret_theory(
         ]
     wavg_pays = sum([pays_delta[i] * probs[i] for i, _ in enumerate(pays_delta)])
     utility = wavg_pays
-    ce = ce_function(utility, **um_kwargs)
+
+    if len(context_pay) == 1:
+        ce_vals = [
+            rg_function_ce(
+                utility,
+                context_pay[0],
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                ce_function=ce_function,
+                **rg_kwargs,
+            )
+            for i, _ in enumerate(context_pay)
+        ]
+    else:
+        ce_vals = [
+            rg_function_ce(
+                utility,
+                context_pay[i],
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                ce_function=ce_function,
+                **rg_kwargs,
+            )
+            for i, _ in enumerate(context_pay)
+        ]
+    ce = sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)])
     return utility, ce
 
 

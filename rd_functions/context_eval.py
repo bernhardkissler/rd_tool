@@ -51,6 +51,25 @@ def ls_regret(
     )
 
 
+def ls_regret_ce(
+    x_1, x_2, um_function=um.lin_utility, um_kwargs={}, ce_function=um.lin_ce, weight=1
+):
+    """the 'inverse' of Loomes and Sugden 1982's regret function used to calculate the certainty equivalent
+
+    Args:
+        x_1 (float): the utility
+        x_2 (float): the context payoff
+        um_function (function, optional): the utility function used. Defaults to um.lin_utility.
+        um_kwargs (dict, optional): the kwargs used by the utility and certainty equivalent functions. Defaults to {}.
+        ce_function (function, optional): the (utility) based certainty function. Defaults to um.lin_ce.
+        weight (float, optional): used to trade of consumption and regret utility. Defaults to 1.
+    """
+    int_res = (x_1 - um_function(x_2, **um_kwargs)) / (1 + weight)
+    res = ce_function(int_res, **um_kwargs)
+
+    return res
+
+
 def user_regret(
     x_1: float, x_2: float, um_function=um.lin_utility, um_kwargs={}, text: str = ""
 ) -> float:
