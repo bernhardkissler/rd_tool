@@ -70,6 +70,7 @@ def sav_dis_theory(
     probs: List[List[float]],
     bivu_function,
     bivu_kwargs={},
+    bivu_function_ce=ce.additive_habits_ce,
     um_function=um.lin_utility,
     um_kwargs={},
     ce_function=um.lin_ce,
@@ -112,7 +113,15 @@ def sav_dis_theory(
         ]
     )
     utility = k * um_function(ant_val, **um_kwargs) + act_val
-    ce = ce_function(utility, **um_kwargs)
+    # FIXME set ce to na if functions are custom inputs
+    ce = bivu_function_ce(
+        act_val,
+        ant_val,
+        um_function=um_function,
+        um_kwargs=um_kwargs,
+        **bivu_kwargs,
+        ce_function=ce_function,
+    )
     return utility, ce
 
 
@@ -239,11 +248,12 @@ def regret_theory(
                 context_pay[i],
                 um_function=um_function,
                 um_kwargs=um_kwargs,
-                ce_function=ce_function,
+                # ce_function=ce_function,
                 **rg_kwargs,
             )
             for i, _ in enumerate(target_pay)
         ]
+    # FIXME muss noch auf nan gestzt werden, wenn custom input functions
     ce = ce_function(
         sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
     )

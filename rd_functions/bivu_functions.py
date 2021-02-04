@@ -5,7 +5,7 @@ from functools import partial
 
 
 def additive_habits(
-    c: float, y: float, um_function: um.lin_utility, um_kwargs={}, eta: float = 0.5
+    c: float, y: float, um_function=um.lin_utility, um_kwargs={}, eta: float = 0.1
 ) -> float:
     """Bivariate utility function based on Muermann Gollier 2010 showing simple interaction dynamics
 
@@ -19,6 +19,19 @@ def additive_habits(
         float: utility of actual and expected payoff
     """
     return um_function(c - eta * y, **um_kwargs)
+
+
+def additive_habits_ce(
+    c: float,
+    y: float,
+    um_function=um.lin_utility,
+    um_kwargs={},
+    eta: float = 0.1,
+    ce_function=um.lin_ce,
+):
+    """Inverse of additive habits utility function
+    """
+    return ce_function(c, **um_kwargs) + eta * y
 
 
 def user_bivu(
