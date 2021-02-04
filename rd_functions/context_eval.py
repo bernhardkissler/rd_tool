@@ -64,9 +64,7 @@ def ls_regret_ce(
         ce_function (function, optional): the (utility) based certainty function. Defaults to um.lin_ce.
         weight (float, optional): used to trade of consumption and regret utility. Defaults to 1.
     """
-    return ce_function(
-        (x_1 + weight * um_function(x_2, **um_kwargs)) / (1 + weight), **um_kwargs
-    )
+    return (x_1 + weight * um_function(x_2, **um_kwargs)) / (1 + weight)
 
 
 def user_regret(

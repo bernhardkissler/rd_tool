@@ -230,7 +230,7 @@ def regret_theory(
                 ce_function=ce_function,
                 **rg_kwargs,
             )
-            for i, _ in enumerate(context_pay)
+            for i, _ in enumerate(target_pay)
         ]
     else:
         ce_vals = [
@@ -242,9 +242,11 @@ def regret_theory(
                 ce_function=ce_function,
                 **rg_kwargs,
             )
-            for i, _ in enumerate(context_pay)
+            for i, _ in enumerate(target_pay)
         ]
-    ce = sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)])
+    ce = ce_function(
+        sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
+    )
     return utility, ce
 
 
