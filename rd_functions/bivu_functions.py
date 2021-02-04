@@ -24,7 +24,7 @@ def additive_habits(
 def additive_habits_ce(
     c: float,
     y: float,
-    um_function=um.lin_utility,
+    # um_function=um.lin_utility,
     um_kwargs={},
     eta: float = 0.1,
     ce_function=um.lin_ce,

@@ -8,6 +8,7 @@ import rd_functions.util_mod as um
 import rd_functions.prob_weighting as pw
 import rd_functions.helpers as he
 import rd_functions.context_eval as ce
+import rd_functions.bivu_functions as bu
 from typing import List
 
 
@@ -70,7 +71,7 @@ def sav_dis_theory(
     probs: List[List[float]],
     bivu_function,
     bivu_kwargs={},
-    bivu_function_ce=ce.additive_habits_ce,
+    bivu_function_ce=bu.additive_habits_ce,
     um_function=um.lin_utility,
     um_kwargs={},
     ce_function=um.lin_ce,
