@@ -231,7 +231,7 @@ gl_segment = dbc.Collapse(
                                 ),
                                 dbc.Col(
                                     dbc.Input(
-                                        id="gl_min_value", type="number", value=0,
+                                        id="gl_min_value", type="number", value=-10,
                                     ),
                                     width=3,
                                 ),
@@ -283,7 +283,7 @@ def gl_reset(n_clicks):
         3,
         1,
         0,
-        0,
+        -10,
         10,
     )
 

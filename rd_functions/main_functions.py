@@ -9,6 +9,7 @@ import rd_functions.prob_weighting as pw
 import rd_functions.helpers as he
 import rd_functions.context_eval as ce
 import rd_functions.bivu_functions as bu
+from math import nan
 from typing import List
 
 
@@ -50,7 +51,8 @@ def RDRA_theory(
         [prim_probs[i] * partial_result[i] for i, _ in enumerate(partial_result)]
     )
     # avg_pay_prim = sum([prim_pays[i] * prim_probs[i] for i, _ in enumerate(prim_pays)])
-    ce = ce_function(utility, **um_kwargs)
+    # TODO update ce calculation
+    ce = nan
     return utility, ce
 
 
@@ -69,7 +71,7 @@ def RDRA_wrapper(pays, probs):
 def sav_dis_theory(
     pays: List[float],
     probs: List[List[float]],
-    bivu_function,
+    bivu_function=bu.additive_habits,
     bivu_kwargs={},
     bivu_function_ce=bu.additive_habits_ce,
     um_function=um.root_utility,
@@ -114,15 +116,17 @@ def sav_dis_theory(
         ]
     )
     utility = k * um_function(ant_val, **um_kwargs) + act_val
-    # FIXME set ce to na if functions are custom inputs
-    ce = bivu_function_ce(
-        act_val,
-        ant_val,
-        # um_function=um_function,
-        um_kwargs=um_kwargs,
-        **bivu_kwargs,
-        ce_function=ce_function,
-    )
+    try:
+        ce = bivu_function_ce(
+            act_val,
+            ant_val,
+            # um_function=um_function,
+            um_kwargs=um_kwargs,
+            **bivu_kwargs,
+            ce_function=ce_function,
+        )
+    except:
+        ce = nan
     return utility, ce
 
 
@@ -172,7 +176,10 @@ def salience_theory(
             for i in range(len(pays_prim))
         ]
     )
-    ce = ce_function(utility, **um_kwargs)
+    try:
+        ce = ce_function(utility, **um_kwargs)
+    except:
+        ce = nan
     return utility, ce
 
 
@@ -229,35 +236,37 @@ def regret_theory(
         ]
     wavg_pays = sum([pays_delta[i] * probs[i] for i, _ in enumerate(pays_delta)])
     utility = wavg_pays
-
-    if len(context_pay) == 1:
-        ce_vals = [
-            rg_function_ce(
-                utility,
-                context_pay[0],
-                um_function=um_function,
-                um_kwargs=um_kwargs,
-                ce_function=ce_function,
-                **rg_kwargs,
-            )
-            for i, _ in enumerate(target_pay)
-        ]
-    else:
-        ce_vals = [
-            rg_function_ce(
-                utility,
-                context_pay[i],
-                um_function=um_function,
-                um_kwargs=um_kwargs,
-                # ce_function=ce_function,
-                **rg_kwargs,
-            )
-            for i, _ in enumerate(target_pay)
-        ]
-    # FIXME muss noch auf nan gestzt werden, wenn custom input functions
-    ce = ce_function(
-        sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
-    )
+    try:
+        if len(context_pay) == 1:
+            ce_vals = [
+                rg_function_ce(
+                    utility,
+                    context_pay[0],
+                    um_function=um_function,
+                    um_kwargs=um_kwargs,
+                    ce_function=ce_function,
+                    **rg_kwargs,
+                )
+                for i, _ in enumerate(target_pay)
+            ]
+        else:
+            ce_vals = [
+                rg_function_ce(
+                    utility,
+                    context_pay[i],
+                    um_function=um_function,
+                    um_kwargs=um_kwargs,
+                    # ce_function=ce_function,
+                    **rg_kwargs,
+                )
+                for i, _ in enumerate(target_pay)
+            ]
+        # FIXME muss noch auf nan gestzt werden, wenn custom input functions
+        ce = ce_function(
+            sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
+        )
+    except:
+        ce = nan
     return utility, ce
 
 
@@ -276,7 +285,10 @@ def expected_utility(
     pays_ch_ut = [um_function(i, **um_kwargs) for i in pays_ch]
     ind_vals = [pays_ch_ut[i] * probs_ch[i] for i in range(len(pays_ch))]
     utility = sum(ind_vals)
-    ce = ce_function(utility, **um_kwargs)
+    try:
+        ce = ce_function(utility, **um_kwargs)
+    except:
+        ce = nan
     return utility, ce
 
 
@@ -311,7 +323,10 @@ def rank_dependent_utility(
         pays_sorted_ut[i] * decision_weights[i] for i in range(len(pays_sorted_ut))
     ]
     utility = sum(ind_vals)
-    ce = ce_function(utility, **um_kwargs)
+    try:
+        ce = ce_function(utility, **um_kwargs)
+    except:
+        ce = nan
     return utility, ce
 
 
@@ -370,6 +385,9 @@ def cumulative_prospect_theory(
     ind_vals = [pays_final[i] * probs_final[i] for i in range(len(pays_final))]
 
     utility = sum(ind_vals)
-    ce = ce_function(utility, **um_kwargs)
+    try:
+        ce = ce_function(utility, **um_kwargs)
+    except:
+        ce = nan
     return utility, ce
 

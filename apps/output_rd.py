@@ -5,12 +5,15 @@ import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output, State
 
-import plotly.graph_objs as go
+# import plotly.graph_objs as go
 
 
 # import rd_functions.main_functions as mf
 import rd_functions.util_mod as um
 import rd_functions.summary_statistics as sm
+import rd_functions.main_functions as mf
+
+from math import nan, isnan
 
 # import rd_functions.prob_weighting as pw
 
@@ -146,37 +149,37 @@ def update_output(
     sdt_n_clicks,
     sdt_user_func,
 ):
-    if theor_drop_val in ["RT", "ST"]:
-        if sure_context_bool:
-            pays_RT_ST = [
-                [float(i["std_payoffs_tbl"]) for i in rows],
-                [float(i["std_payoffs_tbl"]) for i in add_rows],
-            ]
-            probs_RT_ST = [float(i["std_probabilities_tbl"]) for i in rows]
-        else:
-            pays_RT_ST = [
-                [float(i["std_payoffs_tbl"]) for i in rows],
-                [float(i["comp_payoffs_tbl"]) for i in rows],
-            ]
-            probs_RT_ST = [float(i["std_probabilities_tbl"]) for i in rows]
-    elif theor_drop_val == "SDT":
-        probs_SDT = [
-            [float(i["std_probabilities_tbl"]) for i in rows],
-            [float(i["comp_probabilities_tbl"]) for i in rows],
-        ]
-        pays_SDT = [float(i["std_payoffs_tbl"]) for i in rows]
-    elif theor_drop_val == "RDRA":
-        probs_RDRA = [
-            [float(i["std_probabilities_tbl"]) for i in rows],
-            [float(i["std_probabilities_tbl"]) for i in add_rows],
-        ]
-        pays_RDRA = [
+    # if theor_drop_val in ["RT", "ST"]:
+    if sure_context_bool:
+        pays_RT_ST = [
             [float(i["std_payoffs_tbl"]) for i in rows],
             [float(i["std_payoffs_tbl"]) for i in add_rows],
         ]
+        probs_RT_ST = [float(i["std_probabilities_tbl"]) for i in rows]
     else:
-        probs_EU_CPT = [float(i["std_probabilities_tbl"]) for i in rows]
-        pays_EU_CPT = [float(i["std_payoffs_tbl"]) for i in rows]
+        pays_RT_ST = [
+            [float(i["std_payoffs_tbl"]) for i in rows],
+            [float(i["comp_payoffs_tbl"]) for i in rows],
+        ]
+        probs_RT_ST = [float(i["std_probabilities_tbl"]) for i in rows]
+    # elif theor_drop_val == "SDT":
+    probs_SDT = [
+        [float(i["std_probabilities_tbl"]) for i in rows],
+        [float(i["comp_probabilities_tbl"]) for i in rows],
+    ]
+    pays_SDT = [float(i["std_payoffs_tbl"]) for i in rows]
+    # elif theor_drop_val == "RDRA":
+    probs_RDRA = [
+        [float(i["std_probabilities_tbl"]) for i in rows],
+        [float(i["std_probabilities_tbl"]) for i in add_rows],
+    ]
+    pays_RDRA = [
+        [float(i["std_payoffs_tbl"]) for i in rows],
+        [float(i["std_payoffs_tbl"]) for i in add_rows],
+    ]
+    # else:
+    probs_EU_CPT = [float(i["std_probabilities_tbl"]) for i in rows]
+    pays_EU_CPT = [float(i["std_payoffs_tbl"]) for i in rows]
 
     # calc mean for risk premium
     mean_val = sm.mean(
@@ -245,6 +248,15 @@ def update_output(
             "text": sdt_user_func,
         }
 
+    # calculate generic theory results
+    res_eu = mf.expected_utility(pays_EU_CPT, probs_EU_CPT)
+    res_cpt = mf.cumulative_prospect_theory(pays_EU_CPT, probs_EU_CPT)
+    res_sdt = mf.sav_dis_theory(pays_SDT, probs_SDT)
+    res_rdra = mf.RDRA_theory(pays_RDRA, probs_RDRA)
+    res_rt = mf.regret_theory(pays_RT_ST, probs_RT_ST)
+    res_st = mf.salience_theory(pays_RT_ST, probs_RT_ST,)
+
+    # calculate conditional result
     if theor_drop_val == "EU":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays_EU_CPT,
@@ -305,8 +317,11 @@ def update_output(
             ce_function=fd.um_func_dict[um_drop_val][3],
             pw_kwargs=pw_kwargs,
         )
+        res = list(res)
+        if pw_drop_val == "YW":
+            res[1] = nan
 
-    if fd.um_func_dict[um_drop_val][0] == um.user_utility:
+    if isnan(res[1]):
         toast_bool = True
     else:
         toast_bool = False
@@ -349,74 +364,105 @@ def update_output(
             html.Thead(
                 html.Tr(
                     [
-                        html.Td("Theory name"),
-                        html.Td("Utility function"),
-                        html.Td("Auxiliary function"),
-                        html.Td("Utility"),
-                        html.Td("Certainty Equivalent"),
-                        html.Td("Risk Premium"),
+                        html.Th("Theory name"),
+                        html.Th("Utility function"),
+                        html.Th("Auxiliary function"),
+                        html.Th("Utility"),
+                        html.Th("Certainty Equivalent"),
+                        html.Th("Risk Premium"),
                     ]
                 )
             ),
             html.Tbody(
                 [
-                    html.Td(fd.mf_func_dict[theor_drop_val][1]),
-                    html.Td(
-                        f"function: {fd.um_func_dict[um_drop_val][1]}, parameters: {um_kwargs}"
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict[theor_drop_val][1]),
+                            html.Td(
+                                f"function: {fd.um_func_dict[um_drop_val][1]}, Parameters: {um_kwargs}"
+                            ),
+                            html.Td(intermed_output),
+                            html.Td(round(res[0], 4)),
+                            html.Td(round(res[1], 4) if res[1] != nan else "nan"),
+                            html.Td(
+                                round(mean_val - res[1], 4) if res[1] != nan else "nan"
+                            ),
+                        ],
+                        style={"color": plot_color, "border-color": plot_color},
                     ),
-                    html.Td(intermed_output),
-                    html.Td(round(res[0], 4)),
-                    html.Td(round(res[1], 4)),
-                    html.Td(round(mean_val - res[1], 4)),
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict["EU"][1]),
+                            html.Td(),
+                            html.Td(),
+                            html.Td(round(res_eu[0], 4),),
+                            html.Td(round(res_eu[1], 4),),
+                            html.Td(round(mean_val - res_eu[1], 4),),
+                        ]
+                    ),
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict["CPT"][1]),
+                            html.Td(),
+                            html.Td(),
+                            html.Td(round(res_cpt[0], 4),),
+                            html.Td(round(res_cpt[1], 4),),
+                            html.Td(round(mean_val - res_cpt[1], 4),),
+                        ]
+                    ),
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict["SDT"][1]),
+                            html.Td(),
+                            html.Td(),
+                            html.Td(round(res_sdt[0], 4),),
+                            html.Td(round(res_sdt[1], 4),),
+                            html.Td(round(mean_val - res_sdt[1], 4),),
+                        ]
+                    ),
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict["RDRA"][1]),
+                            html.Td(),
+                            html.Td(),
+                            html.Td(round(res_rdra[0], 4),),
+                            html.Td(round(res_rdra[1], 4),),
+                            html.Td(round(mean_val - res_rdra[1], 4),),
+                        ]
+                    ),
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict["RT"][1]),
+                            html.Td(),
+                            html.Td(),
+                            html.Td(round(res_rt[0], 4),),
+                            html.Td(round(res_rt[1], 4),),
+                            html.Td(round(mean_val - res_rt[1], 4),),
+                        ]
+                    ),
+                    html.Tr(
+                        [
+                            html.Td(fd.mf_func_dict["ST"][1]),
+                            html.Td(),
+                            html.Td(),
+                            html.Td(round(res_st[0], 4),),
+                            html.Td(round(res_st[1], 4),),
+                            html.Td(round(mean_val - res_st[1], 4),),
+                        ]
+                    ),
                 ]
             ),
         ],
         hover=True,
         size="sm",
     )
-
-    output_text = html.Div(
-        [
-            html.P(
-                [
-                    # f"Payoffs: {pays}",
-                    html.Br(),
-                    # f"Probs: {probs}",
-                    html.Br(),
-                    f"Chosen Theory: {fd.mf_func_dict[theor_drop_val][1]}",
-                ]
-            ),
-            html.P(
-                [
-                    f"Utility function: {fd.um_func_dict[um_drop_val][1]}",
-                    html.Br(),
-                    # f"Formula: {fd.um_func_dict[um_drop_val][2]}",
-                    # html.Br(),
-                    f"Parameters: {um_kwargs}",
-                ]
-            ),
-            intermed_output,
-            html.P(
-                [
-                    f"Utility: {round(res[0], 4)}",
-                    html.Br(),
-                    f"Certainty equivalent: {round(res[1], 4)}",
-                    html.Br(),
-                    f"Risk Premium: {round(mean_val - res[1], 4)}",
-                ]
-            ),
-        ]
-    )
-
     return output_table, toast_bool
 
 
 ce_toast = dbc.Toast(
     dcc.Markdown(
         """
-        You chose to use a custom utility function. For security reasons, I can't calculate the certainty equivalent and the Risk Premium.
-        
-        This behavior might be changed in the future.
+        You chose to input a custom function. For security reasons, I can't calculate the certainty equivalent and the Risk Premium.
     """
     ),
     id="danger_toast_ce",
