@@ -47,12 +47,12 @@ gl_segment = dbc.Collapse(
                         dcc.Dropdown(
                             id="gl_dropdown",
                             options=[
+                                {"label": "Root utility function", "value": "RU",},
                                 {
                                     "label": "Tversky Kahneman utility function",
                                     "value": "TKU",
                                 },
                                 {"label": "Linear Utility function", "value": "LU",},
-                                {"label": "Root utility function", "value": "RU",},
                                 {
                                     "label": "Exponential utiltiy function",
                                     "value": "EXU",
@@ -60,7 +60,9 @@ gl_segment = dbc.Collapse(
                                 {"label": "Bernoulli utility function", "value": "BU",},
                                 {"label": "Your utility function", "value": "YU",},
                             ],
-                            value="TKU",
+                            searchable=False,
+                            clearable=False,
+                            value="RU",
                             className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
@@ -446,20 +448,22 @@ um_segment = html.Div(
                         dcc.Dropdown(
                             id="um_dropdown",
                             options=[
+                                {"label": "Linear Utility function", "value": "LU",},
+                                {
+                                    "label": "Exponential utility function",
+                                    "value": "EXU",
+                                },
                                 {
                                     "label": "Tversky Kahneman utility function",
                                     "value": "TKU",
                                 },
-                                {"label": "Linear Utility function", "value": "LU",},
                                 {"label": "Root utility function", "value": "RU",},
-                                {
-                                    "label": "Exponential utiltiy function",
-                                    "value": "EXU",
-                                },
                                 {"label": "Bernoulli utility function", "value": "BU",},
                                 {"label": "Your utility function", "value": "YU",},
                             ],
-                            value="TKU",
+                            searchable=False,
+                            clearable=False,
+                            value="BU",
                             className="py-2 d-print-none",
                         ),
                         dbc.Collapse(
@@ -628,7 +632,7 @@ um_segment = html.Div(
                                 ),
                                 dbc.Col(
                                     dbc.Input(
-                                        id="um_min_value", type="number", value=0,
+                                        id="um_min_value", type="number", value=-10,
                                     ),
                                     width=3,
                                 ),
@@ -679,7 +683,7 @@ def um_reset(n_clicks):
         3,
         1,
         0,
-        0,
+        -10,
         10,
     )
 
@@ -862,6 +866,8 @@ pw_segment = dbc.Collapse(
                                 {"label": "Power weighting function", "value": "POW",},
                                 {"label": "Your weighting function", "value": "YW",},
                             ],
+                            searchable=False,
+                            clearable=False,
                             value="TKW",
                             className="py-2 d-print-none",
                         ),
@@ -1222,6 +1228,8 @@ rg_segment = dbc.Collapse(
                                 {"label": "Loomes and Sugden 1982", "value": "LS",},
                                 {"label": "Your regret function", "value": "YR",},
                             ],
+                            searchable=False,
+                            clearable=False,
                             value="LS",
                             className="py-2 d-print-none",
                         ),
@@ -1473,6 +1481,8 @@ sl_segment = dbc.Collapse(
                                 {"label": "Original Salience function", "value": "OG",},
                                 {"label": "Your salience function", "value": "YS",},
                             ],
+                            searchable=False,
+                            clearable=False,
                             value="OG",
                             className="py-2 d-print-none",
                         ),
@@ -1673,6 +1683,8 @@ sdt_segment = dbc.Collapse(
                                 {"label": "Additive Habits function", "value": "AH",},
                                 {"label": "Your BIVU function", "value": "YB",},
                             ],
+                            searchable=False,
+                            clearable=False,
                             value="AH",
                             className="py-2 d-print-none",
                         ),

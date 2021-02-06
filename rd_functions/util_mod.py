@@ -67,13 +67,17 @@ def bern_utility(x: float, a: float = 0, mult: float = 1) -> float:
         res = mult * math.log(a + x)
     except ValueError:
         res = nan
-        raise ce.PositiveValuesOnlyError
+        # raise ce.PositiveValuesOnlyError
     return res
 
 
 def bern_ce(x: float, a: float = 0, mult: float = 1) -> float:
     """ Inverse of bernoulli utility """
-    return math.exp(x / mult) - a
+    try:
+        res = math.exp(x / mult) - a
+    except ValueError:
+        res = nan
+    return res
 
 
 # MARK Not utiltized in app

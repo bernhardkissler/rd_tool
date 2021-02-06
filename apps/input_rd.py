@@ -121,6 +121,8 @@ input_segment = html.Div(
                                         {"label": "Regret theory", "value": "RT"},
                                         {"label": "Salience theory", "value": "ST"},
                                     ],
+                                    searchable=False,
+                                    clearable=False,
                                     value="EU",
                                     className="pb-2 d-print-none",
                                 ),
@@ -268,7 +270,7 @@ input_segment = html.Div(
                                                 dict(
                                                     std_probabilities_tbl=0.1,
                                                     comp_probabilities_tbl=0.2,
-                                                    std_payoffs_tbl=-1,
+                                                    std_payoffs_tbl=1,
                                                     comp_payoffs_tbl=0,
                                                 ),
                                                 dict(
@@ -391,6 +393,23 @@ def reset_add_table_bool(drop_val, sure_context_bool_cur):
     else:
         sure_context_bool = sure_context_bool_cur
     return sure_context_bool
+
+
+@app.callback(
+    Output("um_dropdown", "value"),
+    [Input("theor_dropdown", "value")],
+    [State("um_dropdown", "value")],
+)
+def set_sens_default_functions(drop_val, cur_func_um):
+    if drop_val in ["CPT"]:
+        default_um = "TKU"
+    elif drop_val in ["RDRA"]:
+        default_um = "LU"
+    elif drop_val in ["SDT", "RT", "ST"]:
+        default_um = "RU"
+    else:
+        default_um = cur_func_um
+    return default_um
 
 
 @app.callback(Output("input_heading", "children"), [Input("theor_dropdown", "value")])

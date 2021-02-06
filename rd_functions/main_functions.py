@@ -18,7 +18,7 @@ def RDRA_theory(
     um_function=um.lin_utility,
     um_kwargs={},
     ce_function=um.lin_ce,
-    gl_function=um.lin_utility,
+    gl_function=um.root_utility,
     gl_kwargs={},
 ) -> float:
     """
@@ -72,9 +72,9 @@ def sav_dis_theory(
     bivu_function,
     bivu_kwargs={},
     bivu_function_ce=bu.additive_habits_ce,
-    um_function=um.lin_utility,
+    um_function=um.root_utility,
     um_kwargs={},
-    ce_function=um.lin_ce,
+    ce_function=um.root_ce,
     k: float = 0.5,
 ) -> float:
     """Ex Ante Savoring and Ex Post Disappointment theory by Gollier and Muermann 2010
@@ -118,7 +118,7 @@ def sav_dis_theory(
     ce = bivu_function_ce(
         act_val,
         ant_val,
-        um_function=um_function,
+        # um_function=um_function,
         um_kwargs=um_kwargs,
         **bivu_kwargs,
         ce_function=ce_function,
@@ -131,9 +131,9 @@ def salience_theory(
     probs: List[float],
     sl_function=ce.og_salience,
     sl_kwargs={},
-    um_function=um.lin_utility,
+    um_function=um.root_utility,
     um_kwargs={},
-    ce_function=um.lin_ce,
+    ce_function=um.root_ce,
     delta: float = 0.7,
     correl_bool: bool = True,
 ) -> float:
@@ -182,9 +182,9 @@ def salience_theory(
 def regret_theory(
     pays: List[List[float]],
     probs: List[float],
-    um_function=um.lin_utility,
+    um_function=um.root_utility,
     um_kwargs={},
-    ce_function=um.lin_ce,
+    ce_function=um.root_ce,
     rg_function=ce.ls_regret,
     rg_function_ce=ce.ls_regret_ce,
     rg_kwargs={},
@@ -264,9 +264,9 @@ def regret_theory(
 def expected_utility(
     pays: List[float],
     probs: List[float],
-    um_function=um.lin_utility,
+    um_function=um.bern_utility,
     um_kwargs={},
-    ce_function=um.lin_ce,
+    ce_function=um.bern_ce,
 ) -> float:
     """
     Takes in two vectors (payoffs and their probability) of numbers of equal length 
