@@ -148,35 +148,35 @@ def update_output(
 ):
     if theor_drop_val in ["RT", "ST"]:
         if sure_context_bool:
-            pays = [
+            pays_RT_ST = [
                 [float(i["std_payoffs_tbl"]) for i in rows],
                 [float(i["std_payoffs_tbl"]) for i in add_rows],
             ]
-            probs = [float(i["std_probabilities_tbl"]) for i in rows]
+            probs_RT_ST = [float(i["std_probabilities_tbl"]) for i in rows]
         else:
-            pays = [
+            pays_RT_ST = [
                 [float(i["std_payoffs_tbl"]) for i in rows],
                 [float(i["comp_payoffs_tbl"]) for i in rows],
             ]
-            probs = [float(i["std_probabilities_tbl"]) for i in rows]
+            probs_RT_ST = [float(i["std_probabilities_tbl"]) for i in rows]
     elif theor_drop_val == "SDT":
-        probs = [
+        probs_SDT = [
             [float(i["std_probabilities_tbl"]) for i in rows],
             [float(i["comp_probabilities_tbl"]) for i in rows],
         ]
-        pays = [float(i["std_payoffs_tbl"]) for i in rows]
+        pays_SDT = [float(i["std_payoffs_tbl"]) for i in rows]
     elif theor_drop_val == "RDRA":
-        probs = [
+        probs_RDRA = [
             [float(i["std_probabilities_tbl"]) for i in rows],
             [float(i["std_probabilities_tbl"]) for i in add_rows],
         ]
-        pays = [
+        pays_RDRA = [
             [float(i["std_payoffs_tbl"]) for i in rows],
             [float(i["std_payoffs_tbl"]) for i in add_rows],
         ]
     else:
-        probs = [float(i["std_probabilities_tbl"]) for i in rows]
-        pays = [float(i["std_payoffs_tbl"]) for i in rows]
+        probs_EU_CPT = [float(i["std_probabilities_tbl"]) for i in rows]
+        pays_EU_CPT = [float(i["std_payoffs_tbl"]) for i in rows]
 
     # calc mean for risk premium
     mean_val = sm.mean(
@@ -247,27 +247,16 @@ def update_output(
 
     if theor_drop_val == "EU":
         res = fd.mf_func_dict[theor_drop_val][0](
-            pays,
-            probs,
+            pays_EU_CPT,
+            probs_EU_CPT,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
             ce_function=fd.um_func_dict[um_drop_val][3],
-        )
-    elif theor_drop_val == "ST":
-        res = fd.mf_func_dict[theor_drop_val][0](
-            pays,
-            probs,
-            um_function=fd.um_func_dict[um_drop_val][0],
-            um_kwargs=um_kwargs,
-            ce_function=fd.um_func_dict[um_drop_val][3],
-            sl_function=fd.sl_func_dict[sl_drop_val][0],
-            sl_kwargs=sl_kwargs,
-            delta=sl_delta,
         )
     elif theor_drop_val == "RDRA":
         res = fd.mf_func_dict[theor_drop_val][0](
-            pays,
-            probs,
+            pays_RDRA,
+            probs_RDRA,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
             ce_function=fd.um_func_dict[um_drop_val][3],
@@ -276,18 +265,29 @@ def update_output(
         )
     elif theor_drop_val == "RT":
         res = fd.mf_func_dict[theor_drop_val][0](
-            pays,
-            probs,
+            pays_RT_ST,
+            probs_RT_ST,
             um_function=fd.um_func_dict[um_drop_val][0],
             um_kwargs=um_kwargs,
             ce_function=fd.um_func_dict[um_drop_val][3],
             rg_function=fd.rg_func_dict[rg_drop_val][0],
             rg_kwargs=rg_kwargs,
         )
+    elif theor_drop_val == "ST":
+        res = fd.mf_func_dict[theor_drop_val][0](
+            pays_RT_ST,
+            probs_RT_ST,
+            um_function=fd.um_func_dict[um_drop_val][0],
+            um_kwargs=um_kwargs,
+            ce_function=fd.um_func_dict[um_drop_val][3],
+            sl_function=fd.sl_func_dict[sl_drop_val][0],
+            sl_kwargs=sl_kwargs,
+            delta=sl_delta,
+        )
     elif theor_drop_val == "SDT":
         res = fd.mf_func_dict[theor_drop_val][0](
-            pays,
-            probs,
+            pays_SDT,
+            probs_SDT,
             bivu_function=fd.sdt_func_dict[sdt_drop_val][0],
             bivu_kwargs=sdt_kwargs,
             um_function=fd.um_func_dict[um_drop_val][0],
@@ -295,10 +295,10 @@ def update_output(
             ce_function=fd.um_func_dict[um_drop_val][3],
             k=sdt_k,
         )
-    else:
+    elif theor_drop_val == "CPT":
         res = fd.mf_func_dict[theor_drop_val][0](
-            pays,
-            probs,
+            pays_EU_CPT,
+            probs_EU_CPT,
             um_function=fd.um_func_dict[um_drop_val][0],
             pw_function=fd.pw_func_dict[pw_drop_val][0],
             um_kwargs=um_kwargs,
@@ -316,81 +316,72 @@ def update_output(
     elif theor_drop_val == "CPT":
         intermed_output = html.Div(
             [
-                html.P(
-                    [
-                        f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}",
-                        html.Br(),
-                        html.P(f"Formula: {fd.pw_func_dict[pw_drop_val][2]}"),
-                        html.Br(),
-                        html.P(f"Parameters: {pw_kwargs}"),
-                    ]
-                ),
+                f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}, Parameters: {pw_kwargs}"
             ]
         )
     elif theor_drop_val == "RT":
         intermed_output = html.Div(
             [
-                html.P(
-                    [
-                        f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}",
-                        html.Br(),
-                        f"Formula: {fd.rg_func_dict[rg_drop_val][2]}",
-                        html.Br(),
-                        f"Parameters: {rg_kwargs}",
-                    ]
-                ),
+                f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}, Parameters: {rg_kwargs}",
             ]
         )
     elif theor_drop_val == "ST":
         intermed_output = html.Div(
             [
-                html.P(
-                    [
-                        f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}",
-                        html.Br(),
-                        f"Formula: {fd.sl_func_dict[sl_drop_val][2]}",
-                        html.Br(),
-                        f"Parameters: {sl_kwargs}",
-                    ]
-                ),
+                f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}, Parameters: {sl_kwargs}",
             ]
         )
     elif theor_drop_val == "SDT":
         intermed_output = html.Div(
             [
-                html.P(
-                    [
-                        f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}",
-                        html.Br(),
-                        f"Formula: {fd.sdt_func_dict[sdt_drop_val][2]}",
-                        html.Br(),
-                        f"Parameters: {sdt_kwargs}",
-                    ]
-                ),
+                f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}, Parameters: {sdt_kwargs}",
             ]
         )
     elif theor_drop_val == "RDRA":
         intermed_output = html.Div(
             [
-                html.P(
-                    [
-                        f"Gain Loss Utility function: {fd.um_func_dict[gl_drop_val][1]}",
-                        html.Br(),
-                        f"Formula: {fd.um_func_dict[gl_drop_val][2]}",
-                        html.Br(),
-                        f"Parameters: {gl_kwargs}",
-                    ]
-                ),
+                f"Gain Loss Utility function: {fd.um_func_dict[gl_drop_val][1]}, Parameters: {gl_kwargs}",
             ]
         )
+
+    output_table = dbc.Table(
+        [
+            html.Thead(
+                html.Tr(
+                    [
+                        html.Td("Theory name"),
+                        html.Td("Utility function"),
+                        html.Td("Auxiliary function"),
+                        html.Td("Utility"),
+                        html.Td("Certainty Equivalent"),
+                        html.Td("Risk Premium"),
+                    ]
+                )
+            ),
+            html.Tbody(
+                [
+                    html.Td(fd.mf_func_dict[theor_drop_val][1]),
+                    html.Td(
+                        f"function: {fd.um_func_dict[um_drop_val][1]}, parameters: {um_kwargs}"
+                    ),
+                    html.Td(intermed_output),
+                    html.Td(round(res[0], 4)),
+                    html.Td(round(res[1], 4)),
+                    html.Td(round(mean_val - res[1], 4)),
+                ]
+            ),
+        ],
+        hover=True,
+        size="sm",
+    )
 
     output_text = html.Div(
         [
             html.P(
                 [
-                    f"Payoffs: {pays}",
+                    # f"Payoffs: {pays}",
                     html.Br(),
-                    f"Probs: {probs}",
+                    # f"Probs: {probs}",
                     html.Br(),
                     f"Chosen Theory: {fd.mf_func_dict[theor_drop_val][1]}",
                 ]
@@ -399,8 +390,8 @@ def update_output(
                 [
                     f"Utility function: {fd.um_func_dict[um_drop_val][1]}",
                     html.Br(),
-                    f"Formula: {fd.um_func_dict[um_drop_val][2]}",
-                    html.Br(),
+                    # f"Formula: {fd.um_func_dict[um_drop_val][2]}",
+                    # html.Br(),
                     f"Parameters: {um_kwargs}",
                 ]
             ),
@@ -417,7 +408,7 @@ def update_output(
         ]
     )
 
-    return output_text, toast_bool
+    return output_table, toast_bool
 
 
 ce_toast = dbc.Toast(
