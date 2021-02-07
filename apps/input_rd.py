@@ -76,15 +76,86 @@ stat_table = dbc.Table(
         Output("stat_tbl_skew", "children"),
         Output("stat_tbl_kurt", "children"),
     ],
-    [Input("std_input_tbl", "data")],
+    [
+        Input("std_input_tbl", "data"),
+        Input("add_input_tbl", "data"),
+        Input("sure_context_bool", "on"),
+        Input("theor_dropdown", "value"),
+    ],
 )
-def update_stats_table(std_rows):
-    probs = [float(i["std_probabilities_tbl"]) for i in std_rows]
-    pays = [float(i["std_payoffs_tbl"]) for i in std_rows]
-    mean_helper = round(sm.mean(pays, probs), 4)
-    std_dev_helper = round(sm.std_dev(pays, probs), 4)
-    skew_helper = round(sm.skew(pays, probs), 4)
-    kurtosis_helper = round(sm.kurtosis(pays, probs), 4)
+def update_stats_table(rows, add_rows, sure_context_bool, theor_drop_val):
+
+    # calc mean for risk premium
+    # mean_val = sm.mean(
+    #     [float(i["std_payoffs_tbl"]) for i in rows],
+    #     [float(i["std_probabilities_tbl"]) for i in rows],
+    # )
+
+    if theor_drop_val in ["CPT", "EU"]:
+        probs = [float(i["std_probabilities_tbl"]) for i in rows]
+        pays = [float(i["std_payoffs_tbl"]) for i in rows]
+        mean_helper = round(sm.mean(pays, probs), 4)
+        std_dev_helper = round(sm.std_dev(pays, probs), 4)
+        skew_helper = round(sm.skew(pays, probs), 4)
+        kurtosis_helper = round(sm.kurtosis(pays, probs), 4)
+
+        # early return statement
+        return [mean_helper, std_dev_helper, skew_helper, kurtosis_helper]
+
+    elif theor_drop_val in ["RT", "ST"]:
+        if sure_context_bool:
+            pays = [
+                [float(i["std_payoffs_tbl"]) for i in rows],
+                [float(i["std_payoffs_tbl"]) for i in add_rows],
+            ]
+            probs = [[float(i["std_probabilities_tbl"]) for i in rows], [1]]
+        else:
+            pays = [
+                [float(i["std_payoffs_tbl"]) for i in rows],
+                [float(i["comp_payoffs_tbl"]) for i in rows],
+            ]
+            probs = [
+                [float(i["std_probabilities_tbl"]) for i in rows],
+                [float(i["std_probabilities_tbl"]) for i in rows],
+            ]
+    elif theor_drop_val in ["SDT"]:
+        probs = [
+            [float(i["std_probabilities_tbl"]) for i in rows],
+            [float(i["comp_probabilities_tbl"]) for i in rows],
+        ]
+        pays = [
+            [float(i["std_payoffs_tbl"]) for i in rows],
+            [float(i["std_payoffs_tbl"]) for i in rows],
+        ]
+    elif theor_drop_val == "RDRA":
+        probs = [
+            [float(i["std_probabilities_tbl"]) for i in rows],
+            [float(i["std_probabilities_tbl"]) for i in add_rows],
+        ]
+        pays = [
+            [float(i["std_payoffs_tbl"]) for i in rows],
+            [float(i["std_payoffs_tbl"]) for i in add_rows],
+        ]
+
+    mean_helper_t = round(sm.mean(pays[0], probs[0]), 4)
+    mean_helper_c = round(sm.mean(pays[1], probs[1]), 4)
+    mean_helper = f"{mean_helper_t} | {mean_helper_c}"
+
+    std_dev_helper_t = round(sm.std_dev(pays[0], probs[0]), 4)
+    std_dev_helper_c = round(sm.std_dev(pays[1], probs[1]), 4)
+    std_dev_helper = f"{std_dev_helper_t} | {std_dev_helper_c}"
+    try:
+        skew_helper_c = round(sm.skew(pays[1], probs[1]), 4)
+        skew_helper_t = round(sm.skew(pays[0], probs[0]), 4)
+        skew_helper = f"{skew_helper_t} | {skew_helper_c}"
+
+        kurtosis_helper_c = round(sm.kurtosis(pays[1], probs[1]), 4)
+        kurtosis_helper_t = round(sm.kurtosis(pays[0], probs[0]), 4)
+        kurtosis_helper = f"{kurtosis_helper_t} | {kurtosis_helper_c}"
+    except:
+        skew_helper = f"{round(sm.skew(pays[0], probs[0]), 4)} | na"
+        kurtosis_helper = f"{round(sm.kurtosis(pays[0], probs[0]), 4)} | na"
+
     return [mean_helper, std_dev_helper, skew_helper, kurtosis_helper]
 
 
