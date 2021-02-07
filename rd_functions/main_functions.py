@@ -237,19 +237,16 @@ def regret_theory(
     wavg_pays = sum([pays_delta[i] * probs[i] for i, _ in enumerate(pays_delta)])
     utility = wavg_pays
     try:
-        # TODO implement ce for sure context
         if len(context_pay) == 1:
-            ce_vals = [
-                rg_function_ce(
-                    utility,
-                    context_pay[0],
-                    um_function=um_function,
-                    um_kwargs=um_kwargs,
-                    ce_function=ce_function,
-                    **rg_kwargs,
-                )
-                for i, _ in enumerate(target_pay)
-            ]
+            ce_val = rg_function_ce(
+                utility,
+                context_pay[0],
+                um_function=um_function,
+                um_kwargs=um_kwargs,
+                # ce_function=ce_function,
+                **rg_kwargs,
+            )
+            ce = ce_function(ce_val, **um_kwargs)
         else:
             ce_vals = [
                 rg_function_ce(
@@ -262,9 +259,9 @@ def regret_theory(
                 )
                 for i, _ in enumerate(target_pay)
             ]
-        ce = ce_function(
-            sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
-        )
+            ce = ce_function(
+                sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
+            )
     except:
         ce = nan
     return utility, ce
