@@ -89,6 +89,29 @@ def lot_to_str(pays, probs, cond_div=" | ", state_div="; ", probs_div=": "):
     return f"L = ({listToString(text_el)})"
 
 
+def dict_print(d):
+    """convert a dictionary to a string that can be print nicely
+
+    Args:
+        d (dictionary): the dictionary to be printed
+    """
+
+    def listToString(s):
+        str1 = " "
+        return str1.join(s)
+
+    s = []
+    counter = 0
+    for key, value in d.items():
+        counter += 1
+        if counter < len(d):
+            s.append(f"{key}: {value}; ")
+        else:
+            s.append(f"{key}: {value}")
+
+    return listToString(s)
+
+
 @app.callback(
     [Output("output_results_params", "children"), Output("danger_toast_ce", "is_open")],
     [
@@ -396,33 +419,42 @@ def update_output(
     elif theor_drop_val == "CPT":
         intermed_output = html.Div(
             [
-                f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}, Parameters: {pw_kwargs}"
+                f"Probability weighting function: {fd.pw_func_dict[pw_drop_val][1]}, Parameters: {dict_print(pw_kwargs)}"
             ]
         )
     elif theor_drop_val == "RT":
         intermed_output = html.Div(
             [
-                f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}, Parameters: {rg_kwargs}",
+                f"Regret function: {fd.rg_func_dict[rg_drop_val][1]}, Parameters: {dict_print(rg_kwargs)}",
             ]
         )
     elif theor_drop_val == "ST":
         intermed_output = html.Div(
             [
-                f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}, Parameters: {sl_kwargs}",
+                f"Salience function: {fd.sl_func_dict[sl_drop_val][1]}, Parameters: {dict_print(sl_kwargs)}",
             ]
         )
     elif theor_drop_val == "SDT":
         intermed_output = html.Div(
             [
-                f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}, Parameters: {sdt_kwargs}",
+                f"Bivariate Utility function: {fd.sdt_func_dict[sdt_drop_val][1]}, Parameters: {dict_print(sdt_kwargs)}",
             ]
         )
     elif theor_drop_val == "RDRA":
         intermed_output = html.Div(
             [
-                f"Gain Loss Utility function: {fd.um_func_dict[gl_drop_val][1]}, Parameters: {gl_kwargs}",
+                f"Gain Loss Utility function: {fd.um_func_dict[gl_drop_val][1]}, Parameters: {dict_print(gl_kwargs)}",
             ]
         )
+
+    tkw_kwargs = {"d": 0.65}
+    bu_kwargs = {"a": 0}
+    ru_kwargs = {"exp": 2, "mult": "3"}
+    lu_kwargs = {}
+    tku_kwargs = {"a": 0.88, "l": 2.25}
+    og_kwargs = {"theta": 0.1}
+    ah_kwargs = {"eta": 0.1}
+    ls_kwargs = {"weight": 1}
 
     output_table = dbc.Table(
         [
@@ -446,7 +478,7 @@ def update_output(
                             html.Td(fd.mf_func_dict[theor_drop_val][1]),
                             html.Td(focus_lottery),
                             html.Td(
-                                f"Utility function: {fd.um_func_dict[um_drop_val][1]}, Parameters: {um_kwargs}"
+                                f"Utility function: {fd.um_func_dict[um_drop_val][1]}, Parameters: {dict_print(um_kwargs)}"
                             ),
                             html.Td(intermed_output),
                             html.Td(round(res[0], 4)),
@@ -461,7 +493,9 @@ def update_output(
                         [
                             html.Td(fd.mf_func_dict["EU"][1]),
                             html.Td(lot_to_str([pays_EU_CPT], [probs_EU_CPT])),
-                            html.Td(),
+                            html.Td(
+                                f"Utility function: {fd.um_func_dict['BU'][1]}, Parameters: {dict_print(bu_kwargs)}"
+                            ),
                             html.Td(),
                             html.Td(round(res_eu[0], 4),),
                             html.Td(round(res_eu[1], 4),),
@@ -472,8 +506,12 @@ def update_output(
                         [
                             html.Td(fd.mf_func_dict["CPT"][1]),
                             html.Td(lot_to_str([pays_EU_CPT], [probs_EU_CPT])),
-                            html.Td(),
-                            html.Td(),
+                            html.Td(
+                                f"Utility function: {fd.um_func_dict['TKU'][1]}, Parameters: {dict_print(tku_kwargs)}"
+                            ),
+                            html.Td(
+                                f"Probability weighting function: {fd.pw_func_dict['TKW'][1]}, Parameters: {dict_print(tkw_kwargs)}"
+                            ),
                             html.Td(round(res_cpt[0], 4),),
                             html.Td(round(res_cpt[1], 4),),
                             html.Td(round(mean_val - res_cpt[1], 4),),
@@ -483,8 +521,12 @@ def update_output(
                         [
                             html.Td(fd.mf_func_dict["SDT"][1]),
                             html.Td(lot_to_str([pays_SDT], probs_SDT)),
-                            html.Td(),
-                            html.Td(),
+                            html.Td(
+                                f"Utility function: {fd.um_func_dict['RU'][1]}, Parameters: {dict_print(ru_kwargs)}"
+                            ),
+                            html.Td(
+                                f"Bivariate Utility function: {fd.sdt_func_dict['AH'][1]}, Parameters: {dict_print(ah_kwargs)}",
+                            ),
                             html.Td(round(res_sdt[0], 4),),
                             html.Td(round(res_sdt[1], 4),),
                             html.Td(round(mean_val - res_sdt[1], 4),),
@@ -494,8 +536,12 @@ def update_output(
                         [
                             html.Td(fd.mf_func_dict["RDRA"][1]),
                             html.Td(lot_to_str(pays_RDRA, probs_RDRA)),
-                            html.Td(),
-                            html.Td(),
+                            html.Td(
+                                f"Utility function: {fd.um_func_dict['LU'][1]}, Parameters: {dict_print(lu_kwargs)}"
+                            ),
+                            html.Td(
+                                f"Gain Loss Utility function: {fd.um_func_dict['RU'][1]}, Parameters: {dict_print(ru_kwargs)}",
+                            ),
                             html.Td(round(res_rdra[0], 4),),
                             html.Td(round(res_rdra[1], 4),),
                             html.Td(round(mean_val - res_rdra[1], 4),),
@@ -505,8 +551,12 @@ def update_output(
                         [
                             html.Td(fd.mf_func_dict["RT"][1]),
                             html.Td(RT_ST_lottery),
-                            html.Td(),
-                            html.Td(),
+                            html.Td(
+                                f"Utility function: {fd.um_func_dict['RU'][1]}, Parameters: {dict_print(ru_kwargs)}"
+                            ),
+                            html.Td(
+                                f"Regret function: {fd.rg_func_dict['LS'][1]}, Parameters: {dict_print(ls_kwargs)}",
+                            ),
                             html.Td(round(res_rt[0], 4),),
                             html.Td(round(res_rt[1], 4),),
                             html.Td(round(mean_val - res_rt[1], 4),),
@@ -516,8 +566,12 @@ def update_output(
                         [
                             html.Td(fd.mf_func_dict["ST"][1]),
                             html.Td(RT_ST_lottery),
-                            html.Td(),
-                            html.Td(),
+                            html.Td(
+                                f"Utility function: {fd.um_func_dict['RU'][1]}, Parameters: {dict_print(ru_kwargs)}"
+                            ),
+                            html.Td(
+                                f"Salience function: {fd.sl_func_dict['OG'][1]}, Parameters: {dict_print(og_kwargs)}",
+                            ),
                             html.Td(round(res_st[0], 4),),
                             html.Td(round(res_st[1], 4),),
                             html.Td(round(mean_val - res_st[1], 4),),

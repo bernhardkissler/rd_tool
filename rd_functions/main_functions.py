@@ -237,6 +237,7 @@ def regret_theory(
     wavg_pays = sum([pays_delta[i] * probs[i] for i, _ in enumerate(pays_delta)])
     utility = wavg_pays
     try:
+        # TODO implement ce for sure context
         if len(context_pay) == 1:
             ce_vals = [
                 rg_function_ce(
@@ -261,7 +262,6 @@ def regret_theory(
                 )
                 for i, _ in enumerate(target_pay)
             ]
-        # FIXME muss noch auf nan gestzt werden, wenn custom input functions
         ce = ce_function(
             sum([ce_vals[i] * probs[i] for i, _ in enumerate(ce_vals)]), **um_kwargs
         )
