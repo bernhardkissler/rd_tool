@@ -29,7 +29,11 @@ from app import app
 
 output_segment = html.Div(
     [
-        html.H3(html.Strong("Output"), style=header_style, className=header_class),
+        html.H3(
+            html.Strong("Calculated utilities"),
+            style=header_style,
+            className=header_class,
+        ),
         html.Div(id="output_results_params"),
     ],
     className="my-2",

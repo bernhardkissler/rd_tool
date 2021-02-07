@@ -35,7 +35,11 @@ gl_segment = dbc.Collapse(
     [
         html.H3(
             html.Strong(
-                [html.Span("Gain Loss Utility function - "), html.Span(id="gl_heading")]
+                [
+                    html.Span("Gain Loss Utility function ("),
+                    html.Span(id="gl_heading"),
+                    html.Span(")"),
+                ]
             ),
             style=header_style,
             className=header_class,
@@ -437,7 +441,13 @@ def update_gl_graph(
 um_segment = html.Div(
     [
         html.H3(
-            html.Strong([html.Span("Utility function - "), html.Span(id="um_heading")]),
+            html.Strong(
+                [
+                    html.Span("Utility function ("),
+                    html.Span(id="um_heading"),
+                    html.Span(")"),
+                ]
+            ),
             style=header_style,
             className=header_class,
         ),
@@ -839,8 +849,9 @@ pw_segment = dbc.Collapse(
         html.H3(
             html.Strong(
                 [
-                    html.Span("Probability weighting function - "),
+                    html.Span("Probability weighting function ("),
                     html.Span(id="pw_heading"),
+                    html.Span(")"),
                 ]
             ),
             style=header_style,
@@ -1213,7 +1224,13 @@ def update_pw_graph(
 rg_segment = dbc.Collapse(
     [
         html.H3(
-            html.Strong([html.Span("Regret function - "), html.Span(id="rg_heading")]),
+            html.Strong(
+                [
+                    html.Span("Regret function ("),
+                    html.Span(id="rg_heading"),
+                    html.Span(")"),
+                ]
+            ),
             id="rg_link",
             style=header_style,
             className=header_class,
@@ -1465,7 +1482,11 @@ sl_segment = dbc.Collapse(
     [
         html.H3(
             html.Strong(
-                [html.Span("Salience function - "), html.Span(id="sl_heading")]
+                [
+                    html.Span("Salience function ("),
+                    html.Span(id="sl_heading"),
+                    html.Span(")"),
+                ]
             ),
             id="sl_link",
             style=header_style,
@@ -1668,7 +1689,13 @@ def update_sl_graph(
 sdt_segment = dbc.Collapse(
     [
         html.H3(
-            html.Strong([html.Span("Bivu function - "), html.Span(id="sdt_heading")]),
+            html.Strong(
+                [
+                    html.Span("Bivu function ("),
+                    html.Span(id="sdt_heading"),
+                    html.Span(")"),
+                ]
+            ),
             id="sdt_link",
             style=header_style,
             className=header_class,

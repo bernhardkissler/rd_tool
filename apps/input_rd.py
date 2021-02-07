@@ -162,7 +162,13 @@ def update_stats_table(rows, add_rows, sure_context_bool, theor_drop_val):
 input_segment = html.Div(
     [
         html.H3(
-            html.Strong([html.Span("Input - "), html.Span(id="input_heading")]),
+            html.Strong(
+                [
+                    html.Span("Theory ("),
+                    html.Span(id="input_heading"),
+                    html.Span(") and Lottery"),
+                ]
+            ),
             style=header_style,
             className=header_class,
         ),
@@ -196,85 +202,6 @@ input_segment = html.Div(
                                     clearable=False,
                                     value="EU",
                                     className="pb-2 d-print-none",
-                                ),
-                                dbc.Collapse(
-                                    # Salience parameter delta here
-                                    dbc.Alert(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Label(
-                                                        "Salience - Local thinking delta:",
-                                                        width=6,
-                                                        className="my-1",
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="sl_delta",
-                                                            type="number",
-                                                            value=0.5,
-                                                            step=0.01,
-                                                            min=0,
-                                                            max=1,
-                                                        ),
-                                                        width=6,
-                                                    ),
-                                                ],
-                                                row=True,
-                                            ),
-                                        ],
-                                        color="warning",
-                                        className="pb-2",
-                                    ),
-                                    id="input_sl_collapse",
-                                ),
-                                dbc.Collapse(
-                                    # Savoring parameter delta here
-                                    dbc.Alert(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Label(
-                                                        "Savoring and Disappointment theory - Savoring coefficient:",
-                                                        width=6,
-                                                        className="my-1",
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="sdt_k",
-                                                            type="number",
-                                                            value=0.5,
-                                                            step=0.01,
-                                                            min=0,
-                                                        ),
-                                                        width=6,
-                                                    ),
-                                                ],
-                                                row=True,
-                                            ),
-                                        ],
-                                        color="warning",
-                                        className="pb-2",
-                                    ),
-                                    id="input_sdt_collapse",
-                                ),
-                                dbc.Collapse(
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("Use a single input:", width=6),
-                                            dbc.Col(
-                                                daq.BooleanSwitch(
-                                                    id="sure_context_bool",
-                                                    on=False,
-                                                    color=prim_color,
-                                                ),
-                                                width=6,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                    id="input_sure_context_collapse",
-                                    className="d-print-none",
                                 ),
                                 html.Div(
                                     [
@@ -381,6 +308,29 @@ input_segment = html.Div(
                                     n_clicks=0,
                                     className="mb-2 d-print-none",
                                 ),
+                            ],
+                            className="col",
+                        ),
+                        html.Div(
+                            [
+                                dbc.Collapse(
+                                    dbc.FormGroup(
+                                        [
+                                            dbc.Label("Use a single input:", width=6),
+                                            dbc.Col(
+                                                daq.BooleanSwitch(
+                                                    id="sure_context_bool",
+                                                    on=False,
+                                                    color=prim_color,
+                                                ),
+                                                width=6,
+                                            ),
+                                        ],
+                                        row=True,
+                                    ),
+                                    id="input_sure_context_collapse",
+                                    className="d-print-none",
+                                ),
                                 dbc.Collapse(
                                     [
                                         html.Div(
@@ -435,9 +385,89 @@ input_segment = html.Div(
                                     ],
                                     id="add_table_collapse",
                                 ),
+                                dbc.Collapse(
+                                    # Salience parameter delta here
+                                    dbc.Alert(
+                                        [
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Label(
+                                                        "Salience - Local thinking delta:",
+                                                        width=6,
+                                                        className="my-1",
+                                                    ),
+                                                    dbc.Col(
+                                                        dbc.Input(
+                                                            id="sl_delta",
+                                                            type="number",
+                                                            value=0.5,
+                                                            step=0.01,
+                                                            min=0,
+                                                            max=1,
+                                                        ),
+                                                        width=6,
+                                                    ),
+                                                ],
+                                                row=True,
+                                            ),
+                                        ],
+                                        color="warning",
+                                        className="pb-2",
+                                    ),
+                                    id="input_sl_collapse",
+                                ),
+                                dbc.Collapse(
+                                    # Savoring parameter delta here
+                                    dbc.Alert(
+                                        [
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Label(
+                                                        "Savoring and Disappointment theory - Savoring coefficient:",
+                                                        width=6,
+                                                        className="my-1",
+                                                    ),
+                                                    dbc.Col(
+                                                        dbc.Input(
+                                                            id="sdt_k",
+                                                            type="number",
+                                                            value=0.5,
+                                                            step=0.01,
+                                                            min=0,
+                                                        ),
+                                                        width=6,
+                                                    ),
+                                                ],
+                                                row=True,
+                                            ),
+                                        ],
+                                        color="warning",
+                                        className="pb-2",
+                                    ),
+                                    id="input_sdt_collapse",
+                                ),
                             ],
-                            className="col-4",
+                            className="col",
                         ),
+                    ],
+                    className="row mt-2",
+                ),
+            ]
+        ),
+        html.H3(
+            html.Strong(
+                [
+                    html.Span("Summary Statistics"),
+                    #  html.Span(id="input_heading")
+                ]
+            ),
+            style=header_style,
+            className=header_class,
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
                         html.Div(
                             [dcc.Graph(id="gamble_figs", className="pb-2"), stat_table],
                             className="col",
@@ -677,7 +707,7 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
         specs=[[{"rowspan": 2}, {}], [None, {}]],
         shared_xaxes=True,
         subplot_titles=(
-            "Your Choices",
+            "Lotteries",
             "Probability Density Function",
             "Cumulative Density Function",
         ),
