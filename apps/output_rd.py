@@ -36,6 +36,59 @@ output_segment = html.Div(
 )
 
 
+def lot_to_str(pays, probs, cond_div=" | ", state_div="; ", probs_div=": "):
+    """convert the pays and probs input in the tool to nicely printable strings
+
+    Args:
+        pays (List of Lists): List of pays (remember to put pays of EU and CPT into additional brackets to make them a 2 dimensional list)
+        probs (List of Lists): List of probs (remember to put pays of EU and CPT into additional brackets to make them a 2 dimensional list)
+        cond_div (Str, optional): Divider between context and target info for pays and probs respectively Defaults to " | ".
+        state_div (str, optional): Divider between different outcomes of a lottery. Defaults to "; ".
+        probs_div (str, optional): Divider between the pays and probs of a certain outcome. Defaults to ": ".
+    """
+
+    def listToString(s):
+        str1 = " "
+        return str1.join(s)
+
+    if len(pays) == 2 and len(pays[0]) != len(pays[1]):
+        pays_str_t = [str(pay) + probs_div for pay in pays[0]]
+        probs_str_t = [
+            str(probs[0][i]) + state_div if i < len(probs[0]) - 1 else str(probs[0][i])
+            for i, _ in enumerate(probs[0])
+        ]
+        text_el_t = [(pays_str_t[i] + probs_str_t[i]) for i, _ in enumerate(pays_str_t)]
+        pays_str_c = [str(pay) + probs_div for pay in pays[1]]
+        probs_str_c = [
+            str(probs[1][i]) + state_div if i < len(probs[1]) - 1 else str(probs[1][i])
+            for i, _ in enumerate(probs[1])
+        ]
+        text_el_c = [(pays_str_c[i] + probs_str_c[i]) for i, _ in enumerate(pays_str_c)]
+        return f"T = ({listToString(text_el_t)}) and C = ({listToString(text_el_c)})"
+
+    elif len(pays) == 2:
+        pays_str = [
+            str(pays[0][i]) + cond_div + str(pays[1][i]) + probs_div
+            for i, _ in enumerate(pays[0])
+        ]
+    else:
+        pays_str = [str(pay) + probs_div for pay in pays[0]]
+    if len(probs) == 2:
+        probs_str = [
+            str(probs[0][i]) + cond_div + str(probs[1][i]) + state_div
+            if i < len(probs[0]) - 1
+            else str(probs[0][i]) + "|" + str(probs[1][i])
+            for i, _ in enumerate(probs[0])
+        ]
+    else:
+        probs_str = [
+            str(probs[0][i]) + state_div if i < len(probs[0]) - 1 else str(probs[0][i])
+            for i, _ in enumerate(probs[0])
+        ]
+    text_el = [(pays_str[i] + probs_str[i]) for i, _ in enumerate(pays_str)]
+    return f"L = ({listToString(text_el)})"
+
+
 @app.callback(
     [Output("output_results_params", "children"), Output("danger_toast_ce", "is_open")],
     [
@@ -256,6 +309,12 @@ def update_output(
     res_rt = mf.regret_theory(pays_RT_ST, probs_RT_ST)
     res_st = mf.salience_theory(pays_RT_ST, probs_RT_ST,)
 
+    # create RT_ST pretty lottery display
+    if sure_context_bool == False:
+        RT_ST_lottery = lot_to_str(pays_RT_ST, [probs_RT_ST])
+    elif sure_context_bool == True:
+        RT_ST_lottery = lot_to_str(pays_RT_ST, [probs_RT_ST, [1]])
+
     # calculate conditional result
     if theor_drop_val == "EU":
         res = fd.mf_func_dict[theor_drop_val][0](
@@ -265,6 +324,7 @@ def update_output(
             um_kwargs=um_kwargs,
             ce_function=fd.um_func_dict[um_drop_val][3],
         )
+        focus_lottery = lot_to_str([pays_EU_CPT], [probs_EU_CPT])
     elif theor_drop_val == "RDRA":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays_RDRA,
@@ -275,6 +335,7 @@ def update_output(
             gl_function=fd.um_func_dict[gl_drop_val][0],
             gl_kwargs=gl_kwargs,
         )
+        focus_lottery = lot_to_str(pays_RDRA, probs_RDRA)
     elif theor_drop_val == "RT":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays_RT_ST,
@@ -285,6 +346,7 @@ def update_output(
             rg_function=fd.rg_func_dict[rg_drop_val][0],
             rg_kwargs=rg_kwargs,
         )
+        focus_lottery = RT_ST_lottery
     elif theor_drop_val == "ST":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays_RT_ST,
@@ -296,6 +358,7 @@ def update_output(
             sl_kwargs=sl_kwargs,
             delta=sl_delta,
         )
+        focus_lottery = RT_ST_lottery
     elif theor_drop_val == "SDT":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays_SDT,
@@ -307,6 +370,7 @@ def update_output(
             ce_function=fd.um_func_dict[um_drop_val][3],
             k=sdt_k,
         )
+        focus_lottery = lot_to_str([pays_SDT], probs_SDT)
     elif theor_drop_val == "CPT":
         res = fd.mf_func_dict[theor_drop_val][0](
             pays_EU_CPT,
@@ -320,6 +384,7 @@ def update_output(
         res = list(res)
         if pw_drop_val == "YW":
             res[1] = nan
+        focus_lottery = lot_to_str([pays_EU_CPT], [probs_EU_CPT])
 
     if isnan(res[1]):
         toast_bool = True
@@ -365,6 +430,7 @@ def update_output(
                 html.Tr(
                     [
                         html.Th("Theory name"),
+                        html.Th("Lottery"),
                         html.Th("Utility function"),
                         html.Th("Auxiliary function"),
                         html.Th("Utility"),
@@ -378,8 +444,9 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict[theor_drop_val][1]),
+                            html.Td(focus_lottery),
                             html.Td(
-                                f"function: {fd.um_func_dict[um_drop_val][1]}, Parameters: {um_kwargs}"
+                                f"Utility function: {fd.um_func_dict[um_drop_val][1]}, Parameters: {um_kwargs}"
                             ),
                             html.Td(intermed_output),
                             html.Td(round(res[0], 4)),
@@ -393,6 +460,7 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["EU"][1]),
+                            html.Td(lot_to_str([pays_EU_CPT], [probs_EU_CPT])),
                             html.Td(),
                             html.Td(),
                             html.Td(round(res_eu[0], 4),),
@@ -403,6 +471,7 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["CPT"][1]),
+                            html.Td(lot_to_str([pays_EU_CPT], [probs_EU_CPT])),
                             html.Td(),
                             html.Td(),
                             html.Td(round(res_cpt[0], 4),),
@@ -413,6 +482,7 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["SDT"][1]),
+                            html.Td(lot_to_str([pays_SDT], probs_SDT)),
                             html.Td(),
                             html.Td(),
                             html.Td(round(res_sdt[0], 4),),
@@ -423,6 +493,7 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["RDRA"][1]),
+                            html.Td(lot_to_str(pays_RDRA, probs_RDRA)),
                             html.Td(),
                             html.Td(),
                             html.Td(round(res_rdra[0], 4),),
@@ -433,6 +504,7 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["RT"][1]),
+                            html.Td(RT_ST_lottery),
                             html.Td(),
                             html.Td(),
                             html.Td(round(res_rt[0], 4),),
@@ -443,6 +515,7 @@ def update_output(
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["ST"][1]),
+                            html.Td(RT_ST_lottery),
                             html.Td(),
                             html.Td(),
                             html.Td(round(res_st[0], 4),),
