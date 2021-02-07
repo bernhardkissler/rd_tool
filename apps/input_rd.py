@@ -159,305 +159,12 @@ def update_stats_table(rows, add_rows, sure_context_bool, theor_drop_val):
     return [mean_helper, std_dev_helper, skew_helper, kurtosis_helper]
 
 
-input_segment = html.Div(
+stat_sum_segment = html.Div(
     [
         html.H3(
             html.Strong(
                 [
-                    html.Span("Theory ("),
-                    html.Span(id="input_heading"),
-                    html.Span(") and Lottery"),
-                ]
-            ),
-            style=header_style,
-            className=header_class,
-        ),
-        html.Div(
-            [
-                html.Div(
-                    [
-                        html.Div(
-                            [
-                                dcc.Dropdown(
-                                    id="theor_dropdown",
-                                    options=[
-                                        {"label": "Expected utility", "value": "EU",},
-                                        # {"label": "Rank dependent utility", "value": "RDU",}, # Dont show rdu as it is a subset of CPT
-                                        {
-                                            "label": "Cumulative prospect theory",
-                                            "value": "CPT",
-                                        },
-                                        {
-                                            "label": "Savoring and Disappointment theory",
-                                            "value": "SDT",
-                                        },
-                                        {
-                                            "label": "Reference Dependent Risk Attitudes",
-                                            "value": "RDRA",
-                                        },
-                                        {"label": "Regret theory", "value": "RT"},
-                                        {"label": "Salience theory", "value": "ST"},
-                                    ],
-                                    searchable=False,
-                                    clearable=False,
-                                    value="EU",
-                                    className="pb-2 d-print-none",
-                                ),
-                                html.Div(
-                                    [
-                                        dash_table.DataTable(
-                                            id="std_input_tbl",
-                                            columns=(
-                                                [
-                                                    {
-                                                        "id": "std_probabilities_tbl",
-                                                        "name": "Probabilities",
-                                                        "type": "numeric",
-                                                        "format": FormatTemplate.percentage(
-                                                            1
-                                                        ),
-                                                    },
-                                                    {
-                                                        "id": "comp_probabilities_tbl",
-                                                        "name": "Comp Probabilities",
-                                                        "type": "numeric",
-                                                        "format": FormatTemplate.percentage(
-                                                            1
-                                                        ),
-                                                    },
-                                                    {
-                                                        "id": "std_payoffs_tbl",
-                                                        "name": "Payoffs",
-                                                        "type": "numeric",
-                                                    },
-                                                    {
-                                                        "id": "comp_payoffs_tbl",
-                                                        "name": "Comp Payoffs",
-                                                        "type": "numeric",
-                                                    },
-                                                ]
-                                            ),
-                                            css=[
-                                                {
-                                                    "selector": ".show-hide",
-                                                    "rule": "display: none",
-                                                }
-                                            ],
-                                            style_cell={"textAlign": "center"},
-                                            hidden_columns=[
-                                                "comp_probabilities_tbl",
-                                                "comp_payoffs_tbl",
-                                            ],
-                                            # style_cell_conditional=[
-                                            #     {
-                                            #         "if": {
-                                            #             "column_id": "std_probabilities_tbl"
-                                            #         },
-                                            #         "width": "33%",
-                                            #     },
-                                            #     {
-                                            #         "if": {"column_id": "std_payoffs_tbl"},
-                                            #         "width": "33%",
-                                            #     },
-                                            #     {
-                                            #         "if": {"column_id": "comp_payoffs_tbl"},
-                                            #         "width": "33%",
-                                            #     },
-                                            # ],
-                                            data=[
-                                                dict(
-                                                    std_probabilities_tbl=0.1,
-                                                    comp_probabilities_tbl=0.2,
-                                                    std_payoffs_tbl=1,
-                                                    comp_payoffs_tbl=0,
-                                                ),
-                                                dict(
-                                                    std_probabilities_tbl=0.2,
-                                                    comp_probabilities_tbl=0.1,
-                                                    std_payoffs_tbl=2,
-                                                    comp_payoffs_tbl=1,
-                                                ),
-                                                dict(
-                                                    std_probabilities_tbl=0.3,
-                                                    comp_probabilities_tbl=0.1,
-                                                    std_payoffs_tbl=3,
-                                                    comp_payoffs_tbl=4,
-                                                ),
-                                                dict(
-                                                    std_probabilities_tbl=0.2,
-                                                    comp_probabilities_tbl=0.2,
-                                                    std_payoffs_tbl=5,
-                                                    comp_payoffs_tbl=6,
-                                                ),
-                                                dict(
-                                                    std_probabilities_tbl=0.2,
-                                                    comp_probabilities_tbl=0.4,
-                                                    std_payoffs_tbl=6,
-                                                    comp_payoffs_tbl=6,
-                                                ),
-                                            ],
-                                            editable=True,
-                                            row_deletable=True,
-                                        ),
-                                    ],
-                                    className="pb-2 px-2 mx-2",
-                                ),
-                                dbc.Button(
-                                    "Add Row",
-                                    id="std_editing_rows_button",
-                                    n_clicks=0,
-                                    className="mb-2 d-print-none",
-                                ),
-                            ],
-                            className="col",
-                        ),
-                        html.Div(
-                            [
-                                dbc.Collapse(
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("Use a single input:", width=6),
-                                            dbc.Col(
-                                                daq.BooleanSwitch(
-                                                    id="sure_context_bool",
-                                                    on=False,
-                                                    color=prim_color,
-                                                ),
-                                                width=6,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
-                                    id="input_sure_context_collapse",
-                                    className="d-print-none",
-                                ),
-                                dbc.Collapse(
-                                    [
-                                        html.Div(
-                                            [
-                                                dash_table.DataTable(
-                                                    id="add_input_tbl",
-                                                    columns=(
-                                                        [
-                                                            {
-                                                                "id": "std_probabilities_tbl",
-                                                                "name": "Probabilities",
-                                                                "type": "numeric",
-                                                                "format": FormatTemplate.percentage(
-                                                                    1
-                                                                ),
-                                                            },
-                                                            {
-                                                                "id": "std_payoffs_tbl",
-                                                                "name": "Payoffs",
-                                                                "type": "numeric",
-                                                            },
-                                                        ]
-                                                    ),
-                                                    css=[
-                                                        {
-                                                            "selector": ".show-hide",
-                                                            "rule": "display: none",
-                                                        }
-                                                    ],
-                                                    style_cell={"textAlign": "center"},
-                                                    data=[
-                                                        dict(
-                                                            std_probabilities_tbl=1,
-                                                            std_payoffs_tbl=-1,
-                                                        ),
-                                                    ],
-                                                    editable=True,
-                                                    row_deletable=True,
-                                                )
-                                            ],
-                                            className="pb-2 px-2 mx-2",
-                                        ),
-                                        html.Div(
-                                            dbc.Button(
-                                                "Add Row",
-                                                id="add_editing_rows_button",
-                                                n_clicks=0,
-                                                className="mb-2 d-print-none",
-                                            ),
-                                            id="add_table_add_row_button",
-                                        ),
-                                    ],
-                                    id="add_table_collapse",
-                                ),
-                                dbc.Collapse(
-                                    # Salience parameter delta here
-                                    dbc.Alert(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Label(
-                                                        "Salience - Local thinking delta:",
-                                                        width=6,
-                                                        className="my-1",
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="sl_delta",
-                                                            type="number",
-                                                            value=0.5,
-                                                            step=0.01,
-                                                            min=0,
-                                                            max=1,
-                                                        ),
-                                                        width=6,
-                                                    ),
-                                                ],
-                                                row=True,
-                                            ),
-                                        ],
-                                        color="warning",
-                                        className="pb-2",
-                                    ),
-                                    id="input_sl_collapse",
-                                ),
-                                dbc.Collapse(
-                                    # Savoring parameter delta here
-                                    dbc.Alert(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Label(
-                                                        "Savoring and Disappointment theory - Savoring coefficient:",
-                                                        width=6,
-                                                        className="my-1",
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="sdt_k",
-                                                            type="number",
-                                                            value=0.5,
-                                                            step=0.01,
-                                                            min=0,
-                                                        ),
-                                                        width=6,
-                                                    ),
-                                                ],
-                                                row=True,
-                                            ),
-                                        ],
-                                        color="warning",
-                                        className="pb-2",
-                                    ),
-                                    id="input_sdt_collapse",
-                                ),
-                            ],
-                            className="col",
-                        ),
-                    ],
-                    className="row mt-2",
-                ),
-            ]
-        ),
-        html.H3(
-            html.Strong(
-                [
-                    html.Span("Summary Statistics"),
+                    html.Span("Summary of lotteries and statistics"),
                     #  html.Span(id="input_heading")
                 ]
             ),
@@ -481,199 +188,6 @@ input_segment = html.Div(
     ],
     className="p-0 m-0",
 )
-
-
-@app.callback(
-    Output("sure_context_bool", "on"),
-    [Input("theor_dropdown", "value")],
-    [State("sure_context_bool", "on")],
-)
-def reset_add_table_bool(drop_val, sure_context_bool_cur):
-    if drop_val in ["EU", "CPT", "SDT", "RDRA"]:
-        sure_context_bool = False
-    else:
-        sure_context_bool = sure_context_bool_cur
-    return sure_context_bool
-
-
-@app.callback(
-    Output("um_dropdown", "value"),
-    [Input("theor_dropdown", "value")],
-    [State("um_dropdown", "value")],
-)
-def set_sens_default_functions(drop_val, cur_func_um):
-    if drop_val in ["CPT"]:
-        default_um = "TKU"
-    elif drop_val in ["RDRA"]:
-        default_um = "LU"
-    elif drop_val in ["SDT", "RT", "ST"]:
-        default_um = "RU"
-    else:
-        default_um = cur_func_um
-    return default_um
-
-
-@app.callback(Output("input_heading", "children"), [Input("theor_dropdown", "value")])
-def set_heading(drop_val):
-    title = fd.mf_func_dict[drop_val][1]
-    return title
-
-
-@app.callback(
-    [
-        Output("pw_panel_collapse", "is_open"),
-        Output("rg_panel_collapse", "is_open"),
-        Output("sl_panel_collapse", "is_open"),
-        Output("sdt_panel_collapse", "is_open"),
-        Output("input_sl_collapse", "is_open"),
-        Output("input_sdt_collapse", "is_open"),
-        Output("gl_panel_collapse", "is_open"),
-        Output("input_sure_context_collapse", "is_open"),
-    ],
-    [Input("theor_dropdown", "value")],
-)
-def collapse_pw(drop_val):
-    if drop_val == "EU":
-        return False, False, False, False, False, False, False, False
-    elif drop_val == "RDRA":
-        return False, False, False, False, False, False, True, False
-    elif drop_val == "RT":
-        return False, True, False, False, False, False, False, True
-    elif drop_val == "ST":
-        return False, False, True, False, True, False, False, True
-    elif drop_val == "SDT":
-        return False, False, False, True, False, True, False, False
-    elif drop_val == "CPT":
-        return True, False, False, False, False, False, False, False
-
-
-# Callbacks for Table
-@app.callback(
-    [Output("danger_toast_2", "is_open"), Output("danger_toast_2", "children")],
-    [Input("std_input_tbl", "data")],
-)
-def check_probs(rows):
-    # Check whether probs in table approximately sum to 1
-    probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    if not isclose(sum(probs), 1):
-        return (
-            True,
-            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
-                sum(probs)
-            ),
-        )
-    else:
-        return False, ""
-
-
-@app.callback(
-    [Output("danger_toast_3", "is_open"), Output("danger_toast_3", "children")],
-    [Input("std_input_tbl", "data"), Input("theor_dropdown", "value"),],
-)
-def check_probs(rows, drop_val):
-    # Check whether probs in table approximately sum to 1
-    if drop_val in ["SDT"]:
-        probs = [float(i["comp_probabilities_tbl"]) for i in rows]
-        if not isclose(sum(probs), 1):
-            return (
-                True,
-                "Please make sure that the anticipated probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
-                    sum(probs)
-                ),
-            )
-        else:
-            return False, ""
-    else:
-        return False, ""
-
-
-@app.callback(
-    [Output("danger_toast_4", "is_open"), Output("danger_toast_4", "children")],
-    [
-        Input("add_input_tbl", "data"),
-        Input("theor_dropdown", "value"),
-        Input("sure_context_bool", "on"),
-    ],
-)
-def check_probs(rows, drop_val, add_context):
-    # Check whether probs in table approximately sum to 1
-    probs = [float(i["std_probabilities_tbl"]) for i in rows]
-    if not isclose(sum(probs), 1) and (
-        (drop_val in ["RT", "ST"] and add_context == True) or drop_val in ["RDRA"]
-    ):
-        return (
-            True,
-            "Please make sure that the probabilities of the different payoffs in the bottom table add to 1. In the moment their sum is {}.".format(
-                sum(probs)
-            ),
-        )
-    else:
-        return False, ""
-
-
-@app.callback(
-    Output("std_input_tbl", "data"),
-    [Input("std_editing_rows_button", "n_clicks")],
-    [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
-)
-def add_row(n_clicks, rows, columns):
-    # extend the input table by one empty row per click
-    if n_clicks > 0:
-        rows.append({c["id"]: "" for c in columns})
-    return rows
-
-
-@app.callback(
-    [Output("add_input_tbl", "data"), Output("add_table_add_row_button", "style")],
-    [
-        Input("add_editing_rows_button", "n_clicks"),
-        Input("sure_context_bool", "on"),
-        Input("theor_dropdown", "value"),
-    ],
-    [State("add_input_tbl", "data"), State("add_input_tbl", "columns")],
-)
-def add_row_add_table(n_clicks, sure_context, theor_dropdown, rows, columns):
-    # extend the input table by one empty row per click
-    if theor_dropdown in ["RT", "ST"] and sure_context == True:
-        rows = [{"std_probabilities_tbl": 1, "std_payoffs_tbl": -1}]
-        button_diplay = {"display": "none"}
-    else:
-        ctx = dash.callback_context
-        if (
-            ctx.triggered[0]["prop_id"] == "add_editing_rows_button.n_clicks"
-            and n_clicks > 0
-        ):
-            rows.append({c["id"]: "" for c in columns})
-        button_diplay = {"diplay": "inline"}
-    return rows, button_diplay
-
-
-@app.callback(
-    [
-        Output("std_input_tbl", "hidden_columns"),
-        Output("add_table_collapse", "is_open"),
-    ],
-    [Input("theor_dropdown", "value"), Input("sure_context_bool", "on")],
-)
-def hide_rt_input_column(drop_val, add_context):
-    # Hide the rt_input column in which the user can write an alternative lottery to which the target lottery may be compared
-    if drop_val in ["RT", "ST"]:
-        col_list = ["comp_probabilities_tbl"]
-    elif drop_val == "SDT":
-        col_list = ["comp_payoffs_tbl"]
-    else:
-        col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
-
-    if add_context == False:
-        add_table_bool = False
-    else:
-        add_table_bool = True
-        col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
-
-    if drop_val == "RDRA":
-        add_table_bool = True
-
-    return col_list, add_table_bool
 
 
 # Manage gamble Figs
@@ -1037,4 +551,497 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
         range=[0.0, 1.05], showgrid=False, zeroline=True, tickformat="%", row=2, col=2,
     )
     return fig
+
+
+input_segment = html.Div(
+    [
+        html.H3(
+            html.Strong(
+                [
+                    html.Span("Theory ("),
+                    html.Span(id="input_heading"),
+                    html.Span(") and Lottery"),
+                ]
+            ),
+            style=header_style,
+            className=header_class,
+        ),
+        html.Div(
+            [
+                html.Div(
+                    [
+                        html.Div(
+                            [
+                                dcc.Dropdown(
+                                    id="theor_dropdown",
+                                    options=[
+                                        {"label": "Expected utility", "value": "EU",},
+                                        # {"label": "Rank dependent utility", "value": "RDU",}, # Dont show rdu as it is a subset of CPT
+                                        {
+                                            "label": "Cumulative prospect theory",
+                                            "value": "CPT",
+                                        },
+                                        {
+                                            "label": "Savoring and Disappointment theory",
+                                            "value": "SDT",
+                                        },
+                                        {
+                                            "label": "Reference Dependent Risk Attitudes",
+                                            "value": "RDRA",
+                                        },
+                                        {"label": "Regret theory", "value": "RT"},
+                                        {"label": "Salience theory", "value": "ST"},
+                                    ],
+                                    searchable=False,
+                                    clearable=False,
+                                    value="EU",
+                                    className="pb-2 d-print-none",
+                                ),
+                                html.Div(
+                                    [
+                                        dash_table.DataTable(
+                                            id="std_input_tbl",
+                                            columns=(
+                                                [
+                                                    {
+                                                        "id": "std_probabilities_tbl",
+                                                        "name": "Probabilities",
+                                                        "type": "numeric",
+                                                        "format": FormatTemplate.percentage(
+                                                            1
+                                                        ),
+                                                    },
+                                                    {
+                                                        "id": "comp_probabilities_tbl",
+                                                        "name": "Comp Probabilities",
+                                                        "type": "numeric",
+                                                        "format": FormatTemplate.percentage(
+                                                            1
+                                                        ),
+                                                    },
+                                                    {
+                                                        "id": "std_payoffs_tbl",
+                                                        "name": "Payoffs",
+                                                        "type": "numeric",
+                                                    },
+                                                    {
+                                                        "id": "comp_payoffs_tbl",
+                                                        "name": "Comp Payoffs",
+                                                        "type": "numeric",
+                                                    },
+                                                ]
+                                            ),
+                                            css=[
+                                                {
+                                                    "selector": ".show-hide",
+                                                    "rule": "display: none",
+                                                }
+                                            ],
+                                            style_cell={"textAlign": "center"},
+                                            hidden_columns=[
+                                                "comp_probabilities_tbl",
+                                                "comp_payoffs_tbl",
+                                            ],
+                                            # style_cell_conditional=[
+                                            #     {
+                                            #         "if": {
+                                            #             "column_id": "std_probabilities_tbl"
+                                            #         },
+                                            #         "width": "33%",
+                                            #     },
+                                            #     {
+                                            #         "if": {"column_id": "std_payoffs_tbl"},
+                                            #         "width": "33%",
+                                            #     },
+                                            #     {
+                                            #         "if": {"column_id": "comp_payoffs_tbl"},
+                                            #         "width": "33%",
+                                            #     },
+                                            # ],
+                                            data=[
+                                                dict(
+                                                    std_probabilities_tbl=0.1,
+                                                    comp_probabilities_tbl=0.2,
+                                                    std_payoffs_tbl=1,
+                                                    comp_payoffs_tbl=0,
+                                                ),
+                                                dict(
+                                                    std_probabilities_tbl=0.2,
+                                                    comp_probabilities_tbl=0.1,
+                                                    std_payoffs_tbl=2,
+                                                    comp_payoffs_tbl=1,
+                                                ),
+                                                dict(
+                                                    std_probabilities_tbl=0.3,
+                                                    comp_probabilities_tbl=0.1,
+                                                    std_payoffs_tbl=3,
+                                                    comp_payoffs_tbl=4,
+                                                ),
+                                                dict(
+                                                    std_probabilities_tbl=0.2,
+                                                    comp_probabilities_tbl=0.2,
+                                                    std_payoffs_tbl=5,
+                                                    comp_payoffs_tbl=6,
+                                                ),
+                                                dict(
+                                                    std_probabilities_tbl=0.2,
+                                                    comp_probabilities_tbl=0.4,
+                                                    std_payoffs_tbl=6,
+                                                    comp_payoffs_tbl=6,
+                                                ),
+                                            ],
+                                            editable=True,
+                                            row_deletable=True,
+                                        ),
+                                    ],
+                                    className="pb-2 px-2 mx-2",
+                                ),
+                                dbc.Button(
+                                    "Add Row",
+                                    id="std_editing_rows_button",
+                                    n_clicks=0,
+                                    className="mb-2 d-print-none",
+                                ),
+                            ],
+                            className="col",
+                        ),
+                        html.Div(
+                            [
+                                dbc.Collapse(
+                                    dbc.FormGroup(
+                                        [
+                                            dbc.Label("Use a single input:", width=6),
+                                            dbc.Col(
+                                                daq.BooleanSwitch(
+                                                    id="sure_context_bool",
+                                                    on=False,
+                                                    color=prim_color,
+                                                ),
+                                                width=6,
+                                            ),
+                                        ],
+                                        row=True,
+                                    ),
+                                    id="input_sure_context_collapse",
+                                    className="d-print-none",
+                                ),
+                                dbc.Collapse(
+                                    [
+                                        html.Div(
+                                            [
+                                                dash_table.DataTable(
+                                                    id="add_input_tbl",
+                                                    columns=(
+                                                        [
+                                                            {
+                                                                "id": "std_probabilities_tbl",
+                                                                "name": "Probabilities",
+                                                                "type": "numeric",
+                                                                "format": FormatTemplate.percentage(
+                                                                    1
+                                                                ),
+                                                            },
+                                                            {
+                                                                "id": "std_payoffs_tbl",
+                                                                "name": "Payoffs",
+                                                                "type": "numeric",
+                                                            },
+                                                        ]
+                                                    ),
+                                                    css=[
+                                                        {
+                                                            "selector": ".show-hide",
+                                                            "rule": "display: none",
+                                                        }
+                                                    ],
+                                                    style_cell={"textAlign": "center"},
+                                                    data=[
+                                                        dict(
+                                                            std_probabilities_tbl=1,
+                                                            std_payoffs_tbl=-1,
+                                                        ),
+                                                    ],
+                                                    editable=True,
+                                                    row_deletable=True,
+                                                )
+                                            ],
+                                            className="pb-2 px-2 mx-2",
+                                        ),
+                                        html.Div(
+                                            dbc.Button(
+                                                "Add Row",
+                                                id="add_editing_rows_button",
+                                                n_clicks=0,
+                                                className="mb-2 d-print-none",
+                                            ),
+                                            id="add_table_add_row_button",
+                                        ),
+                                    ],
+                                    id="add_table_collapse",
+                                ),
+                                dbc.Collapse(
+                                    # Salience parameter delta here
+                                    dbc.Alert(
+                                        [
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Label(
+                                                        "Salience - Local thinking delta:",
+                                                        width=6,
+                                                        className="my-1",
+                                                    ),
+                                                    dbc.Col(
+                                                        dbc.Input(
+                                                            id="sl_delta",
+                                                            type="number",
+                                                            value=0.7,
+                                                            step=0.01,
+                                                            min=0,
+                                                            max=1,
+                                                        ),
+                                                        width=6,
+                                                    ),
+                                                ],
+                                                row=True,
+                                            ),
+                                        ],
+                                        color="warning",
+                                        className="pb-2",
+                                    ),
+                                    id="input_sl_collapse",
+                                ),
+                                dbc.Collapse(
+                                    # Savoring parameter delta here
+                                    dbc.Alert(
+                                        [
+                                            dbc.FormGroup(
+                                                [
+                                                    dbc.Label(
+                                                        "Savoring and Disappointment theory - Savoring coefficient:",
+                                                        width=6,
+                                                        className="my-1",
+                                                    ),
+                                                    dbc.Col(
+                                                        dbc.Input(
+                                                            id="sdt_k",
+                                                            type="number",
+                                                            value=0.5,
+                                                            step=0.01,
+                                                            min=0,
+                                                        ),
+                                                        width=6,
+                                                    ),
+                                                ],
+                                                row=True,
+                                            ),
+                                        ],
+                                        color="warning",
+                                        className="pb-2",
+                                    ),
+                                    id="input_sdt_collapse",
+                                ),
+                            ],
+                            className="col",
+                        ),
+                    ],
+                    className="row mt-2",
+                ),
+            ]
+        ),
+    ],
+    className="p-0 m-0",
+)
+
+
+@app.callback(
+    Output("sure_context_bool", "on"),
+    [Input("theor_dropdown", "value")],
+    [State("sure_context_bool", "on")],
+)
+def reset_add_table_bool(drop_val, sure_context_bool_cur):
+    if drop_val in ["EU", "CPT", "SDT", "RDRA"]:
+        sure_context_bool = False
+    else:
+        sure_context_bool = sure_context_bool_cur
+    return sure_context_bool
+
+
+@app.callback(
+    Output("um_dropdown", "value"),
+    [Input("theor_dropdown", "value")],
+    [State("um_dropdown", "value")],
+)
+def set_sens_default_functions(drop_val, cur_func_um):
+    if drop_val in ["CPT"]:
+        default_um = "TKU"
+    elif drop_val in ["RDRA"]:
+        default_um = "LU"
+    elif drop_val in ["SDT", "RT", "ST"]:
+        default_um = "RU"
+    else:
+        default_um = cur_func_um
+    return default_um
+
+
+@app.callback(Output("input_heading", "children"), [Input("theor_dropdown", "value")])
+def set_heading(drop_val):
+    title = fd.mf_func_dict[drop_val][1]
+    return title
+
+
+@app.callback(
+    [
+        Output("pw_panel_collapse", "is_open"),
+        Output("rg_panel_collapse", "is_open"),
+        Output("sl_panel_collapse", "is_open"),
+        Output("sdt_panel_collapse", "is_open"),
+        Output("input_sl_collapse", "is_open"),
+        Output("input_sdt_collapse", "is_open"),
+        Output("gl_panel_collapse", "is_open"),
+        Output("input_sure_context_collapse", "is_open"),
+    ],
+    [Input("theor_dropdown", "value")],
+)
+def collapse_pw(drop_val):
+    if drop_val == "EU":
+        return False, False, False, False, False, False, False, False
+    elif drop_val == "RDRA":
+        return False, False, False, False, False, False, True, False
+    elif drop_val == "RT":
+        return False, True, False, False, False, False, False, True
+    elif drop_val == "ST":
+        return False, False, True, False, True, False, False, True
+    elif drop_val == "SDT":
+        return False, False, False, True, False, True, False, False
+    elif drop_val == "CPT":
+        return True, False, False, False, False, False, False, False
+
+
+# Callbacks for Table
+@app.callback(
+    [Output("danger_toast_2", "is_open"), Output("danger_toast_2", "children")],
+    [Input("std_input_tbl", "data")],
+)
+def check_probs(rows):
+    # Check whether probs in table approximately sum to 1
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    if not isclose(sum(probs), 1):
+        return (
+            True,
+            "Please make sure that the probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                sum(probs)
+            ),
+        )
+    else:
+        return False, ""
+
+
+@app.callback(
+    [Output("danger_toast_3", "is_open"), Output("danger_toast_3", "children")],
+    [Input("std_input_tbl", "data"), Input("theor_dropdown", "value"),],
+)
+def check_probs(rows, drop_val):
+    # Check whether probs in table approximately sum to 1
+    if drop_val in ["SDT"]:
+        probs = [float(i["comp_probabilities_tbl"]) for i in rows]
+        if not isclose(sum(probs), 1):
+            return (
+                True,
+                "Please make sure that the anticipated probabilities of the different payoffs add to 1. In the moment their sum is {}.".format(
+                    sum(probs)
+                ),
+            )
+        else:
+            return False, ""
+    else:
+        return False, ""
+
+
+@app.callback(
+    [Output("danger_toast_4", "is_open"), Output("danger_toast_4", "children")],
+    [
+        Input("add_input_tbl", "data"),
+        Input("theor_dropdown", "value"),
+        Input("sure_context_bool", "on"),
+    ],
+)
+def check_probs(rows, drop_val, add_context):
+    # Check whether probs in table approximately sum to 1
+    probs = [float(i["std_probabilities_tbl"]) for i in rows]
+    if not isclose(sum(probs), 1) and (
+        (drop_val in ["RT", "ST"] and add_context == True) or drop_val in ["RDRA"]
+    ):
+        return (
+            True,
+            "Please make sure that the probabilities of the different payoffs in the bottom table add to 1. In the moment their sum is {}.".format(
+                sum(probs)
+            ),
+        )
+    else:
+        return False, ""
+
+
+@app.callback(
+    Output("std_input_tbl", "data"),
+    [Input("std_editing_rows_button", "n_clicks")],
+    [State("std_input_tbl", "data"), State("std_input_tbl", "columns")],
+)
+def add_row(n_clicks, rows, columns):
+    # extend the input table by one empty row per click
+    if n_clicks > 0:
+        rows.append({c["id"]: "" for c in columns})
+    return rows
+
+
+@app.callback(
+    [Output("add_input_tbl", "data"), Output("add_table_add_row_button", "style")],
+    [
+        Input("add_editing_rows_button", "n_clicks"),
+        Input("sure_context_bool", "on"),
+        Input("theor_dropdown", "value"),
+    ],
+    [State("add_input_tbl", "data"), State("add_input_tbl", "columns")],
+)
+def add_row_add_table(n_clicks, sure_context, theor_dropdown, rows, columns):
+    # extend the input table by one empty row per click
+    if theor_dropdown in ["RT", "ST"] and sure_context == True:
+        rows = [{"std_probabilities_tbl": 1, "std_payoffs_tbl": -1}]
+        button_diplay = {"display": "none"}
+    else:
+        ctx = dash.callback_context
+        if (
+            ctx.triggered[0]["prop_id"] == "add_editing_rows_button.n_clicks"
+            and n_clicks > 0
+        ):
+            rows.append({c["id"]: "" for c in columns})
+        button_diplay = {"diplay": "inline"}
+    return rows, button_diplay
+
+
+@app.callback(
+    [
+        Output("std_input_tbl", "hidden_columns"),
+        Output("add_table_collapse", "is_open"),
+    ],
+    [Input("theor_dropdown", "value"), Input("sure_context_bool", "on")],
+)
+def hide_rt_input_column(drop_val, add_context):
+    # Hide the rt_input column in which the user can write an alternative lottery to which the target lottery may be compared
+    if drop_val in ["RT", "ST"]:
+        col_list = ["comp_probabilities_tbl"]
+    elif drop_val == "SDT":
+        col_list = ["comp_payoffs_tbl"]
+    else:
+        col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
+
+    if add_context == False:
+        add_table_bool = False
+    else:
+        add_table_bool = True
+        col_list = ["comp_probabilities_tbl", "comp_payoffs_tbl"]
+
+    if drop_val == "RDRA":
+        add_table_bool = True
+
+    return col_list, add_table_bool
 

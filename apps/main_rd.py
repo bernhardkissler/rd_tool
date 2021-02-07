@@ -1618,7 +1618,7 @@ sl_segment = dbc.Collapse(
 )
 def rg_reset(n_clicks):
     #  Reset all parameters for the probability weighting function
-    return 0.5, 0.1, 0, 1
+    return 0.7, 0.1, 0, 1
 
 
 @app.callback(

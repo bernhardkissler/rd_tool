@@ -30,7 +30,7 @@ from app import app
 output_segment = html.Div(
     [
         html.H3(
-            html.Strong("Calculated utilities"),
+            html.Strong("Summary of calculated utilities"),
             style=header_style,
             className=header_class,
         ),
@@ -460,6 +460,17 @@ def update_output(
     ah_kwargs = {"eta": 0.1}
     ls_kwargs = {"weight": 1}
 
+    if theor_drop_val == "ST":
+        focus_name_params = (
+            f"{fd.mf_func_dict['ST'][1]}, Parameters: local thinking delta: {sl_delta}"
+        )
+    elif theor_drop_val == "SDT":
+        focus_name_params = (
+            f"{fd.mf_func_dict['SDT'][1]}, Parameters: savoring coefficient: {sdt_k}"
+        )
+    else:
+        focus_name_params = fd.mf_func_dict[theor_drop_val][1]
+
     output_table = dbc.Table(
         [
             html.Thead(
@@ -479,7 +490,7 @@ def update_output(
                 [
                     html.Tr(
                         [
-                            html.Td(fd.mf_func_dict[theor_drop_val][1]),
+                            html.Td(focus_name_params),
                             html.Td(focus_lottery),
                             html.Td(
                                 f"Utility function: {fd.um_func_dict[um_drop_val][1]}, Parameters: {dict_print(um_kwargs)}"
@@ -491,7 +502,10 @@ def update_output(
                                 round(mean_val - res[1], 4) if res[1] != nan else "nan"
                             ),
                         ],
-                        style={"color": plot_color, "border-color": plot_color},
+                        style={
+                            "color": plot_color,
+                            "border": "thin solid" + plot_color,
+                        },
                     ),
                     html.Tr(
                         [
@@ -523,7 +537,10 @@ def update_output(
                     ),
                     html.Tr(
                         [
-                            html.Td(fd.mf_func_dict["SDT"][1]),
+                            html.Td(
+                                # CHECK This has to be adjusted manually if SDT standard parameters in main_functions are changed
+                                f"{fd.mf_func_dict['SDT'][1]}, Parameters: savoring coefficient: 0.5"
+                            ),
                             html.Td(lot_to_str([pays_SDT], probs_SDT)),
                             html.Td(
                                 f"Utility function: {fd.um_func_dict['RU'][1]}, Parameters: {dict_print(ru_kwargs)}"
@@ -568,7 +585,10 @@ def update_output(
                     ),
                     html.Tr(
                         [
-                            html.Td(fd.mf_func_dict["ST"][1]),
+                            html.Td(
+                                # CHECK This has to be adjusted manually if ST standard parameters in main_functions are changed
+                                f"{fd.mf_func_dict['ST'][1]}, Parameters: local thinking delta: 0.7"
+                            ),
                             html.Td(RT_ST_lottery),
                             html.Td(
                                 f"Utility function: {fd.um_func_dict['RU'][1]}, Parameters: {dict_print(ru_kwargs)}"
