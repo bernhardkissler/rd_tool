@@ -745,6 +745,8 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
 
     if (theor_drop_val in ["ST", "RT"]) and (sure_context_bool == False):
         displ_pays = [f"{pays[i]} | {pays_comp[i]}" for i, _ in enumerate(pays)]
+    elif theor_drop_val in ["ST", "RT"] and (sure_context_bool == True):
+        displ_pays = [f"{pays[i]} | {pays_add[0]}" for i, _ in enumerate(pays)]
     else:
         displ_pays = [f"{pays[i]}" for i, _ in enumerate(pays)]
     for i in range(len(probs)):
@@ -781,6 +783,65 @@ def update_gamble_figs(std_rows, add_rows, theor_drop_val, sure_context_bool):
         row=1,
         col=1,
     )
+
+    # draw context_tree
+    if theor_drop_val in ["RDRA"]:
+        probs_c = probs_add
+        pays_c = pays_add
+
+        if len(probs_c) > 1:
+            y_c_1 = [0.5] + list(np.linspace(0, 1, len(list(reversed(probs_c)))))
+        else:
+            y_c_1 = [0.5, 0.5]
+        y_c_2 = [
+            0.25 + 0.5 * i if len(probs_c) > 1 else 0.5
+            for i in list(np.linspace(0, 1, len(list(reversed(probs_c)))))
+        ]
+        y_c_1 = [-obj for obj in y_c_1]
+        y_c_2 = [-obj for obj in y_c_2]
+
+        for i in range(len(probs_c)):
+            fig.add_trace(
+                go.Scatter(
+                    x=[0, 1],
+                    y=[-0.5 - 0.5, y_c_1[i + 1] - 0.5],  # pot fehler hier
+                    mode="lines",
+                    line=dict(color=plot_color),
+                    marker=dict(color=plot_color),
+                    hoverinfo="none",
+                ),
+                row=1,
+                col=1,
+            )
+        displ_probs_c = [f"{round(probs_c[i]*100, 1)}%" for i, _ in enumerate(probs_c)]
+        textangle_c = [(-y - 0.5) * 90 if y > 0.5 else (0.5 + y) * -90 for y in y_c_2]
+
+        for i in range(len(probs_c)):
+            fig.add_annotation(
+                x=0.5,
+                y=y_c_2[i] - 0.5,
+                text=list(reversed(displ_probs_c))[i],
+                ax=0,
+                ay=-10,
+                arrowcolor="rgba(0,0,0,0)",
+                row=1,
+                col=1,
+                textangle=textangle_c[i],
+            )
+
+        displ_pays_c = [f"{pays_c[i]}" for i, _ in enumerate(pays_c)]
+        for i in range(len(probs_c)):
+            fig.add_annotation(
+                x=1,
+                y=y_c_1[i + 1] - 0.5,
+                text=list(reversed(displ_pays_c))[i],
+                xanchor="left",
+                ax=5,
+                ay=0,
+                arrowcolor="rgba(0,0,0,0)",
+                row=1,
+                col=1,
+            )
 
     # PDF Figure Trace
     fig.add_trace(go.Bar(x=pays, y=probs, marker_color=plot_color), row=1, col=2)
