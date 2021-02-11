@@ -31,6 +31,16 @@ def ce_tversky_kahneman(
     return outcome
 
 
+def lin_utility(x: float) -> float:
+    """ A linear utility function; the utility of a value x equals x """
+    return x
+
+
+def lin_ce(x: float) -> float:
+    """ Inverse of lin utility """
+    return x
+
+
 def root_utility(x: float, exp: float = 2.0, mult: float = 3) -> float:
     """
     A simple root utility function with u(x) = x**1/exp; 
@@ -45,20 +55,10 @@ def root_ce(x: float, exp: float = 2.0, mult: float = 3) -> float:
     return x ** exp if x > 0 else -((x / (-mult)) ** exp)
 
 
-def lin_utility(x: float) -> float:
-    """ A linear utility function; the utility of a value x equals x """
-    return x
-
-
 # MARK NOt utilized in app
 def kr_utility(x: float, mult: float = 10000) -> float:
     """ A logarithmic utilitly function based on köszegi rabin 2006 """
     return mult * math.log(x)
-
-
-def lin_ce(x: float) -> float:
-    """ Inverse of lin utility """
-    return x
 
 
 def bern_utility(x: float, a: float = 0, mult: float = 1) -> float:

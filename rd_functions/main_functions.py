@@ -273,10 +273,18 @@ def expected_utility(
     um_function=um.bern_utility,
     um_kwargs={},
     ce_function=um.bern_ce,
-) -> float:
-    """
-    Takes in two vectors (payoffs and their probability) of numbers of equal length 
-    and returns the sum of their product, which is the expected utility.
+) -> List[float]:
+    """Implementation of Expected Utility Theory and its Certainty
+
+    Args:
+        pays (List[float]): Vector of the payoffs for all outcomes
+        probs (List[float]): Vector of the probabilities for all outcomes (must be the same length as pays)
+        um_function (function, optional): The utility function used to transform payoffs to utilties. Defaults to um.bern_utility.
+        um_kwargs (dict, optional): Generic keyword-arguments supplied to the utility function . Defaults to {}.
+        ce_function (function, optional): The 'inverse' of the utility function used to calculate the certainty equivalent. Defaults to um.bern_ce.
+
+    Returns:
+        List[float]: The utility assigned to the lottery by EU and the associated certainty equivalent
     """
     pays_ch, probs_ch = he.list_cleaning(pays, probs)
     pays_ch_ut = [um_function(i, **um_kwargs) for i in pays_ch]

@@ -60,14 +60,53 @@ app.layout = html.Div(
         ),
         dbc.Container(
             [
-                dbc.Row(
+                dbc.Container(
                     [
-                        dbc.Label("Show only summary:", width=6),
-                        dbc.Col(
-                            daq.BooleanSwitch(
-                                id="hide_main_section", on=False, color=prim_color,
-                            ),
-                            width=6,
+                        dbc.Row(
+                            [
+                                dbc.Label("Hide table input:", width=8),
+                                dbc.Col(
+                                    daq.BooleanSwitch(
+                                        id="hide_header_section",
+                                        on=False,
+                                        color=prim_color,
+                                    ),
+                                    width=4,
+                                    className="mx-0 px-0",
+                                ),
+                            ],
+                            className="align-items-center",
+                        ),
+                        dbc.Row(
+                            [
+                                dbc.Label("Hide auxiliary inputs:", width=8),
+                                dbc.Col(
+                                    daq.BooleanSwitch(
+                                        id="hide_main_section",
+                                        on=False,
+                                        color=prim_color,
+                                    ),
+                                    width=4,
+                                    className="mx-0 px-0",
+                                ),
+                            ],
+                            className="align-items-center",
+                        ),
+                        dbc.Row(
+                            html.A(
+                                "See the Bachelor Thesis",
+                                target="_blank",
+                                href="/static/Bachelor_Thesis (6).pdf",
+                                className="mx-3 mb-2",
+                            )
+                        ),
+                        dbc.Row(
+                            html.A(
+                                "See the source code",
+                                target="_blank",
+                                href="https://github.com/bernhardkissler/rd_tool",
+                                className="mx-3 mb-2",
+                            )
                         ),
                     ],
                     style={
@@ -88,7 +127,7 @@ app.layout = html.Div(
                         main_rd.toast_4,
                         main_rd.toast_5,
                     ],
-                    style={"position": "fixed", "top": 105, "right": 10, "width": 350,},
+                    style={"position": "fixed", "top": 45, "right": 5, "width": 350},
                     # className="mr-0 ",
                 ),
             ],
@@ -100,14 +139,23 @@ app.layout = html.Div(
 
 
 @app.callback(
-    [Output("main_collapse", "is_open"), Output("head_collapse", "is_open")],
-    [Input("hide_main_section", "on")],
+    Output("main_collapse", "is_open"), [Input("hide_main_section", "on")],
 )
-def show_main_section(hide_main_bool):
+def hide_main_section(hide_main_bool):
     if hide_main_bool == True:
-        return False, False
+        return False
     else:
-        return True, True
+        return True
+
+
+@app.callback(
+    Output("head_collapse", "is_open"), [Input("hide_header_section", "on")],
+)
+def hide_header_section(hide_header_bool):
+    if hide_header_bool == True:
+        return False
+    else:
+        return True
 
 
 if __name__ == "__main__":
