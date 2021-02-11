@@ -26,8 +26,7 @@ app.layout = html.Div(
                     html.Div(
                         [
                             html.H1(
-                                html.Strong("Decisions under Uncertainty"),
-                                className="my-4",
+                                html.Strong("Decision under risk"), className="my-4",
                             ),
                             dbc.Collapse(
                                 [input_rd.input_segment,],
@@ -98,6 +97,7 @@ app.layout = html.Div(
                                 target="_blank",
                                 href="/static/Bachelor_Thesis (6).pdf",
                                 className="mx-3 mb-2",
+                                style={"text-decoration": "underline"},
                             )
                         ),
                         dbc.Row(
@@ -106,6 +106,7 @@ app.layout = html.Div(
                                 target="_blank",
                                 href="https://github.com/bernhardkissler/rd_tool",
                                 className="mx-3 mb-2",
+                                style={"text-decoration": "underline"},
                             )
                         ),
                     ],
