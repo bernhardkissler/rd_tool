@@ -62,7 +62,7 @@ gl_segment = dbc.Collapse(
                                     "value": "EXU",
                                 },
                                 {"label": "Bernoulli utility function", "value": "BU",},
-                                {"label": "Your utility function", "value": "YU",},
+                                {"label": "Enter custom function", "value": "YU",},
                             ],
                             searchable=False,
                             clearable=False,
@@ -71,11 +71,11 @@ gl_segment = dbc.Collapse(
                         ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Your utility function:"),
+                                dbc.Label("Custom gain loss function:"),
                                 dbc.Input(
                                     id="gl_text",
                                     type="text",
-                                    placeholder="Input your own function",
+                                    placeholder="Enter custom function",
                                     debounce=True,
                                 ),
                                 dbc.Button(
@@ -218,7 +218,7 @@ gl_segment = dbc.Collapse(
                             className="py-2",
                         ),
                         dbc.Button(
-                            "Reset all values",
+                            "Reset values",
                             id="gl_reset_btn",
                             className="my-3 d-print-none",
                         ),
@@ -469,7 +469,7 @@ um_segment = html.Div(
                                 },
                                 {"label": "Root utility function", "value": "RU",},
                                 {"label": "Bernoulli utility function", "value": "BU",},
-                                {"label": "Your utility function", "value": "YU",},
+                                {"label": "Enter custom function", "value": "YU",},
                             ],
                             searchable=False,
                             clearable=False,
@@ -478,11 +478,11 @@ um_segment = html.Div(
                         ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Your utility function:"),
+                                dbc.Label("Enter utility function:"),
                                 dbc.Input(
                                     id="um_text",
                                     type="text",
-                                    placeholder="Input your own function",
+                                    placeholder="Enter custom function",
                                     debounce=True,
                                 ),
                                 dbc.Button(
@@ -625,7 +625,7 @@ um_segment = html.Div(
                             className="py-2",
                         ),
                         dbc.Button(
-                            "Reset all values",
+                            "Reset values",
                             id="um_reset_btn",
                             className="my-3 d-print-none",
                         ),
@@ -875,7 +875,7 @@ pw_segment = dbc.Collapse(
                                 {"label": "Prelec weighting function", "value": "PW",},
                                 {"label": "Linear weighting function", "value": "LW",},
                                 {"label": "Power weighting function", "value": "POW",},
-                                {"label": "Your weighting function", "value": "YW",},
+                                {"label": "Enter custom function", "value": "YW",},
                             ],
                             searchable=False,
                             clearable=False,
@@ -884,11 +884,11 @@ pw_segment = dbc.Collapse(
                         ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Your probability weighting function:"),
+                                dbc.Label("Custom probability weighting function:"),
                                 dbc.Input(
                                     id="pw_text",
                                     type="text",
-                                    placeholder="Input your own function",
+                                    placeholder="Enter custom function",
                                     debounce=True,
                                 ),
                                 dbc.Button(
@@ -1030,7 +1030,7 @@ pw_segment = dbc.Collapse(
                             className="py-2",
                         ),
                         dbc.Button(
-                            "Reset all values",
+                            "Reset values",
                             id="pw_reset_btn",
                             className="my-3 d-print-none",
                         ),
@@ -1243,7 +1243,7 @@ rg_segment = dbc.Collapse(
                             id="rg_dropdown",
                             options=[
                                 {"label": "Loomes and Sugden 1982", "value": "LS",},
-                                {"label": "Your regret function", "value": "YR",},
+                                {"label": "Enter custom function", "value": "YR",},
                             ],
                             searchable=False,
                             clearable=False,
@@ -1252,11 +1252,11 @@ rg_segment = dbc.Collapse(
                         ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Your Regret function:"),
+                                dbc.Label("Custom Regret function:"),
                                 dbc.Input(
                                     id="rg_text",
                                     type="text",
-                                    placeholder="Input your own function",
+                                    placeholder="Enter custom function",
                                     debounce=True,
                                 ),
                                 dbc.Button(
@@ -1301,7 +1301,7 @@ rg_segment = dbc.Collapse(
                             className="py-2",
                         ),
                         dbc.Button(
-                            "Reset all values",
+                            "Reset values",
                             id="rg_reset_btn",
                             className="my-3 d-print-none",
                         ),
@@ -1500,7 +1500,7 @@ sl_segment = dbc.Collapse(
                             id="sl_dropdown",
                             options=[
                                 {"label": "Original Salience function", "value": "OG",},
-                                {"label": "Your salience function", "value": "YS",},
+                                {"label": "Enter custom function", "value": "YS",},
                             ],
                             searchable=False,
                             clearable=False,
@@ -1509,11 +1509,11 @@ sl_segment = dbc.Collapse(
                         ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Your Salience function:"),
+                                dbc.Label("Custom Salience function:"),
                                 dbc.Input(
                                     id="sl_text",
                                     type="text",
-                                    placeholder="Input your own function",
+                                    placeholder="Enter custom function",
                                     debounce=True,
                                 ),
                                 dbc.Button(
@@ -1556,7 +1556,7 @@ sl_segment = dbc.Collapse(
                             className="py-2",
                         ),
                         dbc.Button(
-                            "Reset all values",
+                            "Reset values",
                             id="sl_reset_btn",
                             className="my-3 d-print-none",
                         ),
@@ -1708,7 +1708,7 @@ sdt_segment = dbc.Collapse(
                             id="sdt_dropdown",
                             options=[
                                 {"label": "Additive Habits function", "value": "AH",},
-                                {"label": "Your BIVU function", "value": "YB",},
+                                {"label": "Enter custom function", "value": "YB",},
                             ],
                             searchable=False,
                             clearable=False,
@@ -1717,11 +1717,11 @@ sdt_segment = dbc.Collapse(
                         ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Your Bivu function:"),
+                                dbc.Label("Custom Bivu function:"),
                                 dbc.Input(
                                     id="sdt_text",
                                     type="text",
-                                    placeholder="Input your own function",
+                                    placeholder="Enter custom function",
                                     debounce=True,
                                 ),
                                 dbc.Button(
@@ -1766,7 +1766,7 @@ sdt_segment = dbc.Collapse(
                             className="py-2",
                         ),
                         dbc.Button(
-                            "Reset all values",
+                            "Reset values",
                             id="sdt_reset_btn",
                             className="my-3 d-print-none",
                         ),

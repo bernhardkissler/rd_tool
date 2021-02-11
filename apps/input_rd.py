@@ -605,7 +605,7 @@ input_segment = html.Div(
                                                 [
                                                     {
                                                         "id": "std_probabilities_tbl",
-                                                        "name": "Probabilities",
+                                                        "name": "Target probabilities",
                                                         "type": "numeric",
                                                         "format": FormatTemplate.percentage(
                                                             1
@@ -613,7 +613,7 @@ input_segment = html.Div(
                                                     },
                                                     {
                                                         "id": "comp_probabilities_tbl",
-                                                        "name": "Comp Probabilities",
+                                                        "name": "Context probabilities",
                                                         "type": "numeric",
                                                         "format": FormatTemplate.percentage(
                                                             1
@@ -621,12 +621,12 @@ input_segment = html.Div(
                                                     },
                                                     {
                                                         "id": "std_payoffs_tbl",
-                                                        "name": "Payoffs",
+                                                        "name": "Target payoffs",
                                                         "type": "numeric",
                                                     },
                                                     {
                                                         "id": "comp_payoffs_tbl",
-                                                        "name": "Comp Payoffs",
+                                                        "name": "Context payoffs",
                                                         "type": "numeric",
                                                     },
                                                 ]
@@ -708,6 +708,67 @@ input_segment = html.Div(
                         html.Div(
                             [
                                 dbc.Collapse(
+                                    # Salience parameter delta here
+                                    # dbc.Alert(
+                                    [
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Local thinking - delta:",
+                                                    width=6,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="sl_delta",
+                                                        type="number",
+                                                        value=0.7,
+                                                        step=0.01,
+                                                        min=0,
+                                                        max=1,
+                                                    ),
+                                                    width=6,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    #     color="warning",
+                                    #     className="pb-2",
+                                    # ),
+                                    id="input_sl_collapse",
+                                ),
+                                dbc.Collapse(
+                                    # Savoring parameter delta here
+                                    # dbc.Alert(
+                                    [
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Savoring coefficient - k:",
+                                                    width=6,
+                                                    className="my-1",
+                                                ),
+                                                dbc.Col(
+                                                    dbc.Input(
+                                                        id="sdt_k",
+                                                        type="number",
+                                                        value=0.5,
+                                                        step=0.01,
+                                                        min=0,
+                                                    ),
+                                                    width=6,
+                                                ),
+                                            ],
+                                            row=True,
+                                        ),
+                                    ],
+                                    #     color="warning",
+                                    #     className="pb-2",
+                                    # ),
+                                    id="input_sdt_collapse",
+                                ),
+                                dbc.Collapse(
                                     dbc.FormGroup(
                                         [
                                             dbc.Label("Use a single input:", width=6),
@@ -735,7 +796,7 @@ input_segment = html.Div(
                                                         [
                                                             {
                                                                 "id": "std_probabilities_tbl",
-                                                                "name": "Probabilities",
+                                                                "name": "Context probabilities",
                                                                 "type": "numeric",
                                                                 "format": FormatTemplate.percentage(
                                                                     1
@@ -743,7 +804,7 @@ input_segment = html.Div(
                                                             },
                                                             {
                                                                 "id": "std_payoffs_tbl",
-                                                                "name": "Payoffs",
+                                                                "name": "Context payoffs",
                                                                 "type": "numeric",
                                                             },
                                                         ]
@@ -778,67 +839,6 @@ input_segment = html.Div(
                                         ),
                                     ],
                                     id="add_table_collapse",
-                                ),
-                                dbc.Collapse(
-                                    # Salience parameter delta here
-                                    dbc.Alert(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Label(
-                                                        "Salience - Local thinking delta:",
-                                                        width=6,
-                                                        className="my-1",
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="sl_delta",
-                                                            type="number",
-                                                            value=0.7,
-                                                            step=0.01,
-                                                            min=0,
-                                                            max=1,
-                                                        ),
-                                                        width=6,
-                                                    ),
-                                                ],
-                                                row=True,
-                                            ),
-                                        ],
-                                        color="warning",
-                                        className="pb-2",
-                                    ),
-                                    id="input_sl_collapse",
-                                ),
-                                dbc.Collapse(
-                                    # Savoring parameter delta here
-                                    dbc.Alert(
-                                        [
-                                            dbc.FormGroup(
-                                                [
-                                                    dbc.Label(
-                                                        "Savoring and Disappointment theory - Savoring coefficient:",
-                                                        width=6,
-                                                        className="my-1",
-                                                    ),
-                                                    dbc.Col(
-                                                        dbc.Input(
-                                                            id="sdt_k",
-                                                            type="number",
-                                                            value=0.5,
-                                                            step=0.01,
-                                                            min=0,
-                                                        ),
-                                                        width=6,
-                                                    ),
-                                                ],
-                                                row=True,
-                                            ),
-                                        ],
-                                        color="warning",
-                                        className="pb-2",
-                                    ),
-                                    id="input_sdt_collapse",
                                 ),
                             ],
                             className="col",

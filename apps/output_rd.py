@@ -117,7 +117,11 @@ def dict_print(d):
 
 
 @app.callback(
-    [Output("output_results_params", "children"), Output("danger_toast_ce", "is_open")],
+    [
+        Output("output_results_params", "children"),
+        Output("danger_toast_ce", "is_open"),
+        Output("danger_toast_ce", "children"),
+    ],
     [
         Input("std_input_tbl", "data"),
         Input("add_input_tbl", "data"),
@@ -413,10 +417,18 @@ def update_output(
             res[1] = nan
         focus_lottery = lot_to_str([pays_EU_CPT], [probs_EU_CPT])
 
-    if isnan(res[1]):
-        toast_bool = True
+    if isnan(res[1]) and theor_drop_val == "RDRA":
+        toast_bool, toast_text = (
+            True,
+            "Currently, the calculation of the certainty equivalent is not implemented for this theory.",
+        )
+    elif isnan(res[1]):
+        toast_bool, toast_text = (
+            True,
+            "You entered a custom function. For security reasons, I can't calculate the certainty equivalent and the Risk Premium.",
+        )
     else:
-        toast_bool = False
+        toast_bool, toast_text = False, ""
 
     if theor_drop_val == "EU":
         intermed_output = None
@@ -461,13 +473,9 @@ def update_output(
     ls_kwargs = {"weight": 1}
 
     if theor_drop_val == "ST":
-        focus_name_params = (
-            f"{fd.mf_func_dict['ST'][1]}, Parameters: local thinking delta: {sl_delta}"
-        )
+        focus_name_params = f"{fd.mf_func_dict['ST'][1]}, Parameters: local thinking - $\\delta$: {sl_delta}"
     elif theor_drop_val == "SDT":
-        focus_name_params = (
-            f"{fd.mf_func_dict['SDT'][1]}, Parameters: savoring coefficient: {sdt_k}"
-        )
+        focus_name_params = f"{fd.mf_func_dict['SDT'][1]}, Parameters: savoring coefficient - k: {sdt_k}"
     else:
         focus_name_params = fd.mf_func_dict[theor_drop_val][1]
 
@@ -539,7 +547,7 @@ def update_output(
                         [
                             html.Td(
                                 # CHECK This has to be adjusted manually if SDT standard parameters in main_functions are changed
-                                f"{fd.mf_func_dict['SDT'][1]}, Parameters: savoring coefficient: 0.5"
+                                f"{fd.mf_func_dict['SDT'][1]}, Parameters: savoring coefficient - k: 0.5"
                             ),
                             html.Td(lot_to_str([pays_SDT], probs_SDT)),
                             html.Td(
@@ -587,7 +595,7 @@ def update_output(
                         [
                             html.Td(
                                 # CHECK This has to be adjusted manually if ST standard parameters in main_functions are changed
-                                f"{fd.mf_func_dict['ST'][1]}, Parameters: local thinking delta: 0.7"
+                                f"{fd.mf_func_dict['ST'][1]}, Parameters: local thinking - $\\delta$: 0.7"
                             ),
                             html.Td(RT_ST_lottery),
                             html.Td(
@@ -607,15 +615,15 @@ def update_output(
         hover=True,
         size="sm",
     )
-    return output_table, toast_bool
+    return output_table, toast_bool, toast_text
 
 
 ce_toast = dbc.Toast(
-    dcc.Markdown(
-        """
-        You chose to input a custom function. For security reasons, I can't calculate the certainty equivalent and the Risk Premium.
-    """
-    ),
+    # dcc.Markdown(
+    #     """
+    #     You choos to input a custom function. For security reasons, I can't calculate the certainty equivalent and the Risk Premium.
+    # """
+    # )
     id="danger_toast_ce",
     header="Certainty Equivalent not available.",
     is_open=False,

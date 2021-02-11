@@ -55,8 +55,8 @@ um_func_dict = {
         um.root_utility,
         "Root utility function",
         """$$U(x)=\\begin{cases}
-                  \\sqrt{x}             & \\text{if }x > 0 \\\\
-                  -lm \\cdot \\sqrt{{-x}} & \\text{if }x \\leq 0
+                  \\sqrt[exp]{x}             & \\text{if }x > 0 \\\\
+                  -lm \\cdot \\sqrt[exp]{{-x}} & \\text{if }x \\leq 0
               \\end{cases}$$""",
         um.root_ce,
     ],
