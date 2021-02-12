@@ -85,7 +85,7 @@ mf_func_dict = {
     "EU": [mf.expected_utility, "Expected utility"],
     "RT": [mf.regret_theory, "Regret theory"],
     "ST": [mf.salience_theory, "Salience theory"],
-    "SDT": [mf.sav_dis_theory, "Savoring and Disappointment theory"],
+    "SDT": [mf.sav_dis_theory, "Optimal Anticipation with Savoring and Disappointment"],
     "RDRA": [mf.RDRA_theory, "Reference dependent risk attitudes"],
 }
 

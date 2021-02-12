@@ -1,15 +1,10 @@
-import dash_bootstrap_components as dbc
-import dash_core_components as dcc
-import dash_html_components as html
-
-add_info_text = dcc.Markdown(
-    """
 ### **Basic Layout of the Tool**
 #### **General**
 The Tool is divided into four main segments and a control panel in the top right corner. There is a main input segment top, where you can decide which theory to use, and enter the lotteries to be analyzed. Below, the Tool displays some summary statistics of the entered lotteries. The third segment is dynamic and allows the user to change the specification of the theory he focuses on while the fourth displays the outcomes of the calculation in comparison to standard specifications of the other theories. Lastly, there is a small control panel in the top right corner of the window allowing the user to hide some of the sections if he wants a more focused experience. This is also, where additional explanations can be blended in and links to this thesis and the GitHub repository can be found. 
 
 #### **Theory and Lottery**
 On the top left of the first segment, you can choose the theory on which you want to focus. By default, this is Expected utility theory (EU).
+
 Depending on which theory you choose, an input table of different dimensions will be displayed for you to enter the target lottery and any needed context information. For EU, the input segment shows a table on the left, where the target lottery can be entered. This table can be extended or shortened by deleting a row or clicking the “Add Row” button, respectively. If you choose theories like Optimal Anticipation with Savoring and Disappointment (OSAD) or Regret theory (RT) which expect more inputs than just the target lottery, additional columns will be appear. Note that if you enter the context information for Salience theory (ST) or RT in the table on the left, the Tool automatically assumes correlated state spaces meaning that both outcomes do not only have the same probability but are intrinsically linked to the same state of the world. A more in depth discussion of this can be found in the companion essay in the section on RT. Alternatively, you may choose a sure amount in comparison to which your target lottery should be evaluated by clicking on the “Use single input” switch and entering that sure payoff in the additional input table appearing to the right of the initial input table. The same additional table will open when you choose the Reference Dependent Risk Attitudes theory (RDRA) in the dropdown. In this case, you will also be able to add and delete rows to the additional table similarly to the input table on the left. Additional inputs for parameters like the Savoring coefficient - $\delta$ of OSAD or the local thinking coefficient - k from ST will appear here as well.
 
 #### **Summary of lotteries and statistics**
@@ -30,110 +25,32 @@ The last section displays the utility, certainty equivalent and risk premium cal
 
 * Only single-line inputs are accepted.
 * Spaces are ignored.
-* Floating point values have to be entered using a point and not a comma as a separator (i.e., $ \frac{3}{4} $ can be entered as 0.75 but not 0,75)
+* Floating point values have to be entered using a point and not a comma as a separator (i.e., 34 can be entered as 0.75 but not 0,75)
 * In the case of univariate functions (utility function and probability weighting function), the independent variable is always called "x". In the case of bivariate functions (Regret and Salience functions, etc.) the two independent variables are called "x\_1" and "x\_2". The entered formula must follow this convention.
 * No other variables are allowed.
 * Only the right-handside of the equations is entered. $u(x)=3$\*$x$ becomes $3$\*$x$
 * Every operation must be explicitly declared (i.e., $3x$ must be written as $3$*$x$)
-* Piecewise definitions of arbitrary complexity can be defined by using a shortened if statement of the form "do something if condition else do something else". The Utility function proposed by Tversky and Kahneman with parameters of $\lambda=2.25$, $\\alpha = 0.88$ and a reference point of $r=0$ can be entered as "$(x-0)$\*\*$0.88$ if $x >= 0$ else $-2.25$\*$(-(x-0))$\*\*$0.88$". Nesting if statements is possible.
+* Piecewise definitions of arbitrary complexity can be defined by using a shortened if statement of the form "do something if condition else do something else". The Utility function proposed by Tversky and Kahneman with parameters of $\lambda=2.25$, $\alpha=0.88$ and a reference point of $r=0$ can be entered as "$(x-0)$\*\*$0.88$ if $x >= 0$ else $-2.25$\*$(-(x-0))$\*\*$0.88$". Nesting if statements is possible.
 * Simpleeval (the parser defining the set of allowed inputs) imposes some (generous) restrictions on the computational complexity of evaluated expressions to keep the server from crashing. This includes restrictions on the size of power-operations (exponents may not exceed a certain size) and similar measures which are not likely to impact normal usage of the Tool.
 
 In addition, the following signs are allowed:
 
-<table class="table-hover table-bordered table-sm mx-auto">
-<thead>
-  <tr>
-    <th colspan="2">Allowed operators</th>
-    <th colspan="2">Allowed mathematical functions</th>
-  </tr>
-</thead>
-<tbody>
-  <tr>
-    <td>+</td>
-    <td>"plus"</td>
-    <td>abs()</td>
-    <td>"the absolute vale of"</td>
-  </tr>
-  <tr>
-    <td>-</td>
-    <td>"minus"</td>
-    <td>exp()</td>
-    <td>"e to the power of"</td>
-  </tr>
-  <tr>
-    <td>/</td>
-    <td>"divided by"</td>
-    <td>log()</td>
-    <td>"the natural logarithm of"</td>
-  </tr>
-  <tr>
-    <td>*</td>
-    <td>"multiplied by"</td>
-    <td>log10()</td>
-    <td>"the base 10 logarithm of"</td>
-  </tr>
-  <tr>
-    <td>**</td>
-    <td>"to the power of"</td>
-    <td>u()</td>
-    <td>"the univariate utility function"</td>
-  </tr>
-  <tr>
-    <td>&lt;</td>
-    <td>"smaller than"</td>
-    <td>sqrt()</td>
-    <td>"the square root of"</td>
-  </tr>
-  <tr>
-    <td>&gt;</td>
-    <td>"greater than"</td>
-    <td>pi</td>
-    <td>"$\pi$ - Pi"</td>
-  </tr>
-  <tr>
-    <td>&lt;=</td>
-    <td>"smaller equal"</td>
-    <td>e</td>
-    <td>"e - Euler's Number"</td>
-  </tr>
-  <tr>
-    <td>&gt;=</td>
-    <td>"greater equal"</td>
-    <td>sin()</td>
-    <td>"the sine of"</td>
-  </tr>
-  <tr>
-    <td>==</td>
-    <td>"equal to"</td>
-    <td>cos()</td>
-    <td>"the cosine of"</td>
-  </tr>
-</tbody>
-</table>
+||Allowed operators     | |Allowed mathematical functions
+|---|---|---|---|
+| +  | "plus"            | abs()   | "the absolute vale of"                         |
+| -  | "minus"           | exp()   | "e to the power of"                            |
+| /  | "divided by"      | log()   | "the natural logarithm of"                     |
+| *  | "multiplied by"   | log10() | "the base 10 logarithm of"                     |
+| ** | "to the power of" | u()     | "the univariate utility function"              |
+| <  | "smaller than"    | sqrt()  | "the square root of"                           |
+| >  | "greater than"    | pi      | "$\pi$ - Pi"                                   |
+| <= | "smaller equal"   | e       | "e - Euler's Number"                           |
+| >= | "greater equal"   | sin()   | "the sine of"                                  |
+| == | "equal to"        | cos()   | "the cosine of"                                |
 
-<br>
 
-From a security standpoint evaluating user input code is risky, which is why the Simpleeval Python-library is used to prevent most malevolent inputs. Unfortunately, this means that user input utility functions cannot be evaluated in a way that allows the construction of an appropriate certainty equivalent function. In this case only the utility resulting from the lottery is shown in the output section.
+From a security standpoint, evaluating user input code is risky, which is why Simpleeval is used to prevent most malevolent inputs. Unfortunately, this means that user input utility functions cannot be evaluated in a way that allows the construction of an appropriate certainty equivalent function. In this case only the utility resulting from the lottery is shown in the output section.
 
 ### **Miscellaneous**
 
 The option to hide and show different sections using the control panels in the top right corner extends to the print layout of the page. This means that only section that are not hidden will be printed. Additionally, most controls will be hidden when printing for a nicer look.
-
-
-""",
-    dangerously_allow_html=True,
-)
-
-
-# ||Allowed operators     | |Allowed mathematical functions
-# |---|---|---|---|
-# | +  | "plus"            | abs()   | "the absolute vale of"                         |
-# | -  | "minus"           | exp()   | "e to the power of"                            |
-# | /  | "divided by"      | log()   | "the natural logarithm of"                     |
-# | *  | "multiplied by"   | log10() | "the base 10 logarithm of"                     |
-# | ** | "to the power of" | u()     | "the univariate utility function"              |
-# | <  | "smaller than"    | sqrt()  | "the square root of"                           |
-# | >  | "greater than"    | pi      | "$\pi$ - Pi"                                   |
-# | <= | "smaller equal"   | e       | "e - Euler's Number"                           |
-# | >= | "greater equal"   | sin()   | "the sine of"                                  |
-# | == | "equal to"        | cos()   | "the cosine of"                                |

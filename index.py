@@ -96,7 +96,7 @@ app.layout = html.Div(
                         dbc.Row(
                             [
                                 dbc.Button(
-                                    "Additional Explanations",
+                                    "Show Explanations",
                                     id="add_info_btn",
                                     className="mb-2 mx-3",
                                     # style={"background-color": prim_color},
@@ -141,7 +141,7 @@ app.layout = html.Div(
                         ),
                         dbc.Row(
                             html.A(
-                                "See the Bachelor Thesis",
+                                "Go to Bachelor Thesis",
                                 target="_blank",
                                 href="/static/Bachelor_Thesis (6).pdf",
                                 className="mx-3 mb-2",
@@ -150,7 +150,7 @@ app.layout = html.Div(
                         ),
                         dbc.Row(
                             html.A(
-                                "See the source code",
+                                "Go to Source Code",
                                 target="_blank",
                                 href="https://github.com/bernhardkissler/rd_tool",
                                 className="mx-3 mb-2",
