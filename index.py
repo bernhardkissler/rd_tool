@@ -9,12 +9,14 @@ import dash_daq as daq
 from app import app
 
 server = app.server
-from apps import input_rd, main_rd, output_rd
+from apps import input_rd, main_rd, output_rd, add_info
 import apps.func_dicts as fd
 
 
 sub_bg_color = fd.sub_bg_color
 prim_color = fd.prim_color
+header_style = {"background-color": prim_color}
+header_class = "p-2 text-white rounded"
 
 
 app.layout = html.Div(
@@ -92,6 +94,52 @@ app.layout = html.Div(
                             className="align-items-center",
                         ),
                         dbc.Row(
+                            [
+                                dbc.Button(
+                                    "Additional Explanations",
+                                    id="add_info_btn",
+                                    className="mb-2 mx-3",
+                                    # style={"background-color": prim_color},
+                                ),
+                                dbc.Modal(
+                                    [
+                                        dbc.ModalHeader(
+                                            html.H3(
+                                                html.Strong(
+                                                    [
+                                                        html.Span(
+                                                            "Additional Explanations"
+                                                        ),
+                                                        #  html.Span(id="input_heading")
+                                                    ]
+                                                ),
+                                            ),
+                                            style=header_style,
+                                            className=header_class,
+                                            # className="p-2 text-white rounded",
+                                            # style={"background-color": prim_color},
+                                        ),
+                                        dbc.ModalBody(
+                                            add_info.add_info_text,
+                                            style={"background-color": sub_bg_color},
+                                            className="rounded",
+                                        ),
+                                        dbc.ModalFooter(
+                                            dbc.Button(
+                                                "Close",
+                                                id="add_info_close_btn",
+                                                className="ml-auto",
+                                            ),
+                                            style={"background-color": prim_color},
+                                        ),
+                                    ],
+                                    id="add_info_modal",
+                                    size="xl",
+                                    className="b-0",
+                                ),
+                            ]
+                        ),
+                        dbc.Row(
                             html.A(
                                 "See the Bachelor Thesis",
                                 target="_blank",
@@ -137,6 +185,17 @@ app.layout = html.Div(
     ],
     style={"background-color": prim_color},  # Mamas Favorit #e1eb34
 )
+
+
+@app.callback(
+    Output("add_info_modal", "is_open"),
+    [Input("add_info_btn", "n_clicks"), Input("add_info_close_btn", "n_clicks")],
+    [State("add_info_modal", "is_open")],
+)
+def toggle_modal(n1, n2, is_open):
+    if n1 or n2:
+        return not is_open
+    return is_open
 
 
 @app.callback(

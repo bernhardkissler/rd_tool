@@ -896,6 +896,10 @@ pw_segment = dbc.Collapse(
                                     id="pw_text_runner",
                                     className="mt-2",
                                 ),
+                                dbc.Tooltip(
+                                    "Find additional information by clicking the 'Additional Explanations' button in the control panel.",
+                                    target="pw_text",
+                                ),
                             ],
                             id="pw_collapse_YW",
                             className="py-2",
