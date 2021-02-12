@@ -65,55 +65,20 @@ app.layout = html.Div(
                     [
                         dbc.Row(
                             [
-                                dbc.Label("Hide table input:", width=8),
-                                dbc.Col(
-                                    daq.BooleanSwitch(
-                                        id="hide_header_section",
-                                        on=False,
-                                        color=prim_color,
-                                    ),
-                                    width=4,
-                                    className="mx-0 px-0",
-                                ),
-                            ],
-                            className="align-items-center",
-                        ),
-                        dbc.Row(
-                            [
-                                dbc.Label("Hide auxiliary inputs:", width=8),
-                                dbc.Col(
-                                    daq.BooleanSwitch(
-                                        id="hide_main_section",
-                                        on=False,
-                                        color=prim_color,
-                                    ),
-                                    width=4,
-                                    className="mx-0 px-0",
-                                ),
-                            ],
-                            className="align-items-center",
-                        ),
-                        dbc.Row(
-                            [
                                 dbc.Button(
                                     "Show Explanations",
                                     id="add_info_btn",
-                                    className="mb-2 mx-3",
+                                    className="my-2 mx-3 btn-block",
                                     # style={"background-color": prim_color},
+                                ),
+                                dbc.Tooltip(
+                                    "Show additional explanations for the different sections in this tool in a pop-up.",
+                                    target="add_info_btn",
                                 ),
                                 dbc.Modal(
                                     [
                                         dbc.ModalHeader(
-                                            html.H3(
-                                                html.Strong(
-                                                    [
-                                                        html.Span(
-                                                            "Additional Explanations"
-                                                        ),
-                                                        #  html.Span(id="input_heading")
-                                                    ]
-                                                ),
-                                            ),
+                                            html.H2(html.Strong(["Explanations"]),),
                                             style=header_style,
                                             className=header_class,
                                             # className="p-2 text-white rounded",
@@ -133,29 +98,86 @@ app.layout = html.Div(
                                             style={"background-color": prim_color},
                                         ),
                                     ],
+                                    is_open=True,
                                     id="add_info_modal",
                                     size="xl",
                                     className="b-0",
                                 ),
                             ]
                         ),
+                        html.Hr(),
                         dbc.Row(
-                            html.A(
-                                "Go to Bachelor Thesis",
-                                target="_blank",
-                                href="/static/Bachelor_Thesis (6).pdf",
-                                className="mx-3 mb-2",
-                                style={"text-decoration": "underline"},
-                            )
+                            [
+                                dbc.Label("Hide table input:", width=8),
+                                dbc.Col(
+                                    daq.BooleanSwitch(
+                                        id="hide_header_section",
+                                        on=False,
+                                        color=prim_color,
+                                    ),
+                                    width=4,
+                                    className="mx-0 px-0",
+                                ),
+                            ],
+                            id="hide_table_row",
+                            className="align-items-center",
+                        ),
+                        dbc.Tooltip(
+                            "Hide the top-most section of the Tool (Theory and Lottery) - This also hides it for printing.",
+                            target="hide_table_row",
                         ),
                         dbc.Row(
-                            html.A(
-                                "Go to Source Code",
-                                target="_blank",
-                                href="https://github.com/bernhardkissler/rd_tool",
-                                className="mx-3 mb-2",
-                                style={"text-decoration": "underline"},
-                            )
+                            [
+                                dbc.Label("Hide auxiliary inputs:", width=8),
+                                dbc.Col(
+                                    daq.BooleanSwitch(
+                                        id="hide_main_section",
+                                        on=False,
+                                        color=prim_color,
+                                    ),
+                                    width=4,
+                                    className="mx-0 px-0",
+                                ),
+                            ],
+                            id="hide_auxil_row",
+                            className="align-items-center",
+                        ),
+                        html.Hr(),
+                        dbc.Tooltip(
+                            "Hide all sections between the 'Summary of lotteries and statistics' section and the 'Summary of calculated utilities' section - This also hides it for printing.",
+                            target="hide_auxil_row",
+                        ),
+                        dbc.Row(
+                            [
+                                html.A(
+                                    "Open Bachelor Thesis",
+                                    target="_blank",
+                                    href="/static/Bachelor_Thesis (6).pdf",
+                                    className="mx-3 mb-2",
+                                    style={"text-decoration": "underline"},
+                                    id="BT_link",
+                                ),
+                                dbc.Tooltip(
+                                    "Open the most recent version of the Companion Essay in another tab.",
+                                    target="BT_link",
+                                ),
+                            ]
+                        ),
+                        dbc.Row(
+                            [
+                                html.A(
+                                    "Open Source Code",
+                                    target="_blank",
+                                    href="https://github.com/bernhardkissler/rd_tool",
+                                    className="mx-3 mb-2",
+                                    style={"text-decoration": "underline"},
+                                    id="SC_link",
+                                ),
+                                dbc.Tooltip(
+                                    "Open the most recent version of the source code for this tool in another tab.",
+                                    target="SC_link",
+                                ),
+                            ]
                         ),
                     ],
                     style={

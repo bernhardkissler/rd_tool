@@ -69,6 +69,10 @@ gl_segment = dbc.Collapse(
                             value="RU",
                             className="py-2 d-print-none",
                         ),
+                        dbc.Tooltip(
+                            "Choose a gain-loss utility function and adjust its parameters.",
+                            target="gl_dropdown",
+                        ),
                         dbc.Collapse(
                             [
                                 dbc.Label("Custom gain loss function:"),
@@ -82,6 +86,10 @@ gl_segment = dbc.Collapse(
                                     "Run Function",
                                     id="gl_text_runner",
                                     className="mt-2",
+                                ),
+                                dbc.Tooltip(
+                                    "Find additional information by clicking the 'Show Explanations' button in the control panel.",
+                                    target="gl_text_runner",
                                 ),
                             ],
                             id="gl_collapse_YU",
@@ -221,6 +229,10 @@ gl_segment = dbc.Collapse(
                             "Reset values",
                             id="gl_reset_btn",
                             className="my-3 d-print-none",
+                        ),
+                        dbc.Tooltip(
+                            "Reset all parameters entered for the gain loss utility function as well as the minimum and maximum value to be displayed in the chart.",
+                            target="gl_reset_btn",
                         ),
                     ],
                     className="col",
@@ -476,6 +488,10 @@ um_segment = html.Div(
                             value="BU",
                             className="py-2 d-print-none",
                         ),
+                        dbc.Tooltip(
+                            "Choose a utility function and adjust its parameters.",
+                            target="um_dropdown",
+                        ),
                         dbc.Collapse(
                             [
                                 dbc.Label("Enter utility function:"),
@@ -489,6 +505,10 @@ um_segment = html.Div(
                                     "Run Function",
                                     id="um_text_runner",
                                     className="mt-2",
+                                ),
+                                dbc.Tooltip(
+                                    "Find additional information by clicking the 'Show Explanations' button in the control panel.",
+                                    target="um_text_runner",
                                 ),
                             ],
                             id="um_collapse_YU",
@@ -628,6 +648,10 @@ um_segment = html.Div(
                             "Reset values",
                             id="um_reset_btn",
                             className="my-3 d-print-none",
+                        ),
+                        dbc.Tooltip(
+                            "Reset all parameters entered for the utility function as well as the minimum and maximum value to be displayed in the chart.",
+                            target="um_reset_btn",
                         ),
                     ],
                     className="col",
@@ -882,6 +906,10 @@ pw_segment = dbc.Collapse(
                             value="TKW",
                             className="py-2 d-print-none",
                         ),
+                        dbc.Tooltip(
+                            "Choose a probability weighting function and adjust its parameters.",
+                            target="pw_dropdown",
+                        ),
                         dbc.Collapse(
                             [
                                 dbc.Label("Custom probability weighting function:"),
@@ -897,7 +925,7 @@ pw_segment = dbc.Collapse(
                                     className="mt-2",
                                 ),
                                 dbc.Tooltip(
-                                    "Find additional information by clicking the 'Additional Explanations' button in the control panel.",
+                                    "Find additional information by clicking the 'Show Explanations' button in the control panel.",
                                     target="pw_text",
                                 ),
                             ],
@@ -1037,6 +1065,10 @@ pw_segment = dbc.Collapse(
                             "Reset values",
                             id="pw_reset_btn",
                             className="my-3 d-print-none",
+                        ),
+                        dbc.Tooltip(
+                            "Reset all parameters entered for the probability weighting function as well as the minimum and maximum value to be displayed in the chart.",
+                            target="pw_reset_btn",
                         ),
                     ],
                     className="col",
@@ -1254,6 +1286,10 @@ rg_segment = dbc.Collapse(
                             value="LS",
                             className="py-2 d-print-none",
                         ),
+                        dbc.Tooltip(
+                            "Choose a Regret function and adjust its parameters.",
+                            target="rg_dropdown",
+                        ),
                         dbc.Collapse(
                             [
                                 dbc.Label("Custom Regret function:"),
@@ -1267,6 +1303,10 @@ rg_segment = dbc.Collapse(
                                     "Run Function",
                                     id="rg_text_runner",
                                     className="mt-2",
+                                ),
+                                dbc.Tooltip(
+                                    "Find additional information by clicking the 'Show Explanations' button in the control panel.",
+                                    target="rg_text_runner",
                                 ),
                             ],
                             id="rg_collapse_YR",
@@ -1308,6 +1348,10 @@ rg_segment = dbc.Collapse(
                             "Reset values",
                             id="rg_reset_btn",
                             className="my-3 d-print-none",
+                        ),
+                        dbc.Tooltip(
+                            "Reset all parameters entered for the Regret function as well as the minimum and maximum value to be displayed in the chart.",
+                            target="rg_reset_btn",
                         ),
                     ],
                     className="col",
@@ -1511,6 +1555,10 @@ sl_segment = dbc.Collapse(
                             value="OG",
                             className="py-2 d-print-none",
                         ),
+                        dbc.Tooltip(
+                            "Choose a Salience function and adjust its parameters.",
+                            target="sl_dropdown",
+                        ),
                         dbc.Collapse(
                             [
                                 dbc.Label("Custom Salience function:"),
@@ -1524,6 +1572,10 @@ sl_segment = dbc.Collapse(
                                     "Run Function",
                                     id="sl_text_runner",
                                     className="mt-2",
+                                ),
+                                dbc.Tooltip(
+                                    "Find additional information by clicking the 'Show Explanations' button in the control panel.",
+                                    target="sl_text_runner",
                                 ),
                             ],
                             id="sl_collapse_YS",
@@ -1563,6 +1615,10 @@ sl_segment = dbc.Collapse(
                             "Reset values",
                             id="sl_reset_btn",
                             className="my-3 d-print-none",
+                        ),
+                        dbc.Tooltip(
+                            "Reset all parameters entered for the Salience function as well as the minimum and maximum value to be displayed in the chart.",
+                            target="sl_reset_btn",
                         ),
                     ],
                     className="col",
@@ -1695,7 +1751,7 @@ sdt_segment = dbc.Collapse(
         html.H3(
             html.Strong(
                 [
-                    html.Span("Bivu function ("),
+                    html.Span("Bivariate utility function ("),
                     html.Span(id="sdt_heading"),
                     html.Span(")"),
                 ]
@@ -1719,9 +1775,13 @@ sdt_segment = dbc.Collapse(
                             value="AH",
                             className="py-2 d-print-none",
                         ),
+                        dbc.Tooltip(
+                            "Choose a Bivariate utility function and adjust its parameters.",
+                            target="sdt_dropdown",
+                        ),
                         dbc.Collapse(
                             [
-                                dbc.Label("Custom Bivu function:"),
+                                dbc.Label("Custom Bivariate utility function:"),
                                 dbc.Input(
                                     id="sdt_text",
                                     type="text",
@@ -1732,6 +1792,10 @@ sdt_segment = dbc.Collapse(
                                     "Run Function",
                                     id="sdt_text_runner",
                                     className="mt-2",
+                                ),
+                                dbc.Tooltip(
+                                    "Find additional information by clicking the 'Show Explanations' button in the control panel.",
+                                    target="sdt_text_runner",
                                 ),
                             ],
                             id="sdt_collapse_YB",
@@ -1773,6 +1837,10 @@ sdt_segment = dbc.Collapse(
                             "Reset values",
                             id="sdt_reset_btn",
                             className="my-3 d-print-none",
+                        ),
+                        dbc.Tooltip(
+                            "Reset all parameters entered for the Bivariate utility function as well as the minimum and maximum value to be displayed in the chart.",
+                            target="sdt_reset_btn",
                         ),
                     ],
                     className="col",

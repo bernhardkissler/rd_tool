@@ -4,9 +4,12 @@ import dash_html_components as html
 
 add_info_text = dcc.Markdown(
     """
+These explanations can be reopened by clicking the "Show Explanations" button in the top right corner.
+
 ### **Basic Layout of the Tool**
 #### **General**
-The Tool is divided into four main segments and a control panel in the top right corner. There is a main input segment top, where you can decide which theory to use, and enter the lotteries to be analyzed. Below, the Tool displays some summary statistics of the entered lotteries. The third segment is dynamic and allows the user to change the specification of the theory he focuses on while the fourth displays the outcomes of the calculation in comparison to standard specifications of the other theories. Lastly, there is a small control panel in the top right corner of the window allowing the user to hide some of the sections if he wants a more focused experience. This is also, where additional explanations can be blended in and links to this thesis and the GitHub repository can be found. 
+
+The Tool is divided into four main segments and a control panel in the top right corner. There is a main input segment top, where you can decide which theory to use, and enter the lotteries to be analyzed. Below, the Tool displays some summary statistics of the entered lotteries. The third segment is dynamic and allows the user to change the specification of the theory he focuses on while the fourth displays the outcomes of the calculation in comparison to standard specifications of the other theories. Lastly, there is a small control panel in the top right corner of the window allowing the user to hide some of the sections if he wants a more focused experience. This is also, where these explanations can be opened and links to the companion essay and the GitHub repository can be found. 
 
 #### **Theory and Lottery**
 On the top left of the first segment, you can choose the theory on which you want to focus. By default, this is Expected utility theory (EU).
@@ -15,22 +18,27 @@ Depending on which theory you choose, an input table of different dimensions wil
 #### **Summary of lotteries and statistics**
 The second section offers a summary of statistical information about the target lottery you entered and possible context information. The chart labeled "Lotteries" displays the entered information in a decision tree consistent with the figures in the companion essay. The chart labeled "Probability Density Function" plots the lotteries with their payoffs on the x-axis and the associated probabilities on the y-axis. 
 
-If more than the target lottery is entered in the first section, the chart displays the target and context lotteries as clustered bars. Finally, the chart labeled "Cumulative Density Function" displays similar information to the "Probability Density Function", but instead of displaying the individual probabilities on the y-axis, it takes the sum of the probabilites' of all outcomes with lower payoffs than the current outcome. Below these three charts, there is a table displaying some standard statistical moments of the entered lotteries. Consistent with the decision trees in the "Lotteries" chart and in the companion essay, if target and context lotteries are entered, the first value in a cell refers to the target lottery and the one behind the vertical line refers to the context information.
+If more than the target lottery is entered in the first section, the chart displays the target and context lotteries as clustered bars. Finally, the chart labeled "Cumulative Density Function" displays similar information to the "Probability Density Function", but instead of displaying the individual probabilities on the y-axis, it takes the sum of the probabilites' of all outcomes with lower payoffs than the current outcome. Below these three charts, there is a table displaying some standard statistical moments of the entered lotteries. Like in the decision trees in the "Lotteries" chart and in the companion essay, if target and context lotteries are entered, the first value in a cell refers to the target lottery and the one behind the vertical line refers to the context information.
 
 #### **Utility function and auxiliary functions**
-The third section is dynamic. Depending on which theory was chosen in the first section, it allows you to choose and adjust the utility function and other auxiliary functions such as the regret function or salience function for RT and ST. For each of these subsections, there is a dropdown field in the top left corner similar to the one in the first section to choose the functional form to be used. Below, there are input fields to adjust the function's parameters. 
+The third section is dynamic. Depending on which theory was chosen in the first section, it allows you to choose and adjust the utility function and other auxiliary functions such as the regret function or salience function for RT and ST. For each of these subsections, there is a dropdown field in the top left corner similar to the one in the first section to choose the functional form to be used.
+If a preimplemented function is chosen, the tool will display the formula with all the necessary parameters beneath the dropdown field. Below the formula, there are input fields to adjust the function's parameters.
 
-On the bottom of each dropdown, you will find a special option titled "Enter custom function". This will open a text input in which custom functions can be defined according to rules further described below in the Section "Rules for the input of custom functions". For all the input sections, there is a chart on the right displaying the function entered on the left. Again, these charts are consistent with the figures in the companion essay and should therefore not be hard to understand.
+On the bottom of each dropdown, you will find a special option titled "Enter custom function".  
+If you choose to use a custom function, only a text input and a button to run the function will appear. In this text field custom functions can be defined according to rules further described below in the Section "Rules for the input of custom functions". 
+Currently, there is no good way to give the user feedback about whether the input function is interpreted correctly, but inspecting the chart to the right may be helpful. Note that invalid syntax in the input will cause the Tool to stop calculating accurate utilities. If you are unsure about the whether the Tool is still responding correctly, try a simple function (for example simply enter x for univariate functions or x_1 for bivariate functions) for which the expected chart on the right is known.
+
+For all the input sections, there is a chart on the right displaying the function entered on the left. Again, these charts are consistent with the figures in the first section of the companion essay and further information can be found there.
 
 
 #### **Output**
 The last section displays the utility, certainty equivalent and risk premium calculated for the entered lotteries in a table. The first, bold row displays the outcomes given the theory choseen in the first section and the adjustments  made to its specification afterwards. Below that, the tool displays the outcomes calculated by using standard parametrizations of all the theories presented in the companion essay and implemented in the tool as a comparison. To make the comparison easier, every row displays all the used auxiliary functions and parameters as well as the current target lottery and possible context-information in a consistent form.
 
-### **Rules for the input of custom functions**
+### **Rules for entering custom functions**
 
 * Only single-line inputs are accepted.
 * Spaces are ignored.
-* Floating point values have to be entered using a point and not a comma as a separator (i.e., $ \frac{3}{4} $ can be entered as 0.75 but not 0,75)
+* Floating point values have to be entered using a point and not a comma as a separator (i.e., $ \\frac{3}{4} $ can be entered as 0.75 but not 0,75)
 * In the case of univariate functions (utility function and probability weighting function), the independent variable is always called "x". In the case of bivariate functions (Regret and Salience functions, etc.) the two independent variables are called "x\_1" and "x\_2". The entered formula must follow this convention.
 * No other variables are allowed.
 * Only the right-handside of the equations is entered. $u(x)=3$\*$x$ becomes $3$\*$x$

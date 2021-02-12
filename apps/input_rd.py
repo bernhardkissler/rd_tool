@@ -598,6 +598,10 @@ input_segment = html.Div(
                                     value="EU",
                                     className="pb-2 d-print-none",
                                 ),
+                                dbc.Tooltip(
+                                    "Choose a theory of choice under risk to adjsut its parameters and functional form and see the outcome in the last section.",
+                                    target="theor_dropdown",
+                                ),
                                 html.Div(
                                     [
                                         dash_table.DataTable(
@@ -702,6 +706,10 @@ input_segment = html.Div(
                                     id="std_editing_rows_button",
                                     n_clicks=0,
                                     className="mb-2 d-print-none",
+                                ),
+                                dbc.Tooltip(
+                                    "Add another row to the above input table. Rows can be removed by clicking the x in the left-most column.",
+                                    target="std_editing_rows_button",
                                 ),
                             ],
                             className="col",
@@ -830,12 +838,18 @@ input_segment = html.Div(
                                             className="pb-2 px-2 mx-2",
                                         ),
                                         html.Div(
-                                            dbc.Button(
-                                                "Add Row",
-                                                id="add_editing_rows_button",
-                                                n_clicks=0,
-                                                className="mb-2 d-print-none",
-                                            ),
+                                            [
+                                                dbc.Button(
+                                                    "Add Row",
+                                                    id="add_editing_rows_button",
+                                                    n_clicks=0,
+                                                    className="mb-2 d-print-none",
+                                                ),
+                                                dbc.Tooltip(
+                                                    "Add another row to the above input table. Rows can be removed by clicking the x in the left-most column.",
+                                                    target="add_editing_rows_button",
+                                                ),
+                                            ],
                                             id="add_table_add_row_button",
                                         ),
                                     ],
