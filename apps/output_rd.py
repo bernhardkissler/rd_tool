@@ -484,13 +484,41 @@ def update_output(
             html.Thead(
                 html.Tr(
                     [
-                        html.Th("Theory name"),
-                        html.Th("Lottery"),
-                        html.Th("Utility function"),
-                        html.Th("Auxiliary function"),
-                        html.Th("Utility"),
-                        html.Th("Certainty Equivalent"),
-                        html.Th("Risk Premium"),
+                        html.Th("Theory name", id="ot_theory_name"),
+                        dbc.Tooltip(
+                            "This column displays the name of the applied theory of decision under risk. In the case of Optimal Anticipation with Savoring and Disappointment and Salience theory, it also displays the additional parameters entered in the top section.",
+                            target="ot_theory_name",
+                        ),
+                        html.Th("Lottery", id="ot_lottery"),
+                        dbc.Tooltip(
+                            "This column displays the (target and context) lotteries currently analyzed with the theory indicated in the first column. For theories which expect more than the target lottery as inputs, the context-information is derived from the respective columns even if they are currently hidden.",
+                            target="ot_lottery",
+                        ),
+                        html.Th("Utility function", id="ot_utility_function"),
+                        dbc.Tooltip(
+                            "This column displays the utility function used in the current specification and all its parameters.",
+                            target="ot_utility_function",
+                        ),
+                        html.Th("Auxiliary function", id="ot_auxiliary_function"),
+                        dbc.Tooltip(
+                            "This column displays current auxiliary function such as the probability weighting function for Cumulative Prospect Theory or the regret function for Regret theory and their respective parameters.",
+                            target="ot_auxiliary_function",
+                        ),
+                        html.Th("Utility", id="ot_utility"),
+                        dbc.Tooltip(
+                            "This column displays the utility calculated with the current specification of the theory indicated in the preceding columns.",
+                            target="ot_utility",
+                        ),
+                        html.Th("Certainty Equivalent", id="ot_certainty_equivalent"),
+                        dbc.Tooltip(
+                            "This column displays the certainty equivalent calculated with the current specification of the theory indicated in the preceding columns whenever possible.",
+                            target="ot_certainty_equivalent",
+                        ),
+                        html.Th("Risk Premium", id="ot_risk_premium"),
+                        dbc.Tooltip(
+                            "This column displays the risk premium calculated with the current specification of the theory indicated in the preceding columns whenever possible.",
+                            target="ot_risk_premium",
+                        ),
                     ]
                 )
             ),
@@ -512,9 +540,19 @@ def update_output(
                         ],
                         style={
                             "color": plot_color,
-                            "border": "thin solid" + plot_color,
+                            # "border": "thin solid" + plot_color,
+                            "font-weight": "bold",
                         },
+                        id="ot_first_row",
                     ),
+                    dbc.Tooltip(
+                        "This row displays the values indicated in the column headings for the theory chosen in the first section with all adjustments from the following sections.",
+                        target="ot_first_row",
+                    ),
+                ]
+            ),
+            html.Tbody(
+                [
                     html.Tr(
                         [
                             html.Td(fd.mf_func_dict["EU"][1]),
@@ -609,7 +647,12 @@ def update_output(
                             html.Td(round(mean_val - res_st[1], 4),),
                         ]
                     ),
-                ]
+                ],
+                id="ot_def_rows",
+            ),
+            dbc.Tooltip(
+                "These rows display the values indicated in the column headings for standard specifications of all the theories implemented in the tool. At the moment, only the (target and context) lotteries from the first section can be changed by the user.",
+                target="ot_def_rows",
             ),
         ],
         hover=True,

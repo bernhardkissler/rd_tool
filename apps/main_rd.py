@@ -240,6 +240,10 @@ gl_segment = dbc.Collapse(
                 html.Div(
                     [
                         dcc.Graph(id="gl_graph"),
+                        dbc.Tooltip(
+                            "This Figure shows the utility assigned by the gain-loss utility function to different payoffs. Payoffs are displayed on the x-axis and the utility on the y-axis. The displayed range can be adjusted below.",
+                            target="gl_graph",
+                        ),
                         dbc.FormGroup(
                             [
                                 dbc.Label(
@@ -659,6 +663,10 @@ um_segment = html.Div(
                 html.Div(
                     [
                         dcc.Graph(id="um_graph"),
+                        dbc.Tooltip(
+                            "This Figure shows the utility assigned by the utility function to different payoffs. Payoffs are displayed on the x-axis and the utility on the y-axis. The displayed range can be adjusted below.",
+                            target="um_graph",
+                        ),
                         dbc.FormGroup(
                             [
                                 dbc.Label(
@@ -1076,6 +1084,10 @@ pw_segment = dbc.Collapse(
                 html.Div(
                     [
                         dcc.Graph(id="pw_graph"),
+                        dbc.Tooltip(
+                            "This Figure shows the probability weights assigned by the chosen probability weighting function to unweighted probabilities between 0 and 1. The unweighted probabilities are displayed on the x-axis and the weighted probabilities on the y-axis. The displayed range can be adjusted below.",
+                            target="pw_graph",
+                        ),
                         dbc.FormGroup(
                             [
                                 dbc.Label(
@@ -1359,6 +1371,10 @@ rg_segment = dbc.Collapse(
                 html.Div(
                     [
                         dcc.Graph(id="rg_graph"),
+                        dbc.Tooltip(
+                            "This Figure shows the utility assigned by the Regret function on the left to pairs of target payoffs on the x-axis and context payoffs on the y-axis. As can be seen on the left, the utility function chosen in the section above is also taken into account when calculating these values. Darker tiles indicate higher utility and lighter tiles lower utility. The displayed range can be adjusted below.",
+                            target="rg_graph",
+                        ),
                         dbc.FormGroup(
                             [
                                 dbc.Label(
@@ -1517,8 +1533,8 @@ def update_rg_graph(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         # title="Utility function",
-        xaxis_title="Primary Lottery",
-        yaxis_title="Context Lottery",
+        xaxis_title="Target Payoff",
+        yaxis_title="Context Payoff",
         height=300,
     )
     # fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1626,6 +1642,10 @@ sl_segment = dbc.Collapse(
                 html.Div(
                     [
                         dcc.Graph(id="sl_graph"),
+                        dbc.Tooltip(
+                            "This Figure shows the salience assigned by the Salience function on the left to pairs of target payoffs on the x-axis and context payoffs on the y-axis. Darker tiles indicate higher salience and lighter tiles lower salience. The displayed range can be adjusted below.",
+                            target="sl_graph",
+                        ),
                         dbc.FormGroup(
                             [
                                 dbc.Label(
@@ -1737,8 +1757,8 @@ def update_sl_graph(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         # title="Probability weighting function",
-        xaxis_title="Primary Lottery",
-        yaxis_title="Context Lottery",
+        xaxis_title="Target Payoff",
+        yaxis_title="Context Payoff",
         height=300,
     )
     # fig.update_xaxes(showgrid=False, zeroline=False)
@@ -1848,6 +1868,10 @@ sdt_segment = dbc.Collapse(
                 html.Div(
                     [
                         dcc.Graph(id="sdt_graph"),
+                        dbc.Tooltip(
+                            "This Figure shows the utility assigned by the Bivariate utility function on the left to pairs of target payoffs on the x-axis and context payoffs on the y-axis. As can be seen on the left, the utility function chosen in the section above is also taken into account when calculating these values. Darker tiles indicate higher utility and lighter tiles lower utility. The displayed range can be adjusted below.",
+                            target="sdt_graph",
+                        ),
                         dbc.FormGroup(
                             [
                                 dbc.Label(
@@ -2007,8 +2031,8 @@ def update_sdt_graph(
         paper_bgcolor="rgba(0,0,0,0)",
         plot_bgcolor="rgba(0,0,0,0)",
         # title="Utility function",
-        xaxis_title="Primary Lottery",
-        yaxis_title="Context Lottery",
+        xaxis_title="Target Payoff",
+        yaxis_title="Context Payoff",
         height=300,
     )
     # fig.update_xaxes(showgrid=False, zeroline=False)

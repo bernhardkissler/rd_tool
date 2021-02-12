@@ -4,12 +4,12 @@ import dash_html_components as html
 
 add_info_text = dcc.Markdown(
     """
-These explanations can be reopened by clicking the "Show Explanations" button in the top right corner.
+These explanations can be reopened by clicking the "Show Explanations" button in the top right corner. In addition, many of the controls, charts and the table in the last section contain further documentation in pop-overs.
 
 ### **Basic Layout of the Tool**
 #### **General**
 
-The Tool is divided into four main segments and a control panel in the top right corner. There is a main input segment top, where you can decide which theory to use, and enter the lotteries to be analyzed. Below, the Tool displays some summary statistics of the entered lotteries. The third segment is dynamic and allows the user to change the specification of the theory he focuses on while the fourth displays the outcomes of the calculation in comparison to standard specifications of the other theories. Lastly, there is a small control panel in the top right corner of the window allowing the user to hide some of the sections if he wants a more focused experience. This is also, where these explanations can be opened and links to the companion essay and the GitHub repository can be found. 
+The Tool is divided into four main segments and a control panel in the top right corner. There is a main input segment top, where you can decide which theory to use, and enter the lotteries to be analyzed. Below, the Tool displays some summary statistics of the entered lotteries. The third segment is dynamic and allows the user to change the specification of the theory he focuses on while the fourth displays the outcomes of the calculation in comparison to standard specifications of the other theories. Lastly, there is a small control panel in the top right corner of the window allowing the user to hide some of the sections if he wants a more focused experience. This is also, where these explanations can be opened and links to the  <a href="/static/Bachelor_Thesis.pdf" target="_blank"> companion essay </a> and the <a href="https://github.com/bernhardkissler/rd_tool" target="_blank"> GitHub repository </a> can be found. 
 
 #### **Theory and Lottery**
 On the top left of the first segment, you can choose the theory on which you want to focus. By default, this is Expected utility theory (EU).
@@ -36,14 +36,16 @@ The last section displays the utility, certainty equivalent and risk premium cal
 
 ### **Rules for entering custom functions**
 
+
+The following rules apply:
 * Only single-line inputs are accepted.
 * Spaces are ignored.
 * Floating point values have to be entered using a point and not a comma as a separator (i.e., $ \\frac{3}{4} $ can be entered as 0.75 but not 0,75)
 * In the case of univariate functions (utility function and probability weighting function), the independent variable is always called "x". In the case of bivariate functions (Regret and Salience functions, etc.) the two independent variables are called "x\_1" and "x\_2". The entered formula must follow this convention.
 * No other variables are allowed.
-* Only the right-handside of the equations is entered. $u(x)=3$\*$x$ becomes $3$\*$x$
-* Every operation must be explicitly declared (i.e., $3x$ must be written as $3$*$x$)
-* Piecewise definitions of arbitrary complexity can be defined by using a shortened if statement of the form "do something if condition else do something else". The Utility function proposed by Tversky and Kahneman with parameters of $\lambda=2.25$, $\\alpha = 0.88$ and a reference point of $r=0$ can be entered as "$(x-0)$\*\*$0.88$ if $x >= 0$ else $-2.25$\*$(-(x-0))$\*\*$0.88$". Nesting if statements is possible.
+* Only the right-handside of the equations is entered. $u(x)=3$<sup>\*</sup>$x$ becomes $3$<sup>\*</sup>$x$
+* Every operation must be explicitly declared (i.e., $3x$ must be written as $3$<sup>\*</sup>$x$)
+* Piecewise definitions of arbitrary complexity can be defined by using a shortened if statement of the form "do something if condition else do something else". The Utility function proposed by Tversky and Kahneman with parameters of $\lambda=2.25$, $\\alpha = 0.88$ and a reference point of $r=0$ can be entered as "$(x-0)$<sup>\*\*</sup>$0.88$ if $x >= 0$ else $-2.25$<sup>\*</sup>$(-(x-0))$<sup>\*\*</sup>$0.88$". Nesting if statements is possible.
 * Simpleeval (the parser defining the set of allowed inputs) imposes some (generous) restrictions on the computational complexity of evaluated expressions to keep the server from crashing. This includes restrictions on the size of power-operations (exponents may not exceed a certain size) and similar measures which are not likely to impact normal usage of the Tool.
 
 In addition, the following signs are allowed:
@@ -75,13 +77,13 @@ In addition, the following signs are allowed:
     <td>"the natural logarithm of"</td>
   </tr>
   <tr>
-    <td>*</td>
+    <td><sup>*</sup></td>
     <td>"multiplied by"</td>
     <td>log10()</td>
     <td>"the base 10 logarithm of"</td>
   </tr>
   <tr>
-    <td>**</td>
+    <td><sup>**</sup></td>
     <td>"to the power of"</td>
     <td>u()</td>
     <td>"the univariate utility function"</td>

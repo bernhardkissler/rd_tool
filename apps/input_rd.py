@@ -778,20 +778,29 @@ input_segment = html.Div(
                                     id="input_sdt_collapse",
                                 ),
                                 dbc.Collapse(
-                                    dbc.FormGroup(
-                                        [
-                                            dbc.Label("Use a single input:", width=6),
-                                            dbc.Col(
-                                                daq.BooleanSwitch(
-                                                    id="sure_context_bool",
-                                                    on=False,
-                                                    color=prim_color,
+                                    [
+                                        dbc.FormGroup(
+                                            [
+                                                dbc.Label(
+                                                    "Use a single input:", width=6
                                                 ),
-                                                width=6,
-                                            ),
-                                        ],
-                                        row=True,
-                                    ),
+                                                dbc.Col(
+                                                    daq.BooleanSwitch(
+                                                        id="sure_context_bool",
+                                                        on=False,
+                                                        color=prim_color,
+                                                    ),
+                                                    width=6,
+                                                ),
+                                            ],
+                                            id="sure_context_row",
+                                            row=True,
+                                        ),
+                                        dbc.Tooltip(
+                                            "This switch allows you to enter a sure payoff to which the target lottery is compared for Regret theory and Salience theory rather than entering the correlated payoffs in the table on the left.",
+                                            target="sure_context_row",
+                                        ),
+                                    ],
                                     id="input_sure_context_collapse",
                                     className="d-print-none",
                                 ),

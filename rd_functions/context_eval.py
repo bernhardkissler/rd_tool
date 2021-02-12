@@ -14,7 +14,7 @@ def user_salience(x_1: float, x_2: float, text: str = "") -> float:
     """Allow user to enter custom salience function
 
     Args:
-        x_1 (float): primary payoff
+        x_1 (float): Target payoff
         x_2 (float): context payoff
         text (str, optional): user entered function in one line to be evalued. Defaults to "".
 
